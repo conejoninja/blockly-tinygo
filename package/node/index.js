@@ -29,3 +29,5 @@ Blockly.Lua = BlocklyLua;
 Blockly.PHP = BlocklyPHP;
 
 Blockly.Dart = BlocklyDart;
+
+Blockly.Go = BlocklyGo;

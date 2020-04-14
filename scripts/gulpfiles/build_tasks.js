@@ -296,6 +296,14 @@ function buildDart() {
 };
 
 /**
+ * This task builds the go generator:
+ *     go_compressed.js
+ */
+function buildGo() {
+  return buildGenerator('go', 'Go');
+};
+
+/**
  * This tasks builds all the generators:
  *     javascript_compressed.js
  *     python_compressed.js
@@ -308,7 +316,8 @@ const buildGenerators = gulp.parallel(
   buildPython,
   buildPHP,
   buildLua,
-  buildDart
+  buildDart,
+  buildGo
 );
 
 /**
