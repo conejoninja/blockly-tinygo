@@ -28,5 +28,5 @@ Blockly.Go['variables_set'] = function(block) {
             Blockly.Go.ORDER_ASSIGNMENT) || '0';
     var varName = Blockly.Go.variableDB_.getName(
         block.getFieldValue('VAR'), Blockly.VARIABLE_CATEGORY_NAME);
-    return varName + ' = ' + argument0 + ';\n';
+    return varName + ' = ' + argument0 + '\n';
 };

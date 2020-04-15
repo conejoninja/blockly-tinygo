@@ -30,26 +30,12 @@ Blockly.Go = new Blockly.Generator('Go');
  * @private
  */
 Blockly.Go.addReservedWords(
-        // http://Go.net/manual/en/reserved.keywords.Go
-    '__halt_compiler,abstract,and,array,as,break,callable,case,catch,class,' +
-    'clone,const,continue,declare,default,die,do,echo,else,elseif,empty,' +
-    'enddeclare,endfor,endforeach,endif,endswitch,endwhile,eval,exit,extends,' +
-    'final,for,foreach,function,global,goto,if,implements,include,' +
-    'include_once,instanceof,insteadof,interface,isset,list,namespace,new,or,' +
-    'print,private,protected,public,require,require_once,return,static,' +
-    'switch,throw,trait,try,unset,use,var,while,xor,' +
-        // http://Go.net/manual/en/reserved.constants.Go
-    'Go_VERSION,Go_MAJOR_VERSION,Go_MINOR_VERSION,Go_RELEASE_VERSION,' +
-    'Go_VERSION_ID,Go_EXTRA_VERSION,Go_ZTS,Go_DEBUG,Go_MAXPATHLEN,' +
-    'Go_OS,Go_SAPI,Go_EOL,Go_INT_MAX,Go_INT_SIZE,DEFAULT_INCLUDE_PATH,' +
-    'PEAR_INSTALL_DIR,PEAR_EXTENSION_DIR,Go_EXTENSION_DIR,Go_PREFIX,' +
-    'Go_BINDIR,Go_BINARY,Go_MANDIR,Go_LIBDIR,Go_DATADIR,Go_SYSCONFDIR,' +
-    'Go_LOCALSTATEDIR,Go_CONFIG_FILE_PATH,Go_CONFIG_FILE_SCAN_DIR,' +
-    'Go_SHLIB_SUFFIX,E_ERROR,E_WARNING,E_PARSE,E_NOTICE,E_CORE_ERROR,' +
-    'E_CORE_WARNING,E_COMPILE_ERROR,E_COMPILE_WARNING,E_USER_ERROR,' +
-    'E_USER_WARNING,E_USER_NOTICE,E_DEPRECATED,E_USER_DEPRECATED,E_ALL,' +
-    'E_STRICT,__COMPILER_HALT_OFFSET__,TRUE,FALSE,NULL,__CLASS__,__DIR__,' +
-    '__FILE__,__FUNCTION__,__LINE__,__METHOD__,__NAMESPACE__,__TRAIT__'
+  // https://golang.org/ref/spec#Keywords
+  'break,default,func,interface,select' +
+  'case,defer,go,map,struct' +
+  'chan,else,goto,package,switch' +
+  'const,fallthrough,if,range,type' +
+  'continue,for,import,return,var'
 );
 
 /**
@@ -131,7 +117,7 @@ Blockly.Go.init = function(workspace) {
 
   if (!Blockly.Go.variableDB_) {
     Blockly.Go.variableDB_ =
-        new Blockly.Names(Blockly.Go.RESERVED_WORDS_, '$');
+      new Blockly.Names(Blockly.Go.RESERVED_WORDS_, '');
   } else {
     Blockly.Go.variableDB_.reset();
   }
@@ -143,14 +129,14 @@ Blockly.Go.init = function(workspace) {
   var devVarList = Blockly.Variables.allDeveloperVariables(workspace);
   for (var i = 0; i < devVarList.length; i++) {
     defvars.push(Blockly.Go.variableDB_.getName(devVarList[i],
-        Blockly.Names.DEVELOPER_VARIABLE_TYPE) + ';');
+      Blockly.Names.DEVELOPER_VARIABLE_TYPE) + '');
   }
 
   // Add user variables, but only ones that are being used.
   var variables = Blockly.Variables.allUsedVarModels(workspace);
   for (var i = 0, variable; variable = variables[i]; i++) {
     defvars.push(Blockly.Go.variableDB_.getName(variable.getId(),
-        Blockly.VARIABLE_CATEGORY_NAME) + ';');
+      Blockly.VARIABLE_CATEGORY_NAME) + '');
   }
 
   // Declare all of the variables.
@@ -163,6 +149,8 @@ Blockly.Go.init = function(workspace) {
  * @return {string} Completed code.
  */
 Blockly.Go.finish = function(code) {
+  code = 'package main\n\nmain() {\n' + code + '}';
+
   // Convert the definitions dictionary into a list.
   var definitions = [];
   for (var name in Blockly.Go.definitions_) {
@@ -182,7 +170,7 @@ Blockly.Go.finish = function(code) {
  * @return {string} Legal line of code.
  */
 Blockly.Go.scrubNakedValue = function(line) {
-  return line + ';\n';
+  return line + '\n';
 };
 
 /**
@@ -194,8 +182,8 @@ Blockly.Go.scrubNakedValue = function(line) {
  */
 Blockly.Go.quote_ = function(string) {
   string = string.replace(/\\/g, '\\\\')
-                 .replace(/\n/g, '\\\n')
-                 .replace(/'/g, '\\\'');
+    .replace(/\n/g, '\\\n')
+    .replace(/'/g, '\\\'');
   return '\'' + string + '\'';
 };
 
@@ -207,7 +195,7 @@ Blockly.Go.quote_ = function(string) {
  * @private
  */
 Blockly.Go.multiline_quote_ = function(string) {
-  return '<<<EOT\n' + string + '\nEOT';
+  return '`' + string + '\n`';
 };
 
 /**
@@ -228,7 +216,7 @@ Blockly.Go.scrub_ = function(block, code, opt_thisOnly) {
     var comment = block.getCommentText();
     if (comment) {
       comment = Blockly.utils.string.wrap(comment,
-          Blockly.Go.COMMENT_WRAP - 3);
+        Blockly.Go.COMMENT_WRAP - 3);
       commentCode += Blockly.Go.prefixLines(comment, '// ') + '\n';
     }
     // Collect comments for all value arguments.
@@ -260,7 +248,7 @@ Blockly.Go.scrub_ = function(block, code, opt_thisOnly) {
  * @return {string|number}
  */
 Blockly.Go.getAdjusted = function(block, atId, opt_delta, opt_negate,
-    opt_order) {
+  opt_order) {
   var delta = opt_delta || 0;
   var order = opt_order || Blockly.Go.ORDER_NONE;
   if (block.workspace.options.oneBasedIndex) {
@@ -269,16 +257,16 @@ Blockly.Go.getAdjusted = function(block, atId, opt_delta, opt_negate,
   var defaultAtIndex = block.workspace.options.oneBasedIndex ? '1' : '0';
   if (delta > 0) {
     var at = Blockly.Go.valueToCode(block, atId,
-            Blockly.Go.ORDER_ADDITION) || defaultAtIndex;
+      Blockly.Go.ORDER_ADDITION) || defaultAtIndex;
   } else if (delta < 0) {
     var at = Blockly.Go.valueToCode(block, atId,
-            Blockly.Go.ORDER_SUBTRACTION) || defaultAtIndex;
+      Blockly.Go.ORDER_SUBTRACTION) || defaultAtIndex;
   } else if (opt_negate) {
     var at = Blockly.Go.valueToCode(block, atId,
-            Blockly.Go.ORDER_UNARY_NEGATION) || defaultAtIndex;
+      Blockly.Go.ORDER_UNARY_NEGATION) || defaultAtIndex;
   } else {
     var at = Blockly.Go.valueToCode(block, atId, order) ||
-        defaultAtIndex;
+      defaultAtIndex;
   }
 
   if (Blockly.isNumber(at)) {

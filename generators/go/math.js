@@ -35,7 +35,7 @@ Blockly.Go['math_arithmetic'] = function(block) {
     'MINUS': [' - ', Blockly.Go.ORDER_SUBTRACTION],
     'MULTIPLY': [' * ', Blockly.Go.ORDER_MULTIPLICATION],
     'DIVIDE': [' / ', Blockly.Go.ORDER_DIVISION],
-    'POWER': [' ** ', Blockly.Go.ORDER_POWER]
+    'POWER': [' ^ ', Blockly.Go.ORDER_POWER]
   };
   var tuple = OPERATORS[block.getFieldValue('OP')];
   var operator = tuple[0];
@@ -73,37 +73,37 @@ Blockly.Go['math_single'] = function(block) {
   // wrapping the code.
   switch (operator) {
     case 'ABS':
-      code = 'abs(' + arg + ')';
+      code = 'math.Abs(' + arg + ')';
       break;
     case 'ROOT':
-      code = 'sqrt(' + arg + ')';
+      code = 'math.Sqrt(' + arg + ')';
       break;
     case 'LN':
-      code = 'log(' + arg + ')';
+      code = 'math.Log(' + arg + ')';
       break;
     case 'EXP':
-      code = 'exp(' + arg + ')';
+      code = 'math.Exp(' + arg + ')';
       break;
     case 'POW10':
-      code = 'pow(10,' + arg + ')';
+      code = 'math.Pow(10,' + arg + ')';
       break;
     case 'ROUND':
-      code = 'round(' + arg + ')';
+      code = 'math.Round(' + arg + ')';
       break;
     case 'ROUNDUP':
-      code = 'ceil(' + arg + ')';
+      code = 'math.Ceil(' + arg + ')';
       break;
     case 'ROUNDDOWN':
-      code = 'floor(' + arg + ')';
+      code = 'math.Floor(' + arg + ')';
       break;
     case 'SIN':
-      code = 'sin(' + arg + ' / 180 * pi())';
+      code = 'math.Sin(' + arg + ' / 180 * pi())';
       break;
     case 'COS':
-      code = 'cos(' + arg + ' / 180 * pi())';
+      code = 'math.Cos(' + arg + ' / 180 * pi())';
       break;
     case 'TAN':
-      code = 'tan(' + arg + ' / 180 * pi())';
+      code = 'math.Tan(' + arg + ' / 180 * pi())';
       break;
   }
   if (code) {
@@ -113,16 +113,16 @@ Blockly.Go['math_single'] = function(block) {
   // wrapping the code.
   switch (operator) {
     case 'LOG10':
-      code = 'log(' + arg + ') / log(10)';
+      code = 'math.Log10(' + arg + ') / log(10)';
       break;
     case 'ASIN':
-      code = 'asin(' + arg + ') / pi() * 180';
+      code = 'math.Asin(' + arg + ') / pi() * 180';
       break;
     case 'ACOS':
-      code = 'acos(' + arg + ') / pi() * 180';
+      code = 'math.Acos(' + arg + ') / pi() * 180';
       break;
     case 'ATAN':
-      code = 'atan(' + arg + ') / pi() * 180';
+      code = 'math.Atan(' + arg + ') / pi() * 180';
       break;
     default:
       throw Error('Unknown math operator: ' + operator);
@@ -133,9 +133,9 @@ Blockly.Go['math_single'] = function(block) {
 Blockly.Go['math_constant'] = function(block) {
   // Constants: PI, E, the Golden Ratio, sqrt(2), 1/sqrt(2), INFINITY.
   var CONSTANTS = {
-    'PI': ['M_PI', Blockly.Go.ORDER_ATOMIC],
-    'E': ['M_E', Blockly.Go.ORDER_ATOMIC],
-    'GOLDEN_RATIO': ['(1 + sqrt(5)) / 2', Blockly.Go.ORDER_DIVISION],
+    'PI': ['math.Pi', Blockly.Go.ORDER_ATOMIC],
+    'E': ['math.E', Blockly.Go.ORDER_ATOMIC],
+    'GOLDEN_RATIO': ['(1 + math.Sqrt(5)) / 2', Blockly.Go.ORDER_DIVISION],
     'SQRT2': ['M_SQRT2', Blockly.Go.ORDER_ATOMIC],
     'SQRT1_2': ['M_SQRT1_2', Blockly.Go.ORDER_ATOMIC],
     'INFINITY': ['INF', Blockly.Go.ORDER_ATOMIC]
@@ -154,7 +154,7 @@ Blockly.Go['math_number_property'] = function(block) {
     // Prime is a special case as it is not a one-liner test.
     var functionName = Blockly.Go.provideFunction_(
         'math_isPrime',
-        ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ + '($n) {',
+        ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ + '($n) {',
          '  // https://en.wikipedia.org/wiki/Primality_test#Naive_methods',
          '  if ($n == 2 || $n == 3) {',
          '    return true;',
@@ -238,7 +238,7 @@ Blockly.Go['math_on_list'] = function(block) {
     case 'AVERAGE':
       var functionName = Blockly.Go.provideFunction_(
           'math_mean',
-          ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+          ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
               '($myList) {',
            '  return array_sum($myList) / count($myList);',
            '}']);
@@ -249,7 +249,7 @@ Blockly.Go['math_on_list'] = function(block) {
     case 'MEDIAN':
       var functionName = Blockly.Go.provideFunction_(
           'math_median',
-          ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+          ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
               '($arr) {',
            '  sort($arr,SORT_NUMERIC);',
            '  return (count($arr) % 2) ? $arr[floor(count($arr)/2)] : ',
@@ -266,7 +266,7 @@ Blockly.Go['math_on_list'] = function(block) {
       // Mode of [3, 'x', 'x', 1, 1, 2, '3'] -> ['x', 1].
       var functionName = Blockly.Go.provideFunction_(
           'math_modes',
-          ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+          ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
               '($values) {',
            '  if (empty($values)) return array();',
            '  $counts = array_count_values($values);',
@@ -281,7 +281,7 @@ Blockly.Go['math_on_list'] = function(block) {
     case 'STD_DEV':
       var functionName = Blockly.Go.provideFunction_(
           'math_standard_deviation',
-          ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+          ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
               '($numbers) {',
            '  $n = count($numbers);',
            '  if (!$n) return null;',
@@ -297,7 +297,7 @@ Blockly.Go['math_on_list'] = function(block) {
     case 'RANDOM':
       var functionName = Blockly.Go.provideFunction_(
           'math_random_list',
-          ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+          ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
               '($list) {',
            '  $x = rand(0, count($list)-1);',
            '  return $list[$x];',
@@ -343,7 +343,7 @@ Blockly.Go['math_random_int'] = function(block) {
       Blockly.Go.ORDER_COMMA) || '0';
   var functionName = Blockly.Go.provideFunction_(
       'math_random_int',
-      ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+      ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
           '($a, $b) {',
        '  if ($a > $b) {',
        '    return rand($b, $a);',

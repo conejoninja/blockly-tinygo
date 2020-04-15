@@ -49,7 +49,7 @@ Blockly.Go['text_join'] = function(block) {
       elements[i] = Blockly.Go.valueToCode(block, 'ADD' + i,
           Blockly.Go.ORDER_COMMA) || '\'\'';
     }
-    var code = 'implode(\'\', array(' + elements.join(',') + '))';
+    var code = 'strings.Join(\'\', []string{' + elements.join(',') + '})';
     return [code, Blockly.Go.ORDER_FUNCTION_CALL];
   }
 };
@@ -60,23 +60,13 @@ Blockly.Go['text_append'] = function(block) {
       block.getFieldValue('VAR'), Blockly.VARIABLE_CATEGORY_NAME);
   var value = Blockly.Go.valueToCode(block, 'TEXT',
       Blockly.Go.ORDER_ASSIGNMENT) || '\'\'';
-  return varName + ' .= ' + value + ';\n';
+  return varName + ' += ' + value + ';\n';
 };
 
 Blockly.Go['text_length'] = function(block) {
-  // String or array length.
-  var functionName = Blockly.Go.provideFunction_(
-      'length',
-      ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ + '($value) {',
-       '  if (is_string($value)) {',
-       '    return strlen($value);',
-       '  } else {',
-       '    return count($value);',
-       '  }',
-       '}']);
   var text = Blockly.Go.valueToCode(block, 'VALUE',
       Blockly.Go.ORDER_NONE) || '\'\'';
-  return [functionName + '(' + text + ')', Blockly.Go.ORDER_FUNCTION_CALL];
+  return 'len(' + text + ')';
 };
 
 Blockly.Go['text_isEmpty'] = function(block) {
@@ -104,7 +94,7 @@ Blockly.Go['text_indexOf'] = function(block) {
   var functionName = Blockly.Go.provideFunction_(
       block.getFieldValue('END') == 'FIRST' ?
           'text_indexOf' : 'text_lastIndexOf',
-      ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+      ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
           '($text, $search) {',
        '  $pos = ' + operator + '($text, $search);',
        '  return $pos === false ? ' + errorIndex + ' : $pos' +
@@ -138,7 +128,7 @@ Blockly.Go['text_charAt'] = function(block) {
     case 'RANDOM':
       var functionName = Blockly.Go.provideFunction_(
           'text_random_letter',
-          ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ + '($text) {',
+          ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ + '($text) {',
            '  return $text[rand(0, strlen($text) - 1)];',
            '}']);
       code = functionName + '(' + text + ')';
@@ -160,7 +150,7 @@ Blockly.Go['text_getSubstring'] = function(block) {
     var at2 = Blockly.Go.getAdjusted(block, 'AT2');
     var functionName = Blockly.Go.provideFunction_(
         'text_get_substring',
-        ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+        ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
             '($text, $where1, $at1, $where2, $at2) {',
          '  if ($where1 == \'FROM_END\') {',
          '    $at1 = strlen($text) - 1 - $at1;',

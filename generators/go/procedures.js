@@ -72,7 +72,7 @@ Blockly.Go['procedures_defreturn'] = function(block) {
     args[i] = Blockly.Go.variableDB_.getName(block.arguments_[i],
         Blockly.VARIABLE_CATEGORY_NAME);
   }
-  var code = 'function ' + funcName + '(' + args.join(', ') + ') {\n' +
+  var code = 'func ' + funcName + '(' + args.join(', ') + ') {\n' +
       globals + xfix1 + loopTrap + branch + xfix2 + returnValue + '}';
   code = Blockly.Go.scrub_(block, code);
   // Add % so as not to collide with helper functions in definitions list.

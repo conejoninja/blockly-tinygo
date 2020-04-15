@@ -33,7 +33,7 @@ Blockly.Go['controls_if'] = function(block) {
           Blockly.Go.INDENT) + branchCode;
     }
     code += (n > 0 ? ' else ' : '') +
-        'if (' + conditionCode + ') {\n' + branchCode + '}';
+        'if ' + conditionCode + ' {\n' + branchCode + '}';
     ++n;
   } while (block.getInput('IF' + n));
 
@@ -112,7 +112,7 @@ Blockly.Go['logic_boolean'] = function(block) {
 
 Blockly.Go['logic_null'] = function(block) {
   // Null data type.
-  return ['null', Blockly.Go.ORDER_ATOMIC];
+  return ['nil', Blockly.Go.ORDER_ATOMIC];
 };
 
 Blockly.Go['logic_ternary'] = function(block) {
@@ -120,9 +120,9 @@ Blockly.Go['logic_ternary'] = function(block) {
   var value_if = Blockly.Go.valueToCode(block, 'IF',
       Blockly.Go.ORDER_CONDITIONAL) || 'false';
   var value_then = Blockly.Go.valueToCode(block, 'THEN',
-      Blockly.Go.ORDER_CONDITIONAL) || 'null';
+      Blockly.Go.ORDER_CONDITIONAL) || 'nil';
   var value_else = Blockly.Go.valueToCode(block, 'ELSE',
-      Blockly.Go.ORDER_CONDITIONAL) || 'null';
+      Blockly.Go.ORDER_CONDITIONAL) || 'nil';
   var code = value_if + ' ? ' + value_then + ' : ' + value_else;
   return [code, Blockly.Go.ORDER_CONDITIONAL];
 };

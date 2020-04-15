@@ -46,7 +46,7 @@ Blockly.Go['lists_repeat'] = function(block) {
   // Create a list with one element repeated.
   var functionName = Blockly.Go.provideFunction_(
       'lists_repeat',
-      ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+      ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
           '($value, $count) {',
        '  $array = array();',
        '  for ($index = 0; $index < $count; $index++) {',
@@ -66,7 +66,7 @@ Blockly.Go['lists_length'] = function(block) {
   // String or array length.
   var functionName = Blockly.Go.provideFunction_(
       'length',
-      ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ + '($value) {',
+      ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ + '($value) {',
        '  if (is_string($value)) {',
        '    return strlen($value);',
        '  } else {',
@@ -102,7 +102,7 @@ Blockly.Go['lists_indexOf'] = function(block) {
     // indexOf
     var functionName = Blockly.Go.provideFunction_(
         'indexOf',
-        ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+        ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
             '($haystack, $needle) {',
          '  for ($index = 0; $index < count($haystack); $index++) {',
          '    if ($haystack[$index] == $needle) return $index' +
@@ -114,7 +114,7 @@ Blockly.Go['lists_indexOf'] = function(block) {
     // lastIndexOf
     var functionName = Blockly.Go.provideFunction_(
         'lastIndexOf',
-        ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+        ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
             '($haystack, $needle) {',
          '  $last = ' + errorIndex + ';',
          '  for ($index = 0; $index < count($haystack); $index++) {',
@@ -213,7 +213,7 @@ Blockly.Go['lists_getIndex'] = function(block) {
       if (mode == 'GET') {
         var functionName = Blockly.Go.provideFunction_(
             'lists_get_random_item',
-            ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+            ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
                 '($list) {',
              '  return $list[rand(0,count($list)-1)];',
              '}']);
@@ -222,7 +222,7 @@ Blockly.Go['lists_getIndex'] = function(block) {
       } else if (mode == 'GET_REMOVE') {
         var functionName = Blockly.Go.provideFunction_(
             'lists_get_remove_random_item',
-            ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+            ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
                 '(&$list) {',
              '  $x = rand(0,count($list)-1);',
              '  unset($list[$x]);',
@@ -233,7 +233,7 @@ Blockly.Go['lists_getIndex'] = function(block) {
       } else if (mode == 'REMOVE') {
         var functionName = Blockly.Go.provideFunction_(
             'lists_remove_random_item',
-            ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+            ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
                 '(&$list) {',
              '  unset($list[rand(0,count($list)-1)]);',
              '}']);
@@ -281,7 +281,7 @@ Blockly.Go['lists_setIndex'] = function(block) {
       if (mode == 'SET') {
         var functionName = Blockly.Go.provideFunction_(
             'lists_set_last_item',
-            ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+            ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
                 '(&$list, $value) {',
              '  $list[count($list) - 1] = $value;',
              '}']);
@@ -309,7 +309,7 @@ Blockly.Go['lists_setIndex'] = function(block) {
       if (mode == 'SET') {
         var functionName = Blockly.Go.provideFunction_(
             'lists_set_from_end',
-            ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+            ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
                 '(&$list, $at, $value) {',
              '  $list[count($list) - $at] = $value;',
              '}']);
@@ -317,7 +317,7 @@ Blockly.Go['lists_setIndex'] = function(block) {
       } else if (mode == 'INSERT') {
         var functionName = Blockly.Go.provideFunction_(
             'lists_insert_from_end',
-            ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+            ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
                 '(&$list, $at, $value) {',
              '  return array_splice($list, count($list) - $at, 0, $value);',
              '}']);
@@ -410,7 +410,7 @@ Blockly.Go['lists_getSublist'] = function(block) {
     var at2 = Blockly.Go.getAdjusted(block, 'AT2');
     var functionName = Blockly.Go.provideFunction_(
         'lists_get_sublist',
-        ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+        ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
             '($list, $where1, $at1, $where2, $at2) {',
          '  if ($where1 == \'FROM_END\') {',
          '    $at1 = count($list) - 1 - $at1;',
@@ -445,7 +445,7 @@ Blockly.Go['lists_sort'] = function(block) {
   var type = block.getFieldValue('TYPE');
   var functionName = Blockly.Go.provideFunction_(
       'lists_sort',
-      ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+      ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
           '($list, $type, $direction) {',
        '  $sortCmpFuncs = array(',
        '    "NUMERIC" => "strnatcasecmp",',

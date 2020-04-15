@@ -36,9 +36,9 @@ Blockly.Go['controls_repeat_ext'] = function(block) {
         'repeat_end', Blockly.VARIABLE_CATEGORY_NAME);
     code += endVar + ' = ' + repeats + ';\n';
   }
-  code += 'for (' + loopVar + ' = 0; ' +
+  code += 'for ' + loopVar + ' = 0; ' +
       loopVar + ' < ' + endVar + '; ' +
-      loopVar + '++) {\n' +
+      loopVar + '++ {\n' +
       branch + '}\n';
   return code;
 };
@@ -56,7 +56,7 @@ Blockly.Go['controls_whileUntil'] = function(block) {
   if (until) {
     argument0 = '!' + argument0;
   }
-  return 'while (' + argument0 + ') {\n' + branch + '}\n';
+  return 'for ' + argument0 + ' {\n' + branch + '}\n';
 };
 
 Blockly.Go['controls_for'] = function(block) {
@@ -76,7 +76,7 @@ Blockly.Go['controls_for'] = function(block) {
       Blockly.isNumber(increment)) {
     // All arguments are simple numbers.
     var up = Number(argument0) <= Number(argument1);
-    code = 'for (' + variable0 + ' = ' + argument0 + '; ' +
+    code = 'for ' + variable0 + ' = ' + argument0 + '; ' +
         variable0 + (up ? ' <= ' : ' >= ') + argument1 + '; ' +
         variable0;
     var step = Math.abs(Number(increment));
@@ -85,7 +85,7 @@ Blockly.Go['controls_for'] = function(block) {
     } else {
       code += (up ? ' += ' : ' -= ') + step;
     }
-    code += ') {\n' + branch + '}\n';
+    code += ' {\n' + branch + '}\n';
   } else {
     code = '';
     // Cache non-trivial values to variables to prevent repeated look-ups.
@@ -109,16 +109,16 @@ Blockly.Go['controls_for'] = function(block) {
     if (Blockly.isNumber(increment)) {
       code += Math.abs(increment) + ';\n';
     } else {
-      code += 'abs(' + increment + ');\n';
+      code += 'math.Abs(' + increment + ');\n';
     }
     code += 'if (' + startVar + ' > ' + endVar + ') {\n';
     code += Blockly.Go.INDENT + incVar + ' = -' + incVar + ';\n';
     code += '}\n';
-    code += 'for (' + variable0 + ' = ' + startVar + '; ' +
+    code += 'for ' + variable0 + ' = ' + startVar + '; ' +
         incVar + ' >= 0 ? ' +
         variable0 + ' <= ' + endVar + ' : ' +
         variable0 + ' >= ' + endVar + '; ' +
-        variable0 + ' += ' + incVar + ') {\n' +
+        variable0 + ' += ' + incVar + ' {\n' +
         branch + '}\n';
   }
   return code;
@@ -133,8 +133,8 @@ Blockly.Go['controls_forEach'] = function(block) {
   var branch = Blockly.Go.statementToCode(block, 'DO');
   branch = Blockly.Go.addLoopTrap(branch, block);
   var code = '';
-  code += 'foreach (' + argument0 + ' as ' + variable0 +
-      ') {\n' + branch + '}\n';
+  code += 'for _,' + variable0 + ' := range ' + argument0 +
+      ' {\n' + branch + '}\n';
   return code;
 };
 
@@ -162,9 +162,9 @@ Blockly.Go['controls_flow_statements'] = function(block) {
   }
   switch (block.getFieldValue('FLOW')) {
     case 'BREAK':
-      return xfix + 'break;\n';
+      return xfix + 'break\n';
     case 'CONTINUE':
-      return xfix + 'continue;\n';
+      return xfix + 'continue\n';
   }
   throw Error('Unknown flow statement.');
 };

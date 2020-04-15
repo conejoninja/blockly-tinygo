@@ -25,7 +25,7 @@ Blockly.Go['colour_random'] = function(block) {
   // Generate a random colour.
   var functionName = Blockly.Go.provideFunction_(
       'colour_random',
-      ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ + '() {',
+      ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ + '() {',
        '  return \'#\' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), ' +
           '6, \'0\', STR_PAD_LEFT);',
        '}']);
@@ -43,7 +43,7 @@ Blockly.Go['colour_rgb'] = function(block) {
       Blockly.Go.ORDER_COMMA) || 0;
   var functionName = Blockly.Go.provideFunction_(
       'colour_rgb',
-      ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+      ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
           '($r, $g, $b) {',
        '  $r = round(max(min($r, 100), 0) * 2.55);',
        '  $g = round(max(min($g, 100), 0) * 2.55);',
@@ -68,7 +68,7 @@ Blockly.Go['colour_blend'] = function(block) {
       Blockly.Go.ORDER_COMMA) || 0.5;
   var functionName = Blockly.Go.provideFunction_(
       'colour_blend',
-      ['function ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+      ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
           '($c1, $c2, $ratio) {',
        '  $ratio = max(min($ratio, 1), 0);',
        '  $r1 = hexdec(substr($c1, 1, 2));',
