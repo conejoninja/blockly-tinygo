@@ -36,7 +36,7 @@ Blockly.Go['procedures_defreturn'] = function(block) {
         Blockly.Names.DEVELOPER_VARIABLE_TYPE));
   }
   globals = globals.length ?
-      Blockly.Go.INDENT + 'global ' + globals.join(', ') + ';\n' : '';
+      Blockly.Go.INDENT + 'global ' + globals.join(', ') + '\n' : '';
 
   var funcName = Blockly.Go.variableDB_.getName(
       block.getFieldValue('NAME'), Blockly.PROCEDURE_CATEGORY_NAME);
@@ -65,7 +65,7 @@ Blockly.Go['procedures_defreturn'] = function(block) {
     xfix2 = xfix1;
   }
   if (returnValue) {
-    returnValue = Blockly.Go.INDENT + 'return ' + returnValue + ';\n';
+    returnValue = Blockly.Go.INDENT + 'return ' + returnValue + '\n';
   }
   var args = [];
   for (var i = 0; i < block.arguments_.length; i++) {
@@ -103,7 +103,7 @@ Blockly.Go['procedures_callnoreturn'] = function(block) {
   // Generated code is for a function call as a statement is the same as a
   // function call as a value, with the addition of line ending.
   var tuple = Blockly.Go['procedures_callreturn'](block);
-  return tuple[0] + ';\n';
+  return tuple[0] + '\n';
 };
 
 Blockly.Go['procedures_ifreturn'] = function(block) {
@@ -121,9 +121,9 @@ Blockly.Go['procedures_ifreturn'] = function(block) {
   if (block.hasReturnValue_) {
     var value = Blockly.Go.valueToCode(block, 'VALUE',
         Blockly.Go.ORDER_NONE) || 'null';
-    code += Blockly.Go.INDENT + 'return ' + value + ';\n';
+    code += Blockly.Go.INDENT + 'return ' + value + '\n';
   } else {
-    code += Blockly.Go.INDENT + 'return;\n';
+    code += Blockly.Go.INDENT + 'return\n';
   }
   code += '}\n';
   return code;

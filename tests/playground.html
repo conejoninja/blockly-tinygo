@@ -561,6 +561,86 @@ function testTinyGo() {
           '            <field name="TEXT">ABC</field>\n' +
           '          </block>\n' +
           '        </value>\n' +
+          '        <next>\n' +
+          '          <block type="controls_repeat_ext" id="R5$eaW2W5-vNF7a#diZy">\n' +
+          '            <value name="TIMES">\n' +
+          '              <shadow type="math_number" id="3;yIrPR7}@/^6p!br^S$">\n' +
+          '                <field name="NUM">10</field>\n' +
+          '              </shadow>\n' +
+          '            </value>\n' +
+          '            <statement name="DO">\n' +
+          '              <block type="text_print" id="+.N68[fQvn#pmLb(6)aI">\n' +
+          '                <value name="TEXT">\n' +
+          '                  <shadow type="text" id="`)RD-D/a*DzXavvN]MiK">\n' +
+          '                    <field name="TEXT">abc</field>\n' +
+          '                  </shadow>\n' +
+          '                  <block type="variables_get" id="H_6V4}{[CyGWC2UGdtad">\n' +
+          '                    <field name="VAR" id="euuwT4c};O%W6;W}2*uE">myTextVariable</field>\n' +
+          '                  </block>\n' +
+          '                </value>\n' +
+          '              </block>\n' +
+          '            </statement>\n' +
+          '            <next>\n' +
+          '              <block type="controls_whileUntil" id="Eb_0Q)uTs)HwPV}9I3YM">\n' +
+          '                <field name="MODE">WHILE</field>\n' +
+          '                <value name="BOOL">\n' +
+          '                  <block type="logic_boolean" id="6t/RprAhMj(zFYoT[}?X">\n' +
+          '                    <field name="BOOL">TRUE</field>\n' +
+          '                  </block>\n' +
+          '                </value>\n' +
+          '                <statement name="DO">\n' +
+          '                  <block type="math_change" id="NaKX2[d!+1zkBO(-Op9E">\n' +
+          '                    <field name="VAR" id="u4_z4}fDa{QDLKOxw+%o">myNumberVariable</field>\n' +
+          '                    <value name="DELTA">\n' +
+          '                      <shadow type="math_number" id="sw!x5C|c}NHub9MHLG|H">\n' +
+          '                        <field name="NUM">1</field>\n' +
+          '                      </shadow>\n' +
+          '                      <block type="math_number" id="boe4o.dd;WIUr|L,6?Du">\n' +
+          '                        <field name="NUM">2</field>\n' +
+          '                      </block>\n' +
+          '                    </value>\n' +
+          '                    <next>\n' +
+          '                      <block type="text_print" id="|Fv[T3zu%0{2nQyu3-$q">\n' +
+          '                        <value name="TEXT">\n' +
+          '                          <shadow type="text">\n' +
+          '                            <field name="TEXT">abc</field>\n' +
+          '                          </shadow>\n' +
+          '                          <block type="variables_get" id="3U|Tjf8`f%PAce=MFhr*">\n' +
+          '                            <field name="VAR" id="u4_z4}fDa{QDLKOxw+%o">myNumberVariable</field>\n' +
+          '                          </block>\n' +
+          '                        </value>\n' +
+          '                        <next>\n' +
+          '                          <block type="controls_if" id="au+!b%Z4$:juSU{Et+Hf">\n' +
+          '                            <value name="IF0">\n' +
+          '                              <block type="logic_compare" id="wJ]~.y3r/(?vsNM?m4.A">\n' +
+          '                                <field name="OP">GTE</field>\n' +
+          '                                <value name="A">\n' +
+          '                                  <block type="variables_get" id="}F^(AiLoTC*kf}%8J`66">\n' +
+          '                                    <field name="VAR" id="u4_z4}fDa{QDLKOxw+%o">myNumberVariable</field>\n' +
+          '                                  </block>\n' +
+          '                                </value>\n' +
+          '                                <value name="B">\n' +
+          '                                  <block type="math_number" id="8y^Y;Kn$+Qkpc42:5B8:">\n' +
+          '                                    <field name="NUM">130</field>\n' +
+          '                                  </block>\n' +
+          '                                </value>\n' +
+          '                              </block>\n' +
+          '                            </value>\n' +
+          '                            <statement name="DO0">\n' +
+          '                              <block type="controls_flow_statements" id="jR+K#D.ra/3%$}zNme[o">\n' +
+          '                                <field name="FLOW">BREAK</field>\n' +
+          '                              </block>\n' +
+          '                            </statement>\n' +
+          '                          </block>\n' +
+          '                        </next>\n' +
+          '                      </block>\n' +
+          '                    </next>\n' +
+          '                  </block>\n' +
+          '                </statement>\n' +
+          '              </block>\n' +
+          '            </next>\n' +
+          '          </block>\n' +
+          '        </next>\n' +
           '      </block>\n' +
           '    </next>\n' +
           '  </block>\n' +

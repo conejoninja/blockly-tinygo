@@ -148,7 +148,7 @@ Blockly.Go['lists_getIndex'] = function(block) {
       } else if (mode == 'REMOVE') {
         var list = Blockly.Go.valueToCode(block, 'VALUE',
                 Blockly.Go.ORDER_NONE) || 'array()';
-        return 'array_shift(' + list + ');\n';
+        return 'array_shift(' + list + ')\n';
       }
       break;
     case 'LAST':
@@ -165,7 +165,7 @@ Blockly.Go['lists_getIndex'] = function(block) {
       } else if (mode == 'REMOVE') {
         var list = Blockly.Go.valueToCode(block, 'VALUE',
                 Blockly.Go.ORDER_NONE) || 'array()';
-        return 'array_pop(' + list + ');\n';
+        return 'array_pop(' + list + ')\n';
       }
       break;
     case 'FROM_START':
@@ -183,7 +183,7 @@ Blockly.Go['lists_getIndex'] = function(block) {
       } else if (mode == 'REMOVE') {
         var list = Blockly.Go.valueToCode(block, 'VALUE',
                 Blockly.Go.ORDER_COMMA) || 'array()';
-        return 'array_splice(' + list + ', ' + at + ', 1);\n';
+        return 'array_splice(' + list + ', ' + at + ', 1)\n';
       }
       break;
     case 'FROM_END':
@@ -203,7 +203,7 @@ Blockly.Go['lists_getIndex'] = function(block) {
         if (mode == 'GET_REMOVE') {
           return [code, Blockly.Go.ORDER_FUNCTION_CALL];
         } else if (mode == 'REMOVE') {
-          return code + ';\n';
+          return code + '\n';
         }
       }
       break;
@@ -237,7 +237,7 @@ Blockly.Go['lists_getIndex'] = function(block) {
                 '(&$list) {',
              '  unset($list[rand(0,count($list)-1)]);',
              '}']);
-        return functionName + '(' + list + ');\n';
+        return functionName + '(' + list + ')\n';
       }
       break;
   }
@@ -259,7 +259,7 @@ Blockly.Go['lists_setIndex'] = function(block) {
     }
     var listVar = Blockly.Go.variableDB_.getDistinctName(
         'tmp_list', Blockly.VARIABLE_CATEGORY_NAME);
-    var code = listVar + ' = &' + list + ';\n';
+    var code = listVar + ' = &' + list + '\n';
     list = listVar;
     return code;
   }
@@ -268,11 +268,11 @@ Blockly.Go['lists_setIndex'] = function(block) {
       if (mode == 'SET') {
         var list = Blockly.Go.valueToCode(block, 'LIST',
                 Blockly.Go.ORDER_MEMBER) || 'array()';
-        return list + '[0] = ' + value + ';\n';
+        return list + '[0] = ' + value + '\n';
       } else if (mode == 'INSERT') {
         var list = Blockly.Go.valueToCode(block, 'LIST',
                 Blockly.Go.ORDER_COMMA) || 'array()';
-        return 'array_unshift(' + list + ', ' + value + ');\n';
+        return 'array_unshift(' + list + ', ' + value + ')\n';
       }
       break;
     case 'LAST':
@@ -285,9 +285,9 @@ Blockly.Go['lists_setIndex'] = function(block) {
                 '(&$list, $value) {',
              '  $list[count($list) - 1] = $value;',
              '}']);
-        return functionName + '(' + list + ', ' + value + ');\n';
+        return functionName + '(' + list + ', ' + value + ')\n';
       } else if (mode == 'INSERT') {
-        return 'array_push(' + list + ', ' + value + ');\n';
+        return 'array_push(' + list + ', ' + value + ')\n';
       }
       break;
     case 'FROM_START':
@@ -295,11 +295,11 @@ Blockly.Go['lists_setIndex'] = function(block) {
       if (mode == 'SET') {
         var list = Blockly.Go.valueToCode(block, 'LIST',
                 Blockly.Go.ORDER_MEMBER) || 'array()';
-        return list + '[' + at + '] = ' + value + ';\n';
+        return list + '[' + at + '] = ' + value + '\n';
       } else if (mode == 'INSERT') {
         var list = Blockly.Go.valueToCode(block, 'LIST',
                 Blockly.Go.ORDER_COMMA) || 'array()';
-        return 'array_splice(' + list + ', ' + at + ', 0, ' + value + ');\n';
+        return 'array_splice(' + list + ', ' + at + ', 0, ' + value + ')\n';
       }
       break;
     case 'FROM_END':
@@ -313,7 +313,7 @@ Blockly.Go['lists_setIndex'] = function(block) {
                 '(&$list, $at, $value) {',
              '  $list[count($list) - $at] = $value;',
              '}']);
-        return functionName + '(' + list + ', ' + at + ', ' + value + ');\n';
+        return functionName + '(' + list + ', ' + at + ', ' + value + ')\n';
       } else if (mode == 'INSERT') {
         var functionName = Blockly.Go.provideFunction_(
             'lists_insert_from_end',
@@ -321,7 +321,7 @@ Blockly.Go['lists_setIndex'] = function(block) {
                 '(&$list, $at, $value) {',
              '  return array_splice($list, count($list) - $at, 0, $value);',
              '}']);
-        return functionName + '(' + list + ', ' + at + ', ' + value + ');\n';
+        return functionName + '(' + list + ', ' + at + ', ' + value + ')\n';
       }
       break;
     case 'RANDOM':
@@ -330,13 +330,13 @@ Blockly.Go['lists_setIndex'] = function(block) {
       var code = cacheList();
       var xVar = Blockly.Go.variableDB_.getDistinctName(
           'tmp_x', Blockly.VARIABLE_CATEGORY_NAME);
-      code += xVar + ' = rand(0, count(' + list + ')-1);\n';
+      code += xVar + ' = rand(0, count(' + list + ')-1)\n';
       if (mode == 'SET') {
-        code += list + '[' + xVar + '] = ' + value + ';\n';
+        code += list + '[' + xVar + '] = ' + value + '\n';
         return code;
       } else if (mode == 'INSERT') {
         code += 'array_splice(' + list + ', ' + xVar + ', 0, ' + value +
-            ');\n';
+            ')\n';
         return code;
       }
       break;

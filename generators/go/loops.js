@@ -34,9 +34,9 @@ Blockly.Go['controls_repeat_ext'] = function(block) {
   if (!repeats.match(/^\w+$/) && !Blockly.isNumber(repeats)) {
     endVar = Blockly.Go.variableDB_.getDistinctName(
         'repeat_end', Blockly.VARIABLE_CATEGORY_NAME);
-    code += endVar + ' = ' + repeats + ';\n';
+    code += endVar + ' = ' + repeats + '\n';
   }
-  code += 'for ' + loopVar + ' = 0; ' +
+  code += 'for ' + loopVar + ' := 0; ' +
       loopVar + ' < ' + endVar + '; ' +
       loopVar + '++ {\n' +
       branch + '}\n';
@@ -76,7 +76,7 @@ Blockly.Go['controls_for'] = function(block) {
       Blockly.isNumber(increment)) {
     // All arguments are simple numbers.
     var up = Number(argument0) <= Number(argument1);
-    code = 'for ' + variable0 + ' = ' + argument0 + '; ' +
+    code = 'for ' + variable0 + ' := ' + argument0 + '; ' +
         variable0 + (up ? ' <= ' : ' >= ') + argument1 + '; ' +
         variable0;
     var step = Math.abs(Number(increment));
@@ -93,13 +93,13 @@ Blockly.Go['controls_for'] = function(block) {
     if (!argument0.match(/^\w+$/) && !Blockly.isNumber(argument0)) {
       startVar = Blockly.Go.variableDB_.getDistinctName(
           variable0 + '_start', Blockly.VARIABLE_CATEGORY_NAME);
-      code += startVar + ' = ' + argument0 + ';\n';
+      code += startVar + ' = ' + argument0 + '\n';
     }
     var endVar = argument1;
     if (!argument1.match(/^\w+$/) && !Blockly.isNumber(argument1)) {
       endVar = Blockly.Go.variableDB_.getDistinctName(
           variable0 + '_end', Blockly.VARIABLE_CATEGORY_NAME);
-      code += endVar + ' = ' + argument1 + ';\n';
+      code += endVar + ' = ' + argument1 + '\n';
     }
     // Determine loop direction at start, in case one of the bounds
     // changes during loop execution.
@@ -107,14 +107,14 @@ Blockly.Go['controls_for'] = function(block) {
         variable0 + '_inc', Blockly.VARIABLE_CATEGORY_NAME);
     code += incVar + ' = ';
     if (Blockly.isNumber(increment)) {
-      code += Math.abs(increment) + ';\n';
+      code += Math.abs(increment) + '\n';
     } else {
-      code += 'math.Abs(' + increment + ');\n';
+      code += 'math.Abs(' + increment + ')\n';
     }
     code += 'if (' + startVar + ' > ' + endVar + ') {\n';
-    code += Blockly.Go.INDENT + incVar + ' = -' + incVar + ';\n';
+    code += Blockly.Go.INDENT + incVar + ' = -' + incVar + '\n';
     code += '}\n';
-    code += 'for ' + variable0 + ' = ' + startVar + '; ' +
+    code += 'for ' + variable0 + ' := ' + startVar + '; ' +
         incVar + ' >= 0 ? ' +
         variable0 + ' <= ' + endVar + ' : ' +
         variable0 + ' >= ' + endVar + '; ' +
