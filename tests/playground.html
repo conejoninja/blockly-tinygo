@@ -539,6 +539,36 @@ function spaghetti(n) {
   Blockly.Xml.domToWorkspace(dom, workspace);
   console.timeEnd('Spaghetti domToWorkspace');
 }
+
+function testTinyGo() {
+  var xml = '<xml xmlns="https://developers.google.com/blockly/xml">\n' +
+          '  <variables>\n' +
+          '    <variable id="u4_z4}fDa{QDLKOxw+%o">myNumberVariable</variable>\n' +
+          '    <variable id="euuwT4c};O%W6;W}2*uE">myTextVariable</variable>\n' +
+          '  </variables>\n' +
+          '  <block type="variables_set" id="{[xKp:K`;osNPM`@X^z6" x="138" y="163">\n' +
+          '    <field name="VAR" id="u4_z4}fDa{QDLKOxw+%o">myNumberVariable</field>\n' +
+          '    <value name="VALUE">\n' +
+          '      <block type="math_number" id="zpPMyveuQ4*gk_={2Q*z">\n' +
+          '        <field name="NUM">123</field>\n' +
+          '      </block>\n' +
+          '    </value>\n' +
+          '    <next>\n' +
+          '      <block type="variables_set" id="^XtlOW1p1w7r9[+fOJrZ">\n' +
+          '        <field name="VAR" id="euuwT4c};O%W6;W}2*uE">myTextVariable</field>\n' +
+          '        <value name="VALUE">\n' +
+          '          <block type="text" id="#c7EB*UBb?dw9M9U/Z|r">\n' +
+          '            <field name="TEXT">ABC</field>\n' +
+          '          </block>\n' +
+          '        </value>\n' +
+          '      </block>\n' +
+          '    </next>\n' +
+          '  </block>\n' +
+          '</xml>';
+  var dom = Blockly.Xml.textToDom(xml);
+  Blockly.Xml.domToWorkspace(dom, workspace);
+}
+
 var spaghettiXml = [
   '  <block type="controls_if">',
   '    <value name="IF0">',
@@ -686,6 +716,7 @@ var spaghettiXml = [
     Stress test: &nbsp;
     <input type="button" value="Airstrike!" onclick="airstrike(100)">
     <input type="button" value="Spaghetti!" onclick="spaghetti(8)">
+    <input type="button" value="Test TinyGo!" onclick="testTinyGo()">
   </p>
   <p>
     Rendering: &nbsp;

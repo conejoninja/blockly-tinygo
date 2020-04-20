@@ -120,6 +120,7 @@ Blockly.Block = function(workspace, prototypeName, opt_id) {
    * @protected
    */
   this.outputShape_ = null;
+  this.output_ = null;
 
   /**
    * A string representing the comment attached to this block.
@@ -1139,6 +1140,7 @@ Blockly.Block.prototype.setNextStatement = function(newBoolean, opt_check) {
  *     (e.g. variable get).
  */
 Blockly.Block.prototype.setOutput = function(newBoolean, opt_check) {
+  this.output_ = opt_check;
   if (newBoolean) {
     if (opt_check === undefined) {
       opt_check = null;
@@ -1215,6 +1217,14 @@ Blockly.Block.prototype.setOutputShape = function(outputShape) {
  */
 Blockly.Block.prototype.getOutputShape = function() {
   return this.outputShape_;
+};
+
+/**
+ * Get the block's output.
+ * @return {?number} Value representing output shape if one exists.
+ */
+Blockly.Block.prototype.getOutput = function() {
+  return this.output_;
 };
 
 /**

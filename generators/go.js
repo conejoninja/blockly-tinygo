@@ -12,8 +12,10 @@
 
 goog.provide('Blockly.Go');
 
+goog.require('Blockly.Types');
 goog.require('Blockly.Generator');
 goog.require('Blockly.utils.string');
+
 
 
 /**
@@ -21,6 +23,7 @@ goog.require('Blockly.utils.string');
  * @type {!Blockly.Generator}
  */
 Blockly.Go = new Blockly.Generator('Go');
+Blockly.Go.StaticTyping = new Blockly.StaticTyping();
 
 /**
  * List of illegal variable names.
@@ -109,6 +112,9 @@ Blockly.Go.ORDER_OVERRIDES = [
  * @param {!Blockly.Workspace} workspace Workspace to generate code from.
  */
 Blockly.Go.init = function(workspace) {
+  Blockly.Go.variables_ = Object.create(null);
+
+
   // Create a dictionary of definitions to be printed before the code.
   Blockly.Go.definitions_ = Object.create(null);
   // Create a dictionary mapping desired function names in definitions_
@@ -139,6 +145,20 @@ Blockly.Go.init = function(workspace) {
       Blockly.VARIABLE_CATEGORY_NAME) + '');
   }
 
+  // Iterate through to capture all blocks types and set the function arguments
+  var varsWithTypes = Blockly.Go.StaticTyping.collectVarsWithTypes(workspace);
+  Blockly.Go.StaticTyping.setProcedureArgs(workspace, varsWithTypes);
+  // Set variable declarations with their Go type in the defines dictionary
+  for (var varName in varsWithTypes) {
+    Blockly.Go.addVariable(varName,
+      'var ' +
+      Blockly.Go.variableDB_.getName(varName, Blockly.Variables.NAME_TYPE) + ' ' + Blockly.Go.getGoType_(varsWithTypes[varName]) );
+  }
+             console.log("VARIABLES", );
+  defvars = [];
+  for(var i in Blockly.Go.variables_) {
+    defvars.push(Blockly.Go.variables_[i]);
+  }
   // Declare all of the variables.
   Blockly.Go.definitions_['variables'] = defvars.join('\n');
 };
@@ -149,10 +169,11 @@ Blockly.Go.init = function(workspace) {
  * @return {string} Completed code.
  */
 Blockly.Go.finish = function(code) {
-  code = 'package main\n\nmain() {\n' + code + '}';
+  code = 'func main() {\n' + code + '}';
 
   // Convert the definitions dictionary into a list.
   var definitions = [];
+  console.log(Blockly.Go.definitions_);
   for (var name in Blockly.Go.definitions_) {
     definitions.push(Blockly.Go.definitions_[name]);
   }
@@ -160,7 +181,7 @@ Blockly.Go.finish = function(code) {
   delete Blockly.Go.definitions_;
   delete Blockly.Go.functionNames_;
   Blockly.Go.variableDB_.reset();
-  return definitions.join('\n\n') + '\n\n\n' + code;
+  return 'package main\n\n'+definitions.join('\n\n') + '\n\n\n' + code;
 };
 
 /**
@@ -183,8 +204,8 @@ Blockly.Go.scrubNakedValue = function(line) {
 Blockly.Go.quote_ = function(string) {
   string = string.replace(/\\/g, '\\\\')
     .replace(/\n/g, '\\\n')
-    .replace(/'/g, '\\\'');
-  return '\'' + string + '\'';
+    .replace(/"/g, '\"');
+  return '"' + string + '"';
 };
 
 /**
@@ -299,4 +320,56 @@ Blockly.Go.getAdjusted = function(block, atId, opt_delta, opt_negate,
     }
   }
   return at;
+};
+
+Blockly.Go.getGoType_ = function(typeBlockly) {
+  if(typeBlockly==undefined) {
+    return 'Invalid Blockly Type';
+  }
+  switch (typeBlockly) {
+    case Blockly.Types.SHORT_NUMBER.typeId:
+      return 'uint8';
+    case Blockly.Types.NUMBER.typeId:
+      return 'int32';
+    case Blockly.Types.LARGE_NUMBER.typeId:
+      return 'int64';
+    case Blockly.Types.DECIMAL.typeId:
+      return 'float32';
+    case Blockly.Types.TEXT.typeId:
+      return 'string';
+    case Blockly.Types.STRING.typeId:
+      return 'string';
+    case Blockly.Types.CHARACTER.typeId:
+      return 'byte';
+    case Blockly.Types.BOOLEAN.typeId:
+      return 'bool';
+    case Blockly.Types.NULL.typeId:
+      return 'nil';
+    /*case Blockly.Types.UNDEF.typeId:
+      return 'nil';*/
+    case Blockly.Types.CHILD_BLOCK_MISSING.typeId:
+      // If no block connected default to int, change for easier debugging
+      //return 'ChildBlockMissing';
+      return 'int32';
+    default:
+      return 'Invalid Blockly Type';
+  }
+};
+
+/**
+ * Adds a string of code to declare a variable globally to the sketch.
+ * Only if overwrite option is set to true it will overwrite whatever
+ * value the identifier held before.
+ * @param {!string} varName The name of the variable to declare.
+ * @param {!string} code Code to be added for the declaration.
+ * @param {boolean=} overwrite Flag to ignore previously set value.
+ * @return {!boolean} Indicates if the declaration overwrote a previous one.
+ */
+Blockly.Go.addVariable = function(varName, code, overwrite) {
+  var overwritten = false;
+  if (overwrite || (Blockly.Go.variables_[varName] === undefined)) {
+    Blockly.Go.variables_[varName] = code;
+    overwritten = true;
+  }
+  return overwritten;
 };
