@@ -15,6 +15,7 @@ goog.provide('Blockly.Go');
 goog.require('Blockly.Types');
 goog.require('Blockly.Generator');
 goog.require('Blockly.utils.string');
+goog.require('GoFmtServer');
 
 
 
@@ -181,7 +182,11 @@ Blockly.Go.finish = function(code) {
   delete Blockly.Go.definitions_;
   delete Blockly.Go.functionNames_;
   Blockly.Go.variableDB_.reset();
-  return 'package main\n\n'+definitions.join('\n\n') + '\n\n\n' + code;
+  code = 'package main\n\n'+definitions.join('\n\n') + '\n\n\n' + code;
+  let dataCode = '';
+  GoFmtServer.postJson('http://localhost:8737/', code, function (data) {console.log(data.code); dataCode = data.code;});
+  console.log("RACE CONDITION", dataCode);
+  return dataCode;
 };
 
 /**
