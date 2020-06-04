@@ -155,13 +155,8 @@ Blockly.Go.init = function(workspace) {
       'var ' +
       Blockly.Go.variableDB_.getName(varName, Blockly.Variables.NAME_TYPE) + ' ' + Blockly.Go.getGoType_(varsWithTypes[varName]) );
   }
-             console.log("VARIABLES", );
-  defvars = [];
-  for(var i in Blockly.Go.variables_) {
-    defvars.push(Blockly.Go.variables_[i]);
-  }
-  // Declare all of the variables.
-  Blockly.Go.definitions_['variables'] = defvars.join('\n');
+            
+
 };
 
 /**
@@ -170,11 +165,28 @@ Blockly.Go.init = function(workspace) {
  * @return {string} Completed code.
  */
 Blockly.Go.finish = function(code) {
+  var defvars = [];
+  for(var i in Blockly.Go.variables_) {
+    defvars.push(Blockly.Go.variables_[i]);
+  }
+
+  for(var i in Blockly.TinyGo.variables_) {
+    defvars.push(Blockly.TinyGo.variables_[i]);
+  }
+
+  // Declare all of the variables.
+  Blockly.Go.definitions_['variables'] = defvars.join('\n');
+
+
+  defvars = [];
+  for(var i in Blockly.TinyGo.pins_) {
+    defvars.push(Blockly.TinyGo.pins_[i]);
+  }
+  code = defvars.join('\n') + '\n\n' + code;
   code = 'func main() {\n' + code + '}';
 
   // Convert the definitions dictionary into a list.
   var definitions = [];
-  console.log(Blockly.Go.definitions_);
   for (var name in Blockly.Go.definitions_) {
     definitions.push(Blockly.Go.definitions_[name]);
   }
@@ -184,8 +196,7 @@ Blockly.Go.finish = function(code) {
   Blockly.Go.variableDB_.reset();
   code = 'package main\n\n'+definitions.join('\n\n') + '\n\n\n' + code;
   let dataCode = '';
-  GoFmtServer.postJson('http://localhost:8737/', code, function (data) {console.log(data.code); dataCode = data.code;});
-  console.log("RACE CONDITION", dataCode);
+  GoFmtServer.postJson('http://localhost:8737/', code, function (data) {dataCode = data.code;});
   return dataCode;
 };
 
