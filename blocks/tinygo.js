@@ -15,10 +15,12 @@ goog.require('Blockly.Types');
 
 Blockly.TinyGo.variables_ = [];
 Blockly.TinyGo.pins_ = [];
+Blockly.TinyGo.imports_ = [];
 
 Blockly.TinyGo.configurePin = function(id, pinNumber, mode) {
-  Blockly.TinyGo.variables_[id] = 'var '+id+' machine.Pin = '+pinNumber;
+  Blockly.TinyGo.variables_[id] = 'const '+id+' = machine.Pin('+pinNumber+')';
   Blockly.TinyGo.pins_[id] = id+'.Configure(machine.PinConfig{Mode: machine.Pin'+mode+'})';
+  Blockly.TinyGo.imports_['machine'] = 'machine';
 }
 
 Blockly.Blocks['tinygo_led'] = {
@@ -73,7 +75,7 @@ Blockly.Go['tinygo_led'] = function(block) {
     //  block, pins[0], Blockly.Go.PinTypes.GROVE_LED, 'this Grove module');
 
   Blockly.TinyGo.configurePin('ledPin' + pins[0], pins[0], 'Output');
-  if(stateOutput) {
+  if(stateOutput==true) {
     return 'ledPin' + pins[0] + '.High()\n';
   }
   return 'ledPin' + pins[0] + '.Low()\n';

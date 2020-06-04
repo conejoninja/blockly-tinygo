@@ -190,11 +190,18 @@ Blockly.Go.finish = function(code) {
   for (var name in Blockly.Go.definitions_) {
     definitions.push(Blockly.Go.definitions_[name]);
   }
+
+  defvars = [];
+  for(var i in Blockly.TinyGo.imports_) {
+    defvars.push('import "'+Blockly.TinyGo.imports_[i]+'"');
+  }
+
+  console.log(Blockly.TinyGo.imports_);
   // Clean up temporary data.
   delete Blockly.Go.definitions_;
   delete Blockly.Go.functionNames_;
   Blockly.Go.variableDB_.reset();
-  code = 'package main\n\n'+definitions.join('\n\n') + '\n\n\n' + code;
+  code = 'package main\n\n'+defvars.join('\n\n')+'\n\n'+definitions.join('\n\n') + '\n\n\n' + code;
   let dataCode = '';
   GoFmtServer.postJson('http://localhost:8737/', code, function (data) {dataCode = data.code;});
   return dataCode;
