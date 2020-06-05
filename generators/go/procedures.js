@@ -18,26 +18,26 @@ Blockly.Go['procedures_defreturn'] = function(block) {
   // Define a procedure with a return value.
   // First, add a 'global' statement for every variable that is not shadowed by
   // a local parameter.
-  var globals = [];
+  //var globals = [];
   var varName;
   var workspace = block.workspace;
   var variables = Blockly.Variables.allUsedVarModels(workspace) || [];
-  for (var i = 0, variable; variable = variables[i]; i++) {
+  /*for (var i = 0, variable; variable = variables[i]; i++) {
     varName = variable.name;
     if (block.arguments_.indexOf(varName) == -1) {
       globals.push(Blockly.Go.variableDB_.getName(varName,
           Blockly.VARIABLE_CATEGORY_NAME));
     }
-  }
+  }*/
   // Add developer variables.
-  var devVarList = Blockly.Variables.allDeveloperVariables(workspace);
+  /*var devVarList = Blockly.Variables.allDeveloperVariables(workspace);
   for (var i = 0; i < devVarList.length; i++) {
     globals.push(Blockly.Go.variableDB_.getName(devVarList[i],
         Blockly.Names.DEVELOPER_VARIABLE_TYPE));
   }
   globals = globals.length ?
       Blockly.Go.INDENT + 'global ' + globals.join(', ') + '\n' : '';
-
+*/
   var funcName = Blockly.Go.variableDB_.getName(
       block.getFieldValue('NAME'), Blockly.PROCEDURE_CATEGORY_NAME);
   var xfix1 = '';
@@ -73,7 +73,7 @@ Blockly.Go['procedures_defreturn'] = function(block) {
         Blockly.VARIABLE_CATEGORY_NAME);
   }
   var code = 'func ' + funcName + '(' + args.join(', ') + ') {\n' +
-      globals + xfix1 + loopTrap + branch + xfix2 + returnValue + '}';
+       xfix1 + loopTrap + branch + xfix2 + returnValue + '}';
   code = Blockly.Go.scrub_(block, code);
   // Add % so as not to collide with helper functions in definitions list.
   Blockly.Go.definitions_['%' + funcName] = code;
