@@ -155,7 +155,8 @@ Blockly.Go.init = function(workspace) {
       'var ' +
       Blockly.Go.variableDB_.getName(varName, Blockly.Variables.NAME_TYPE) + ' ' + Blockly.Go.getGoType_(varsWithTypes[varName]) );
   }
-            
+     
+  Blockly.TinyGo.init(workspace);
 
 };
 
