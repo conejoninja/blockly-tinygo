@@ -138,15 +138,17 @@ Blockly.Go['tinygo_led_state'] = function(block) {
 
 Blockly.Go['tinygo_goroutine'] = function(block) {
   var inputDo = this.getInput('GR');
-// If/elseif/else condition.
-var code = '', branchCode, conditionCode;
+
+  var code = '', branchCode, conditionCode;
   branchCode = Blockly.Go.statementToCode(block, 'GR0');
-  if (Blockly.Go.STATEMENT_SUFFIX) {
-    branchCode = Blockly.Go.prefixLines(
-        Blockly.Go.injectId(Blockly.Go.STATEMENT_SUFFIX, block),
-        Blockly.Go.INDENT) + branchCode;
-  }
-  code = 'go ' + branchCode;
+
+  let lines = branchCode.split('\n');
+  if(lines.length>2) {
+    code = 'go func() {\n' + branchCode +'}()\n';
+  } else {
+    code = 'go ' + branchCode;
+  };
+
 
 
 return code ;};
