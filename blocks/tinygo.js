@@ -77,7 +77,6 @@ Blockly.Go['tinygo_led'] = function(block) {
     //  block, pins[0], Blockly.Go.PinTypes.GROVE_LED, 'this Grove module');
 
   Blockly.TinyGo.configurePin('ledPin' + pins[0], pins[0], 'Output');
-  console.log(stateOutput,stateOutput=='true');
   if(stateOutput=='true') {
     return 'ledPin' + pins[0] + '.High()\n';
   }

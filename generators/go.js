@@ -197,7 +197,6 @@ Blockly.Go.finish = function(code) {
     defvars.push('import "'+Blockly.TinyGo.imports_[i]+'"');
   }
 
-  console.log(Blockly.TinyGo.imports_);
   // Clean up temporary data.
   delete Blockly.Go.definitions_;
   delete Blockly.Go.functionNames_;
