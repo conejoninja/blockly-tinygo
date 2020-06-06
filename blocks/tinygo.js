@@ -112,9 +112,44 @@ Blockly.defineBlocksWithJsonArray([  // BEGIN JSON EXTRACT
     "tooltip": "tooltip",
     "helpUrl": "helpurl"
   },
+  {
+    "type": "tinygo_goroutine",
+    "message0": "go routine %1",
+    "args0": [
+      {
+        "type": "input_statement",
+        "name": "GR0",
+      }
+    ],  
+    "previousStatement": null,
+    "nextStatement": null,
+    "style": "logic_blocks",
+    "helpUrl": "%{BKY_CONTROLS_IF_HELPURL}",
+    "extensions": ["controls_if_tooltip"]
+  },
 ]);
 
 Blockly.Go['tinygo_led_state'] = function(block) {
   var code = (block.getFieldValue('BOOL') == 'TRUE') ? 'true' : 'false';
   return [code, Blockly.Go.ORDER_ATOMIC];
 };
+
+
+
+Blockly.Go['tinygo_goroutine'] = function(block) {
+  var inputDo = this.getInput('GR');
+// If/elseif/else condition.
+var code = '', branchCode, conditionCode;
+  branchCode = Blockly.Go.statementToCode(block, 'GR0');
+  if (Blockly.Go.STATEMENT_SUFFIX) {
+    branchCode = Blockly.Go.prefixLines(
+        Blockly.Go.injectId(Blockly.Go.STATEMENT_SUFFIX, block),
+        Blockly.Go.INDENT) + branchCode;
+  }
+  code = 'go ' + branchCode;
+
+
+return code ;};
+
+
+

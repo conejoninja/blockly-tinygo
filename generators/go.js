@@ -174,7 +174,7 @@ Blockly.Go.finish = function(code) {
   for(var i in Blockly.TinyGo.variables_) {
     defvars.push(Blockly.TinyGo.variables_[i]);
   }
-console.log("DEFFX", defvars, Blockly.Go.definitions_);
+
   // Declare all of the variables.
   let variables = defvars.join('\n');
 
