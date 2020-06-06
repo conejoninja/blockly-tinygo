@@ -174,17 +174,17 @@ Blockly.Go.finish = function(code) {
   for(var i in Blockly.TinyGo.variables_) {
     defvars.push(Blockly.TinyGo.variables_[i]);
   }
-
+console.log("DEFFX", defvars, Blockly.Go.definitions_);
   // Declare all of the variables.
-  Blockly.Go.definitions_['variables'] = defvars.join('\n');
+  let variables = defvars.join('\n');
 
 
   defvars = [];
   for(var i in Blockly.TinyGo.pins_) {
     defvars.push(Blockly.TinyGo.pins_[i]);
   }
-  code = defvars.join('\n') + '\n\n' + code;
-  code = 'func main() {\n' + code + '}';
+
+  code = variables + '\n\nfunc main() {\n' +defvars.join('\n') +'\n' + code + '}';
 
   // Convert the definitions dictionary into a list.
   var definitions = [];
@@ -194,14 +194,18 @@ Blockly.Go.finish = function(code) {
 
   defvars = [];
   for(var i in Blockly.TinyGo.imports_) {
-    defvars.push('import "'+Blockly.TinyGo.imports_[i]+'"');
+    defvars.push('"'+Blockly.TinyGo.imports_[i]+'"');
+  }
+  let importsStr = '';
+  if(defvars.length>0) {
+  importsStr = 'import(\n'+defvars.join('\n\n')+'\n)';
   }
 
   // Clean up temporary data.
   delete Blockly.Go.definitions_;
   delete Blockly.Go.functionNames_;
   Blockly.Go.variableDB_.reset();
-  code = 'package main\n\n'+defvars.join('\n\n')+'\n\n'+definitions.join('\n\n') + '\n\n\n' + code;
+  code = 'package main\n\n'+importsStr+'\n\n' + code+ '\n'+definitions.join('\n');
   let dataCode = '';
   GoFmtServer.postJson('http://localhost:8737/', code, function (data) {dataCode = data.code;});
   return dataCode;
