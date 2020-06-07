@@ -19,6 +19,18 @@ Blockly.TinyGo.pins_ = [];
 Blockly.TinyGo.imports_ = [];
 };
 
+Blockly.TinyGo.addImport = function(id, path) {
+  Blockly.TinyGo.imports_[id] = path;
+}
+
+Blockly.TinyGo.addVariable = function(id, variable) {
+  Blockly.TinyGo.variables_[id] = variable;
+}
+
+Blockly.TinyGo.addDeclaration = function(id, data) {
+  Blockly.TinyGo.pins_[id] = data;
+}
+
 Blockly.TinyGo.configurePin = function(id, pinNumber, mode) {
   Blockly.TinyGo.variables_[id] = 'const '+id+' = machine.Pin('+pinNumber+')';
   Blockly.TinyGo.pins_[id] = id+'.Configure(machine.PinConfig{Mode: machine.Pin'+mode+'})';
@@ -127,6 +139,41 @@ Blockly.defineBlocksWithJsonArray([  // BEGIN JSON EXTRACT
     "helpUrl": "%{BKY_CONTROLS_IF_HELPURL}",
     "extensions": ["controls_if_tooltip"]
   },
+  {
+    "type": "tinygo_time_sleep",
+    "message0": "sleep %1 %2",
+    "args0": [
+      {
+        "type": "field_number",
+        "name": "AMOUNT",
+        "value": 500,
+        "min": 0
+      },
+      {
+        "type": "field_dropdown",
+        "name": "UNIT",
+        "options": [
+          [
+            "Milliseconds",
+            "time.Millisecond"
+          ],
+          [
+            "Microseconds",
+            "time.Microseconds"
+          ],
+          [
+            "Seconds",
+            "time.Second"
+          ]
+        ]
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 230,
+    "tooltip": "",
+    "helpUrl": ""
+  }
 ]);
 
 Blockly.Go['tinygo_led_state'] = function(block) {
@@ -151,7 +198,13 @@ Blockly.Go['tinygo_goroutine'] = function(block) {
 
 
 
-return code ;};
+return code ;
+};
 
-
-
+Blockly.Go['tinygo_time_sleep'] = function(block) {
+  Blockly.TinyGo.imports_['time'] = 'time';
+  var amount = block.getFieldValue('AMOUNT');
+  var unit = block.getFieldValue('UNIT');
+  var code = 'time.Sleep('+amount+' * '+unit+')\n';
+  return code; 
+};
