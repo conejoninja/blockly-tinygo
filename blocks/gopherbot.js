@@ -46,7 +46,70 @@ Blockly.defineBlocksWithJsonArray([  // BEGIN JSON EXTRACT
     "colour": 230,
     "tooltip": "",
     "helpUrl": ""
+  },
+  {
+    "type": "gopherbot_visor",
+    "message0": "visor mode %1",
+    "args0": [
+      {
+        "type": "field_dropdown",
+        "name": "MODE",
+        "options": [
+          [
+            "RED",
+            "Red"
+          ],
+          [
+            "GREEN",
+            "Green"
+          ],
+          [
+            "BLUE",
+            "Blue"
+          ],
+          [
+            "CYLON",
+            "Cylon"
+          ],
+          [
+            "XMAS",
+            "Xmas"
+          ]
+        ]
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 230,
+    "tooltip": "",
+    "helpUrl": ""
+  },
+  {
+    "type": "gopherbot_button",
+    "message0": "button %1 is pushed",
+    "args0": [
+      {
+        "type": "field_dropdown",
+        "name": "BUTTON",
+        "options": [
+          [
+            "LEFT",
+            "LEFT"
+          ],
+          [
+            "RIGHT",
+            "RIGHT"
+          ]
+        ]
+      }
+    ],
+    "output": "Boolean",
+    "colour": 230,
+    "tooltip": "",
+    "helpUrl": ""
   }
+  
+  
 ]);
 
 Blockly.Go['gopherbot_antenna'] = function(block) {  
@@ -57,4 +120,28 @@ Blockly.Go['gopherbot_antenna'] = function(block) {
   var state = block.getFieldValue('STATE');
   var code = 'antenna.'+state+'()\n';
   return code; 
+};
+
+Blockly.Go['gopherbot_visor'] = function(block) {  
+  Blockly.TinyGo.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
+  Blockly.TinyGo.addVariable('gopherbot_visor', 'var visor *gopherbot.VisorDevice');
+  Blockly.TinyGo.addDeclaration('gopherbot_visor', 'visor = gopherbot.Visor()');
+
+  var mode = block.getFieldValue('MODE');
+  var code = 'visor.'+mode+'()\n';
+  return code; 
+};
+
+
+Blockly.Go['gopherbot_button'] = function(block) {  
+  Blockly.TinyGo.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
+  var btn = block.getFieldValue('BUTTON');
+  if(btn=="LEFT") {  
+    Blockly.TinyGo.addVariable('gopherbot_btn_left', 'var btnLeft *gopherbot.ButtonDevice');
+    Blockly.TinyGo.addDeclaration('gopherbot_btn_left', 'btnLeft = gopherbot.LeftButton()');
+    return ['btnLeft.Pushed()', Blockly.Go.ORDER_NONE];
+  }
+  Blockly.TinyGo.addVariable('gopherbot_btn_right', 'var btnRight *gopherbot.ButtonDevice');
+  Blockly.TinyGo.addDeclaration('gopherbot_btn_right', 'btnRight = gopherbot.RightButton()');
+  return ['btnRight.Pushed()', Blockly.Go.ORDER_NONE];
 };
