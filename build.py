@@ -35,11 +35,7 @@
 #
 # This script also generates:
 #   blocks_compressed.js: The compressed Blockly language blocks.
-#   javascript_compressed.js: The compressed JavaScript generator.
-#   python_compressed.js: The compressed Python generator.
-#   php_compressed.js: The compressed PHP generator.
-#   lua_compressed.js: The compressed Lua generator.
-#   dart_compressed.js: The compressed Dart generator.
+#   go_compressed.js: The compressed Go generator.
 #   msg/js/<LANG>.js for every language <LANG> defined in msg/js/<LANG>.json.
 
 import argparse
@@ -168,11 +164,7 @@ class Gen_compressed(threading.Thread):
       self.gen_blocks()
 
     if (self.bundles.generators):
-      self.gen_generator("javascript")
-      self.gen_generator("python")
-      self.gen_generator("php")
-      self.gen_generator("lua")
-      self.gen_generator("dart")
+      self.gen_generator("go")
 
   def gen_core(self):
     target_filename = "blockly_compressed.js"
