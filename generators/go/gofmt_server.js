@@ -38,7 +38,7 @@ GoFmtServer.postJson = function(url, json, callback) {
  *     parsed JSON object.
  */
 GoFmtServer.sendRequest = function(
-    url, method, contentType, jsonObjSend, cb) {
+  url, method, contentType, jsonObjSend, cb) {
   var request = GoFmtServer.createRequest();
 
   // The data received is JSON, so it needs to be converted into the right
@@ -49,7 +49,7 @@ GoFmtServer.sendRequest = function(
         var jsonObjReceived = null;
         try {
           jsonObjReceived = JSON.parse(request.responseText);
-        } catch(e) {
+        } catch (e) {
           console.error('Incorrectly formatted JSON data from ' + url);
           throw e;
         }
@@ -79,19 +79,16 @@ GoFmtServer.createRequest = function() {
   try {
     // Firefox, Chrome, IE7+, Opera, Safari
     request = new XMLHttpRequest();
-  }
-  catch (e) {
+  } catch (e) {
     // IE6 and earlier
     try {
       request = new ActiveXObject('Msxml2.XMLHTTP');
-    }
-    catch (e) {
+    } catch (e) {
       try {
         request = new ActiveXObject('Microsoft.XMLHTTP');
-      }
-      catch (e) {
+      } catch (e) {
         throw 'Your browser does not support AJAX. You will not be able to' +
-              'use all of GoFmt features.';
+        'use all of GoFmt features.';
         request = null;
       }
     }

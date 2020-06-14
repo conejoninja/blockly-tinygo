@@ -18,7 +18,6 @@ goog.require('Blockly.utils.string');
 goog.require('GoFmtServer');
 
 
-
 /**
  * Go code generator.
  * @type {!Blockly.Generator}
@@ -153,9 +152,9 @@ Blockly.Go.init = function(workspace) {
   for (var varName in varsWithTypes) {
     Blockly.Go.addVariable(varName,
       'var ' +
-      Blockly.Go.variableDB_.getName(varName, Blockly.Variables.NAME_TYPE) + ' ' + Blockly.Go.getGoType_(varsWithTypes[varName]) );
+      Blockly.Go.variableDB_.getName(varName, Blockly.Variables.NAME_TYPE) + ' ' + Blockly.Go.getGoType_(varsWithTypes[varName]));
   }
-     
+
   Blockly.TinyGo.init(workspace);
 
 };
@@ -167,11 +166,11 @@ Blockly.Go.init = function(workspace) {
  */
 Blockly.Go.finish = function(code) {
   var defvars = [];
-  for(var i in Blockly.Go.variables_) {
+  for (var i in Blockly.Go.variables_) {
     defvars.push(Blockly.Go.variables_[i]);
   }
 
-  for(var i in Blockly.TinyGo.variables_) {
+  for (var i in Blockly.TinyGo.variables_) {
     defvars.push(Blockly.TinyGo.variables_[i]);
   }
 
@@ -180,11 +179,11 @@ Blockly.Go.finish = function(code) {
 
 
   defvars = [];
-  for(var i in Blockly.TinyGo.pins_) {
+  for (var i in Blockly.TinyGo.pins_) {
     defvars.push(Blockly.TinyGo.pins_[i]);
   }
 
-  code = variables + '\n\nfunc main() {\n' +defvars.join('\n') +'\n' + code + '}';
+  code = variables + '\n\nfunc main() {\n' + defvars.join('\n') + '\n' + code + '}';
 
   // Convert the definitions dictionary into a list.
   var definitions = [];
@@ -193,21 +192,23 @@ Blockly.Go.finish = function(code) {
   }
 
   defvars = [];
-  for(var i in Blockly.TinyGo.imports_) {
-    defvars.push('"'+Blockly.TinyGo.imports_[i]+'"');
+  for (var i in Blockly.TinyGo.imports_) {
+    defvars.push('"' + Blockly.TinyGo.imports_[i] + '"');
   }
   let importsStr = '';
-  if(defvars.length>0) {
-  importsStr = 'import(\n'+defvars.join('\n\n')+'\n)';
+  if (defvars.length > 0) {
+    importsStr = 'import(\n' + defvars.join('\n\n') + '\n)';
   }
 
   // Clean up temporary data.
   delete Blockly.Go.definitions_;
   delete Blockly.Go.functionNames_;
   Blockly.Go.variableDB_.reset();
-  code = 'package main\n\n'+importsStr+'\n\n' + code+ '\n'+definitions.join('\n');
+  code = 'package main\n\n' + importsStr + '\n\n' + code + '\n' + definitions.join('\n');
   let dataCode = '';
-  GoFmtServer.postJson('http://localhost:8737/', code, function (data) {dataCode = data.code;});
+  GoFmtServer.postJson('http://localhost:8737/', code, function(data) {
+    dataCode = data.code;
+  });
   return dataCode;
 };
 
@@ -350,7 +351,7 @@ Blockly.Go.getAdjusted = function(block, atId, opt_delta, opt_negate,
 };
 
 Blockly.Go.getGoType_ = function(typeBlockly) {
-  if(typeBlockly==undefined) {
+  if (typeBlockly == undefined) {
     return 'Invalid Blockly Type';
   }
   switch (typeBlockly) {
