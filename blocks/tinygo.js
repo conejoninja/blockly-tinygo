@@ -212,7 +212,7 @@ Blockly.defineBlocksWithJsonArray([  // BEGIN JSON EXTRACT
     ],
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 230,
+    "colour": 180,
     "tooltip": "",
     "helpUrl": ""
   },
