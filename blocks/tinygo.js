@@ -14,28 +14,28 @@ goog.require('Blockly.Go');
 goog.require('Blockly.Types');
 
 Blockly.TinyGo.init = function(workspace) {
-Blockly.TinyGo.variables_ = [];
-Blockly.TinyGo.pins_ = [];
-Blockly.TinyGo.imports_ = [];
+  Blockly.TinyGo.variables_ = [];
+  Blockly.TinyGo.pins_ = [];
+  Blockly.TinyGo.imports_ = [];
 };
 
 Blockly.TinyGo.addImport = function(id, path) {
   Blockly.TinyGo.imports_[id] = path;
-}
+};
 
 Blockly.TinyGo.addVariable = function(id, variable) {
   Blockly.TinyGo.variables_[id] = variable;
-}
+};
 
 Blockly.TinyGo.addDeclaration = function(id, data) {
   Blockly.TinyGo.pins_[id] = data;
-}
+};
 
 Blockly.TinyGo.configurePin = function(id, pinNumber, mode) {
-  Blockly.TinyGo.variables_[id] = 'const '+id+' = machine.Pin('+pinNumber+')';
-  Blockly.TinyGo.pins_[id] = id+'.Configure(machine.PinConfig{Mode: machine.Pin'+mode+'})';
+  Blockly.TinyGo.variables_[id] = 'const ' + id + ' = machine.Pin(' + pinNumber + ')';
+  Blockly.TinyGo.pins_[id] = id + '.Configure(machine.PinConfig{Mode: machine.Pin' + mode + '})';
   Blockly.TinyGo.imports_['machine'] = 'machine';
-}
+};
 
 Blockly.Blocks['tinygo_led'] = {
   /**
@@ -45,18 +45,18 @@ Blockly.Blocks['tinygo_led'] = {
   init: function() {
 
     var connectorIo = [];
-  for (var i = 0; i < 14; i++) {
-    connectorIo.push(['D' + i.toString(), i.toString()]);
-  }
-  
+    for (var i = 0; i < 14; i++) {
+      connectorIo.push(['D' + i.toString(), i.toString()]);
+    }
+
     this.setHelpUrl('http://www.seeedstudio.com/wiki/Grove_-_LED');
     this.setColour(180);
     this.appendValueInput('STATE')
-        .appendField(new Blockly.FieldImage(
-            '../blocks/img/led.png', 32, 32))
-        .appendField("LED on pin")
-        .appendField(new Blockly.FieldDropdown(connectorIo), 'PINNUMBER')
-        .setCheck(Blockly.Types.LEDSTATE.checkList);
+      .appendField(new Blockly.FieldImage(
+        '../blocks/img/led.png', 32, 32))
+      .appendField("LED on pin")
+      .appendField(new Blockly.FieldDropdown(connectorIo), 'PINNUMBER')
+      .setCheck(Blockly.Types.LEDSTATE.checkList);
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
@@ -68,7 +68,7 @@ Blockly.Blocks['tinygo_led'] = {
    */
   updateFields: function() {
     Blockly.Arduino.Boards.refreshBlockFieldDropdown(
-        this, 'PINNUMBER', 'groveDigital');
+      this, 'PINNUMBER', 'groveDigital');
   },
   /**
    * Returns a list with the connector used pins. For this block just the first.
@@ -83,13 +83,13 @@ Blockly.Blocks['tinygo_led'] = {
 Blockly.Go['tinygo_led'] = function(block) {
   var pins = block.connectorPinUsage();
   var stateOutput = Blockly.Go.valueToCode(
-      block, 'STATE', Blockly.Go.ORDER_ATOMIC) || false;
+    block, 'STATE', Blockly.Go.ORDER_ATOMIC) || false;
 
   //Blockly.Go.reservePin(
-    //  block, pins[0], Blockly.Go.PinTypes.GROVE_LED, 'this Grove module');
+  //  block, pins[0], Blockly.Go.PinTypes.GROVE_LED, 'this Grove module');
 
   Blockly.TinyGo.configurePin('ledPin' + pins[0], pins[0], 'Output');
-  if(stateOutput=='true') {
+  if (stateOutput == 'true') {
     return 'ledPin' + pins[0] + '.High()\n';
   }
   return 'ledPin' + pins[0] + '.Low()\n';
@@ -101,7 +101,6 @@ Blockly.Types.LEDSTATE = new Blockly.Type({
   typeMsgName: 'ARD_TYPE_BOOL',
   compatibleTypes: []
 });
-
 
 
 Blockly.defineBlocksWithJsonArray([  // BEGIN JSON EXTRACT
@@ -125,6 +124,99 @@ Blockly.defineBlocksWithJsonArray([  // BEGIN JSON EXTRACT
     "helpUrl": "helpurl"
   },
   {
+    "type": "tinygo_led_complete",
+    "message0": "%3 set LED %1 to %2",
+    "args0": [
+      {
+        "type": "field_dropdown",
+        "name": "PIN",
+        "options": [
+          [
+            "D0",
+            "0"
+          ],
+          [
+            "D1",
+            "1"
+          ],
+          [
+            "D2",
+            "2"
+          ],
+          [
+            "D3",
+            "3"
+          ],
+          [
+            "D4",
+            "4"
+          ],
+          [
+            "D5",
+            "5"
+          ],
+          [
+            "D6",
+            "6"
+          ],
+          [
+            "D7",
+            "7"
+          ],
+          [
+            "D8",
+            "8"
+          ],
+          [
+            "D9",
+            "9"
+          ],
+          [
+            "D10",
+            "10"
+          ],
+          [
+            "D11",
+            "11"
+          ],
+          [
+            "D12",
+            "12"
+          ],
+          [
+            "D13",
+            "13"
+          ]
+        ]
+      },
+      {
+        "type": "field_dropdown",
+        "name": "STATE",
+        "options": [
+          [
+            "HIGH",
+            "High"
+          ],
+          [
+            "LOW",
+            "Low"
+          ]
+        ]
+      },
+      {
+        "type": "field_image",
+        "src": "../blocks/img/led.png",
+        "width": 32,
+        "height": 32
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 230,
+    "tooltip": "",
+    "helpUrl": ""
+  },
+  {
     "type": "tinygo_goroutine",
     "message0": "go routine %1",
     "args0": [
@@ -132,7 +224,7 @@ Blockly.defineBlocksWithJsonArray([  // BEGIN JSON EXTRACT
         "type": "input_statement",
         "name": "GR0",
       }
-    ],  
+    ],
     "previousStatement": null,
     "nextStatement": null,
     "style": "logic_blocks",
@@ -168,6 +260,7 @@ Blockly.defineBlocksWithJsonArray([  // BEGIN JSON EXTRACT
         ]
       }
     ],
+    "inputsInline": true,
     "previousStatement": null,
     "nextStatement": null,
     "colour": 230,
@@ -182,7 +275,6 @@ Blockly.Go['tinygo_led_state'] = function(block) {
 };
 
 
-
 Blockly.Go['tinygo_goroutine'] = function(block) {
   var inputDo = this.getInput('GR');
 
@@ -190,21 +282,29 @@ Blockly.Go['tinygo_goroutine'] = function(block) {
   branchCode = Blockly.Go.statementToCode(block, 'GR0');
 
   let lines = branchCode.split('\n');
-  if(lines.length>2) {
-    code = 'go func() {\n' + branchCode +'}()\n';
+  if (lines.length > 2) {
+    code = 'go func() {\n' + branchCode + '}()\n';
   } else {
     code = 'go ' + branchCode;
-  };
+  }
+  ;
 
 
-
-return code ;
+  return code;
 };
 
 Blockly.Go['tinygo_time_sleep'] = function(block) {
   Blockly.TinyGo.imports_['time'] = 'time';
   var amount = block.getFieldValue('AMOUNT');
   var unit = block.getFieldValue('UNIT');
-  var code = 'time.Sleep('+amount+' * '+unit+')\n';
-  return code; 
+  var code = 'time.Sleep(' + amount + ' * ' + unit + ')\n';
+  return code;
+};
+
+Blockly.Go['tinygo_led_complete'] = function(block) {
+  var state = block.getFieldValue('STATE');
+  var pin = block.getFieldValue('PIN');
+  Blockly.TinyGo.configurePin('ledPin' + pin, pin, 'Output');
+
+  return 'ledPin' + pin + '.' + state + '()\n';
 };
