@@ -185,7 +185,8 @@ Blockly.defineBlocksWithJsonArray([  // BEGIN JSON EXTRACT
           ],
           [
             "D13",
-            "13"
+            "13",
+            "machine.D13"
           ]
         ]
       },
@@ -304,7 +305,7 @@ Blockly.Go['tinygo_time_sleep'] = function(block) {
 Blockly.Go['tinygo_led_complete'] = function(block) {
   var state = block.getFieldValue('STATE');
   var pin = block.getFieldValue('PIN');
-  Blockly.TinyGo.configurePin('ledPin' + pin, pin, 'Output');
+  Blockly.TinyGo.configurePin('ledPin' + pin, 'machine.D'+pin, 'Output');
 
   return 'ledPin' + pin + '.' + state + '()\n';
 };
