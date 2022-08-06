@@ -81,6 +81,12 @@ Blockly.Types.ARRAY = new Blockly.Type({
   compatibleTypes: []
 });
 
+Blockly.Types.MAP = new Blockly.Type({
+  typeId: 'Map',
+  typeMsgName: 'ARD_TYPE_ARRAY',
+  compatibleTypes: []
+});
+
 /** Null indicate there is no type. */
 Blockly.Types.NULL = new Blockly.Type({
   typeId: 'Null',

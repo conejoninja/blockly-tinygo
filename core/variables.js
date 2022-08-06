@@ -295,6 +295,7 @@ Blockly.Variables.createVariableButtonHandler = function(
                   });
             } else {
               // No conflict
+              console.log("CREATE VARIABLE", opt_type, type);
               workspace.createVariable(text, type);
               if (opt_callback) {
                 opt_callback(text);

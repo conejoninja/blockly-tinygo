@@ -150,10 +150,18 @@ Blockly.Go.init = function(workspace) {
   Blockly.Go.StaticTyping.setProcedureArgs(workspace, varsWithTypes);
   // Set variable declarations with their Go type in the defines dictionary
   for (var varName in varsWithTypes) {
+    console.log("GET GO TYPE", varName, varsWithTypes, varsWithTypes[varName]);
+    if(Blockly.Go.getGoType_(varsWithTypes[varName])=='array') {
+      Blockly.Go.addVariable(varName,
+      'var ' +
+      Blockly.Go.variableDB_.getName(varName, Blockly.Variables.NAME_TYPE) + ' = make([]string, 10)');
+    } else {
+    
     Blockly.Go.addVariable(varName,
       'var ' +
       Blockly.Go.variableDB_.getName(varName, Blockly.Variables.NAME_TYPE) + ' ' + Blockly.Go.getGoType_(varsWithTypes[varName]));
   }
+}
 
   Blockly.TinyGo.init(workspace);
 
@@ -351,6 +359,7 @@ Blockly.Go.getAdjusted = function(block, atId, opt_delta, opt_negate,
 };
 
 Blockly.Go.getGoType_ = function(typeBlockly) {
+  console.log("TYPE BLOCKLY", typeBlockly);
   if (typeBlockly == undefined) {
     return 'Invalid Blockly Type';
   }
@@ -371,9 +380,13 @@ Blockly.Go.getGoType_ = function(typeBlockly) {
       return 'byte';
     case Blockly.Types.BOOLEAN.typeId:
       return 'bool';
+    case Blockly.Types.ARRAY.typeId:
+      return 'array';
+    case Blockly.Types.MAP.typeId:
+      return 'map';
     case Blockly.Types.NULL.typeId:
       return 'nil';
-    /*case Blockly.Types.UNDEF.typeId:
+      /*case Blockly.Types.UNDEF.typeId:
       return 'nil';*/
     case Blockly.Types.CHILD_BLOCK_MISSING.typeId:
       // If no block connected default to int, change for easier debugging

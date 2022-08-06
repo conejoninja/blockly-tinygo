@@ -32,6 +32,10 @@ Blockly.VariablesDynamic.onCreateVariableButtonClick_Colour = function(button) {
   Blockly.Variables.createVariableButtonHandler(button.getTargetWorkspace(),
       undefined, 'Colour');
 };
+Blockly.VariablesDynamic.onCreateVariableButtonClick_StringList = function(button) {
+  Blockly.Variables.createVariableButtonHandler(button.getTargetWorkspace(),
+      undefined, 'Array');
+};
 /**
  * Construct the elements (blocks and button) required by the flyout for the
  * variable category.
@@ -52,13 +56,19 @@ Blockly.VariablesDynamic.flyoutCategory = function(workspace) {
   button.setAttribute('text', Blockly.Msg['NEW_COLOUR_VARIABLE']);
   button.setAttribute('callbackKey', 'CREATE_VARIABLE_COLOUR');
   xmlList.push(button);
+  button = document.createElement('button');
+  button.setAttribute('text', Blockly.Msg['NEW_STRING_LIST_VARIABLE']);
+  button.setAttribute('callbackKey', 'CREATE_VARIABLE_STRING_LIST');
+  xmlList.push(button);
 
   workspace.registerButtonCallback('CREATE_VARIABLE_STRING',
       Blockly.VariablesDynamic.onCreateVariableButtonClick_String);
   workspace.registerButtonCallback('CREATE_VARIABLE_NUMBER',
       Blockly.VariablesDynamic.onCreateVariableButtonClick_Number);
-  workspace.registerButtonCallback('CREATE_VARIABLE_COLOUR',
+      workspace.registerButtonCallback('CREATE_VARIABLE_COLOUR',
       Blockly.VariablesDynamic.onCreateVariableButtonClick_Colour);
+      workspace.registerButtonCallback('CREATE_VARIABLE_STRING_LIST',
+      Blockly.VariablesDynamic.onCreateVariableButtonClick_StringList);
 
 
   var blockList = Blockly.VariablesDynamic.flyoutCategoryBlocks(workspace);

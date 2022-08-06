@@ -42,6 +42,39 @@ Blockly.Go['lists_create_with'] = function(block) {
   return [code, Blockly.Go.ORDER_FUNCTION_CALL];
 };
 
+Blockly.Go['lists_string_create_with'] = function(block) {
+  // Create a list with any number of elements of any type.
+  var code = new Array(block.itemCount_);
+  for (var i = 0; i < block.itemCount_; i++) {
+    code[i] = Blockly.Go.valueToCode(block, 'ADD' + i,
+        Blockly.Go.ORDER_COMMA) || 'null';
+  }
+  code = '['+block.itemCount_+']string{' + code.join(', ') + '}';
+  return [code, Blockly.Go.ORDER_FUNCTION_CALL];
+};
+
+Blockly.Go['lists_number_create_with'] = function(block) {
+  // Create a list with any number of elements of any type.
+  var code = new Array(block.itemCount_);
+  for (var i = 0; i < block.itemCount_; i++) {
+    code[i] = Blockly.Go.valueToCode(block, 'ADD' + i,
+        Blockly.Go.ORDER_COMMA) || 'null';
+  }
+  code = '['+block.itemCount_+']int32{' + code.join(', ') + '}';
+  return [code, Blockly.Go.ORDER_FUNCTION_CALL];
+};
+
+Blockly.Go['lists_colour_create_with'] = function(block) {
+  // Create a list with any number of elements of any type.
+  var code = new Array(block.itemCount_);
+  for (var i = 0; i < block.itemCount_; i++) {
+    code[i] = Blockly.Go.valueToCode(block, 'ADD' + i,
+        Blockly.Go.ORDER_COMMA) || 'null';
+  }
+  code = '['+block.itemCount_+']color.RGBA{' + code.join(', ') + '}';
+  return [code, Blockly.Go.ORDER_FUNCTION_CALL];
+};
+
 Blockly.Go['lists_repeat'] = function(block) {
   // Create a list with one element repeated.
   var functionName = Blockly.Go.provideFunction_(

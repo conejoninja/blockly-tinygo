@@ -54,6 +54,7 @@ Blockly.VariableModel = function(workspace, name, opt_type, opt_id) {
    * @type {string}
    */
   this.type = opt_type || '';
+  console.log("VARIABLE MODEL", opt_type, this.type);
 
   /**
    * A unique id for the variable. This should be defined at creation and
