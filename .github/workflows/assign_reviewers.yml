@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Assign requested reviewer
-      uses: actions/github-script@v5
+      uses: actions/github-script@c713e510dbd7d213d92d41b7a7805a986f4c5c66
       with:
         script: |
           try {
