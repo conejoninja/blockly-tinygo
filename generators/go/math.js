@@ -12,14 +12,14 @@
 
 goog.provide('Blockly.Go.math');
 
-goog.require('Blockly.Go');
+const Go = goog.require('Blockly.Go');
 
 
-Blockly.Go['math_number'] = function(block) {
+Go['math_number'] = function(block) {
   // Numeric value.
   var code = Number(block.getFieldValue('NUM'));
-  var order = code >= 0 ? Blockly.Go.ORDER_ATOMIC :
-              Blockly.Go.ORDER_UNARY_NEGATION;
+  var order = code >= 0 ? Go.ORDER_ATOMIC :
+              Go.ORDER_UNARY_NEGATION;
   if (code == Infinity) {
     code = 'INF';
   } else if (code == -Infinity) {
@@ -28,46 +28,46 @@ Blockly.Go['math_number'] = function(block) {
   return [code, order];
 };
 
-Blockly.Go['math_arithmetic'] = function(block) {
+Go['math_arithmetic'] = function(block) {
   // Basic arithmetic operators, and power.
   var OPERATORS = {
-    'ADD': [' + ', Blockly.Go.ORDER_ADDITION],
-    'MINUS': [' - ', Blockly.Go.ORDER_SUBTRACTION],
-    'MULTIPLY': [' * ', Blockly.Go.ORDER_MULTIPLICATION],
-    'DIVIDE': [' / ', Blockly.Go.ORDER_DIVISION],
-    'POWER': [' ^ ', Blockly.Go.ORDER_POWER]
+    'ADD': [' + ', Go.ORDER_ADDITION],
+    'MINUS': [' - ', Go.ORDER_SUBTRACTION],
+    'MULTIPLY': [' * ', Go.ORDER_MULTIPLICATION],
+    'DIVIDE': [' / ', Go.ORDER_DIVISION],
+    'POWER': [' ^ ', Go.ORDER_POWER]
   };
   var tuple = OPERATORS[block.getFieldValue('OP')];
   var operator = tuple[0];
   var order = tuple[1];
-  var argument0 = Blockly.Go.valueToCode(block, 'A', order) || '0';
-  var argument1 = Blockly.Go.valueToCode(block, 'B', order) || '0';
+  var argument0 = Go.valueToCode(block, 'A', order) || '0';
+  var argument1 = Go.valueToCode(block, 'B', order) || '0';
   var code = argument0 + operator + argument1;
   return [code, order];
 };
 
-Blockly.Go['math_single'] = function(block) {
+Go['math_single'] = function(block) {
   // Math operators with single operand.
   var operator = block.getFieldValue('OP');
   var code;
   var arg;
   if (operator == 'NEG') {
     // Negation is a special case given its different operator precedence.
-    arg = Blockly.Go.valueToCode(block, 'NUM',
-        Blockly.Go.ORDER_UNARY_NEGATION) || '0';
+    arg = Go.valueToCode(block, 'NUM',
+        Go.ORDER_UNARY_NEGATION) || '0';
     if (arg[0] == '-') {
       // --3 is not legal in JS.
       arg = ' ' + arg;
     }
     code = '-' + arg;
-    return [code, Blockly.Go.ORDER_UNARY_NEGATION];
+    return [code, Go.ORDER_UNARY_NEGATION];
   }
   if (operator == 'SIN' || operator == 'COS' || operator == 'TAN') {
-    arg = Blockly.Go.valueToCode(block, 'NUM',
-        Blockly.Go.ORDER_DIVISION) || '0';
+    arg = Go.valueToCode(block, 'NUM',
+        Go.ORDER_DIVISION) || '0';
   } else {
-    arg = Blockly.Go.valueToCode(block, 'NUM',
-        Blockly.Go.ORDER_NONE) || '0';
+    arg = Go.valueToCode(block, 'NUM',
+        Go.ORDER_NONE) || '0';
   }
   // First, handle cases which generate values that don't need parentheses
   // wrapping the code.
@@ -107,7 +107,7 @@ Blockly.Go['math_single'] = function(block) {
       break;
   }
   if (code) {
-    return [code, Blockly.Go.ORDER_FUNCTION_CALL];
+    return [code, Go.ORDER_FUNCTION_CALL];
   }
   // Second, handle cases which generate values that may need parentheses
   // wrapping the code.
@@ -127,34 +127,34 @@ Blockly.Go['math_single'] = function(block) {
     default:
       throw Error('Unknown math operator: ' + operator);
   }
-  return [code, Blockly.Go.ORDER_DIVISION];
+  return [code, Go.ORDER_DIVISION];
 };
 
-Blockly.Go['math_constant'] = function(block) {
+Go['math_constant'] = function(block) {
   // Constants: PI, E, the Golden Ratio, sqrt(2), 1/sqrt(2), INFINITY.
   var CONSTANTS = {
-    'PI': ['math.Pi', Blockly.Go.ORDER_ATOMIC],
-    'E': ['math.E', Blockly.Go.ORDER_ATOMIC],
-    'GOLDEN_RATIO': ['(1 + math.Sqrt(5)) / 2', Blockly.Go.ORDER_DIVISION],
-    'SQRT2': ['M_SQRT2', Blockly.Go.ORDER_ATOMIC],
-    'SQRT1_2': ['M_SQRT1_2', Blockly.Go.ORDER_ATOMIC],
-    'INFINITY': ['INF', Blockly.Go.ORDER_ATOMIC]
+    'PI': ['math.Pi', Go.ORDER_ATOMIC],
+    'E': ['math.E', Go.ORDER_ATOMIC],
+    'GOLDEN_RATIO': ['(1 + math.Sqrt(5)) / 2', Go.ORDER_DIVISION],
+    'SQRT2': ['M_SQRT2', Go.ORDER_ATOMIC],
+    'SQRT1_2': ['M_SQRT1_2', Go.ORDER_ATOMIC],
+    'INFINITY': ['INF', Go.ORDER_ATOMIC]
   };
   return CONSTANTS[block.getFieldValue('CONSTANT')];
 };
 
-Blockly.Go['math_number_property'] = function(block) {
+Go['math_number_property'] = function(block) {
   // Check if a number is even, odd, prime, whole, positive, or negative
   // or if it is divisible by certain number. Returns true or false.
-  var number_to_check = Blockly.Go.valueToCode(block, 'NUMBER_TO_CHECK',
-      Blockly.Go.ORDER_MODULUS) || '0';
+  var number_to_check = Go.valueToCode(block, 'NUMBER_TO_CHECK',
+      Go.ORDER_MODULUS) || '0';
   var dropdown_property = block.getFieldValue('PROPERTY');
   var code;
   if (dropdown_property == 'PRIME') {
     // Prime is a special case as it is not a one-liner test.
-    var functionName = Blockly.Go.provideFunction_(
+    var functionName = Go.provideFunction_(
         'math_isPrime',
-        ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ + '($n) {',
+        ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ + '($n) {',
          '  // https://en.wikipedia.org/wiki/Primality_test#Naive_methods',
          '  if ($n == 2 || $n == 3) {',
          '    return true',
@@ -174,7 +174,7 @@ Blockly.Go['math_number_property'] = function(block) {
          '  return true',
          '}']);
     code = functionName + '(' + number_to_check + ')';
-    return [code, Blockly.Go.ORDER_FUNCTION_CALL];
+    return [code, Go.ORDER_FUNCTION_CALL];
   }
   switch (dropdown_property) {
     case 'EVEN':
@@ -193,80 +193,80 @@ Blockly.Go['math_number_property'] = function(block) {
       code = number_to_check + ' < 0';
       break;
     case 'DIVISIBLE_BY':
-      var divisor = Blockly.Go.valueToCode(block, 'DIVISOR',
-          Blockly.Go.ORDER_MODULUS) || '0';
+      var divisor = Go.valueToCode(block, 'DIVISOR',
+          Go.ORDER_MODULUS) || '0';
       code = number_to_check + ' % ' + divisor + ' == 0';
       break;
   }
-  return [code, Blockly.Go.ORDER_EQUALITY];
+  return [code, Go.ORDER_EQUALITY];
 };
 
-Blockly.Go['math_change'] = function(block) {
+Go['math_change'] = function(block) {
   // Add to a variable in place.
-  var argument0 = Blockly.Go.valueToCode(block, 'DELTA',
-      Blockly.Go.ORDER_ADDITION) || '0';
-  var varName = Blockly.Go.variableDB_.getName(
+  var argument0 = Go.valueToCode(block, 'DELTA',
+      Go.ORDER_ADDITION) || '0';
+  var varName = Go.variableDB_.getName(
       block.getFieldValue('VAR'), Blockly.VARIABLE_CATEGORY_NAME);
   return varName + ' += ' + argument0 + '\n';
 };
 
 // Rounding functions have a single operand.
-Blockly.Go['math_round'] = Blockly.Go['math_single'];
+Go['math_round'] = Go['math_single'];
 // Trigonometry functions have a single operand.
-Blockly.Go['math_trig'] = Blockly.Go['math_single'];
+Go['math_trig'] = Go['math_single'];
 
-Blockly.Go['math_on_list'] = function(block) {
+Go['math_on_list'] = function(block) {
   // Math functions for lists.
   var func = block.getFieldValue('OP');
   var list, code;
   switch (func) {
     case 'SUM':
-      list = Blockly.Go.valueToCode(block, 'LIST',
-          Blockly.Go.ORDER_FUNCTION_CALL) || 'array()';
+      list = Go.valueToCode(block, 'LIST',
+          Go.ORDER_FUNCTION_CALL) || 'array()';
       code = 'array_sum(' + list + ')';
       break;
     case 'MIN':
-      list = Blockly.Go.valueToCode(block, 'LIST',
-          Blockly.Go.ORDER_FUNCTION_CALL) || 'array()';
+      list = Go.valueToCode(block, 'LIST',
+          Go.ORDER_FUNCTION_CALL) || 'array()';
       code = 'min(' + list + ')';
       break;
     case 'MAX':
-      list = Blockly.Go.valueToCode(block, 'LIST',
-          Blockly.Go.ORDER_FUNCTION_CALL) || 'array()';
+      list = Go.valueToCode(block, 'LIST',
+          Go.ORDER_FUNCTION_CALL) || 'array()';
       code = 'max(' + list + ')';
       break;
     case 'AVERAGE':
-      var functionName = Blockly.Go.provideFunction_(
+      var functionName = Go.provideFunction_(
           'math_mean',
-          ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+          ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
               '($myList) {',
            '  return array_sum($myList) / count($myList)',
            '}']);
-      list = Blockly.Go.valueToCode(block, 'LIST',
-          Blockly.Go.ORDER_NONE) || 'array()';
+      list = Go.valueToCode(block, 'LIST',
+          Go.ORDER_NONE) || 'array()';
       code = functionName + '(' + list + ')';
       break;
     case 'MEDIAN':
-      var functionName = Blockly.Go.provideFunction_(
+      var functionName = Go.provideFunction_(
           'math_median',
-          ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+          ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
               '($arr) {',
            '  sort($arr,SORT_NUMERIC)',
            '  return (count($arr) % 2) ? $arr[floor(count($arr)/2)] : ',
            '      ($arr[floor(count($arr)/2)] + $arr[floor(count($arr)/2)' +
               ' - 1]) / 2',
            '}']);
-      list = Blockly.Go.valueToCode(block, 'LIST',
-          Blockly.Go.ORDER_NONE) || '[]';
+      list = Go.valueToCode(block, 'LIST',
+          Go.ORDER_NONE) || '[]';
       code = functionName + '(' + list + ')';
       break;
     case 'MODE':
       // As a list of numbers can contain more than one mode,
       // the returned result is provided as an array.
       // Mode of [3, 'x', 'x', 1, 1, 2, '3'] -> ['x', 1].
-      var functionName = Blockly.Go.provideFunction_(
+      var functionName = Go.provideFunction_(
           'math_modes',
-          ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+          ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
               '($values) {',
            '  if (empty($values)) return array()',
            '  $counts = array_count_values($values)',
@@ -274,14 +274,14 @@ Blockly.Go['math_on_list'] = function(block) {
            '  $modes = array_keys($counts, current($counts), true)',
            '  return $modes',
            '}']);
-      list = Blockly.Go.valueToCode(block, 'LIST',
-          Blockly.Go.ORDER_NONE) || '[]';
+      list = Go.valueToCode(block, 'LIST',
+          Go.ORDER_NONE) || '[]';
       code = functionName + '(' + list + ')';
       break;
     case 'STD_DEV':
-      var functionName = Blockly.Go.provideFunction_(
+      var functionName = Go.provideFunction_(
           'math_standard_deviation',
-          ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+          ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
               '($numbers) {',
            '  $n = count($numbers)',
            '  if (!$n) return null',
@@ -290,60 +290,60 @@ Blockly.Go['math_on_list'] = function(block) {
               'pow($num - $mean, 2)',
            '  return sqrt(array_sum($devs) / (count($devs) - 1))',
            '}']);
-      list = Blockly.Go.valueToCode(block, 'LIST',
-              Blockly.Go.ORDER_NONE) || '[]';
+      list = Go.valueToCode(block, 'LIST',
+              Go.ORDER_NONE) || '[]';
       code = functionName + '(' + list + ')';
       break;
     case 'RANDOM':
-      var functionName = Blockly.Go.provideFunction_(
+      var functionName = Go.provideFunction_(
           'math_random_list',
-          ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+          ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
               '($list) {',
            '  $x = rand(0, count($list)-1)',
            '  return $list[$x]',
            '}']);
-      list = Blockly.Go.valueToCode(block, 'LIST',
-          Blockly.Go.ORDER_NONE) || '[]';
+      list = Go.valueToCode(block, 'LIST',
+          Go.ORDER_NONE) || '[]';
       code = functionName + '(' + list + ')';
       break;
     default:
       throw Error('Unknown operator: ' + func);
   }
-  return [code, Blockly.Go.ORDER_FUNCTION_CALL];
+  return [code, Go.ORDER_FUNCTION_CALL];
 };
 
-Blockly.Go['math_modulo'] = function(block) {
+Go['math_modulo'] = function(block) {
   // Remainder computation.
-  var argument0 = Blockly.Go.valueToCode(block, 'DIVIDEND',
-      Blockly.Go.ORDER_MODULUS) || '0';
-  var argument1 = Blockly.Go.valueToCode(block, 'DIVISOR',
-      Blockly.Go.ORDER_MODULUS) || '0';
+  var argument0 = Go.valueToCode(block, 'DIVIDEND',
+      Go.ORDER_MODULUS) || '0';
+  var argument1 = Go.valueToCode(block, 'DIVISOR',
+      Go.ORDER_MODULUS) || '0';
   var code = argument0 + ' % ' + argument1;
-  return [code, Blockly.Go.ORDER_MODULUS];
+  return [code, Go.ORDER_MODULUS];
 };
 
-Blockly.Go['math_constrain'] = function(block) {
+Go['math_constrain'] = function(block) {
   // Constrain a number between two limits.
-  var argument0 = Blockly.Go.valueToCode(block, 'VALUE',
-      Blockly.Go.ORDER_COMMA) || '0';
-  var argument1 = Blockly.Go.valueToCode(block, 'LOW',
-      Blockly.Go.ORDER_COMMA) || '0';
-  var argument2 = Blockly.Go.valueToCode(block, 'HIGH',
-      Blockly.Go.ORDER_COMMA) || 'Infinity';
+  var argument0 = Go.valueToCode(block, 'VALUE',
+      Go.ORDER_COMMA) || '0';
+  var argument1 = Go.valueToCode(block, 'LOW',
+      Go.ORDER_COMMA) || '0';
+  var argument2 = Go.valueToCode(block, 'HIGH',
+      Go.ORDER_COMMA) || 'Infinity';
   var code = 'min(max(' + argument0 + ', ' + argument1 + '), ' +
       argument2 + ')';
-  return [code, Blockly.Go.ORDER_FUNCTION_CALL];
+  return [code, Go.ORDER_FUNCTION_CALL];
 };
 
-Blockly.Go['math_random_int'] = function(block) {
+Go['math_random_int'] = function(block) {
   // Random integer between [X] and [Y].
-  var argument0 = Blockly.Go.valueToCode(block, 'FROM',
-      Blockly.Go.ORDER_COMMA) || '0';
-  var argument1 = Blockly.Go.valueToCode(block, 'TO',
-      Blockly.Go.ORDER_COMMA) || '0';
-  var functionName = Blockly.Go.provideFunction_(
+  var argument0 = Go.valueToCode(block, 'FROM',
+      Go.ORDER_COMMA) || '0';
+  var argument1 = Go.valueToCode(block, 'TO',
+      Go.ORDER_COMMA) || '0';
+  var functionName = Go.provideFunction_(
       'math_random_int',
-      ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
+      ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
           '($a, $b) {',
        '  if ($a > $b) {',
        '    return rand($b, $a)',
@@ -351,20 +351,20 @@ Blockly.Go['math_random_int'] = function(block) {
        '  return rand($a, $b)',
        '}']);
   var code = functionName + '(' + argument0 + ', ' + argument1 + ')';
-  return [code, Blockly.Go.ORDER_FUNCTION_CALL];
+  return [code, Go.ORDER_FUNCTION_CALL];
 };
 
-Blockly.Go['math_random_float'] = function(block) {
+Go['math_random_float'] = function(block) {
   // Random fraction between 0 and 1.
-  return ['(float)rand()/(float)getrandmax()', Blockly.Go.ORDER_FUNCTION_CALL];
+  return ['(float)rand()/(float)getrandmax()', Go.ORDER_FUNCTION_CALL];
 };
 
-Blockly.Go['math_atan2'] = function(block) {
+Go['math_atan2'] = function(block) {
   // Arctangent of point (X, Y) in degrees from -180 to 180.
-  var argument0 = Blockly.Go.valueToCode(block, 'X',
-      Blockly.Go.ORDER_COMMA) || '0';
-  var argument1 = Blockly.Go.valueToCode(block, 'Y',
-      Blockly.Go.ORDER_COMMA) || '0';
+  var argument0 = Go.valueToCode(block, 'X',
+      Go.ORDER_COMMA) || '0';
+  var argument1 = Go.valueToCode(block, 'Y',
+      Go.ORDER_COMMA) || '0';
   return ['atan2(' + argument1 + ', ' + argument0 + ') / pi() * 180',
-      Blockly.Go.ORDER_DIVISION];
+      Go.ORDER_DIVISION];
 };

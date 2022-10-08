@@ -13,10 +13,10 @@
 goog.provide('Blockly.Go');
 
 goog.require('Blockly.Types');
-goog.require('Blockly.Generator');
+const {Generator} = goog.require('Blockly.Generator');
 goog.require('Blockly.utils.string');
 goog.require('GoFmtServer');
-goog.require('Blockly.TinyGo');
+goog.require('Blockly.libraryBlocks.TinyGo');
 goog.require('Blockly.Names');
 
 
@@ -24,8 +24,8 @@ goog.require('Blockly.Names');
  * Go code generator.
  * @type {!Blockly.Generator}
  */
-Blockly.Go = new Blockly.Generator('Go');
-Blockly.Go.StaticTyping = new Blockly.StaticTyping();
+Go = new Generator('Go');
+Go.StaticTyping = new Blockly.StaticTyping();
 
 /**
  * List of illegal variable names.
@@ -34,7 +34,7 @@ Blockly.Go.StaticTyping = new Blockly.StaticTyping();
  * accidentally clobbering a built-in object or function.
  * @private
  */
-Blockly.Go.addReservedWords(
+Go.addReservedWords(
     // https://golang.org/ref/spec#Keywords
     'break,default,func,interface,select' +
     'case,defer,go,map,struct' +
@@ -47,109 +47,109 @@ Blockly.Go.addReservedWords(
  * Order of operation ENUMs.
  * http://Go.net/manual/en/language.operators.precedence.Go
  */
-Blockly.Go.ORDER_ATOMIC = 0;             // 0 "" ...
-Blockly.Go.ORDER_CLONE = 1;              // clone
-Blockly.Go.ORDER_NEW = 1;                // new
-Blockly.Go.ORDER_MEMBER = 2.1;           // []
-Blockly.Go.ORDER_FUNCTION_CALL = 2.2;    // ()
-Blockly.Go.ORDER_POWER = 3;              // **
-Blockly.Go.ORDER_INCREMENT = 4;          // ++
-Blockly.Go.ORDER_DECREMENT = 4;          // --
-Blockly.Go.ORDER_BITWISE_NOT = 4;        // ~
-Blockly.Go.ORDER_CAST = 4;               // (int) (float) (string) (array) ...
-Blockly.Go.ORDER_SUPPRESS_ERROR = 4;     // @
-Blockly.Go.ORDER_INSTANCEOF = 5;         // instanceof
-Blockly.Go.ORDER_LOGICAL_NOT = 6;        // !
-Blockly.Go.ORDER_UNARY_PLUS = 7.1;       // +
-Blockly.Go.ORDER_UNARY_NEGATION = 7.2;   // -
-Blockly.Go.ORDER_MULTIPLICATION = 8.1;   // *
-Blockly.Go.ORDER_DIVISION = 8.2;         // /
-Blockly.Go.ORDER_MODULUS = 8.3;          // %
-Blockly.Go.ORDER_ADDITION = 9.1;         // +
-Blockly.Go.ORDER_SUBTRACTION = 9.2;      // -
-Blockly.Go.ORDER_STRING_CONCAT = 9.3;    // .
-Blockly.Go.ORDER_BITWISE_SHIFT = 10;     // << >>
-Blockly.Go.ORDER_RELATIONAL = 11;        // < <= > >=
-Blockly.Go.ORDER_EQUALITY = 12;          // == != === !== <> <=>
-Blockly.Go.ORDER_REFERENCE = 13;         // &
-Blockly.Go.ORDER_BITWISE_AND = 13;       // &
-Blockly.Go.ORDER_BITWISE_XOR = 14;       // ^
-Blockly.Go.ORDER_BITWISE_OR = 15;        // |
-Blockly.Go.ORDER_LOGICAL_AND = 16;       // &&
-Blockly.Go.ORDER_LOGICAL_OR = 17;        // ||
-Blockly.Go.ORDER_IF_NULL = 18;           // ??
-Blockly.Go.ORDER_CONDITIONAL = 19;       // ?:
-Blockly.Go.ORDER_ASSIGNMENT = 20;        // = += -= *= /= %= <<= >>= ...
-Blockly.Go.ORDER_LOGICAL_AND_WEAK = 21;  // and
-Blockly.Go.ORDER_LOGICAL_XOR = 22;       // xor
-Blockly.Go.ORDER_LOGICAL_OR_WEAK = 23;   // or
-Blockly.Go.ORDER_COMMA = 24;             // ,
-Blockly.Go.ORDER_NONE = 99;              // (...)
+Go.ORDER_ATOMIC = 0;             // 0 "" ...
+Go.ORDER_CLONE = 1;              // clone
+Go.ORDER_NEW = 1;                // new
+Go.ORDER_MEMBER = 2.1;           // []
+Go.ORDER_FUNCTION_CALL = 2.2;    // ()
+Go.ORDER_POWER = 3;              // **
+Go.ORDER_INCREMENT = 4;          // ++
+Go.ORDER_DECREMENT = 4;          // --
+Go.ORDER_BITWISE_NOT = 4;        // ~
+Go.ORDER_CAST = 4;               // (int) (float) (string) (array) ...
+Go.ORDER_SUPPRESS_ERROR = 4;     // @
+Go.ORDER_INSTANCEOF = 5;         // instanceof
+Go.ORDER_LOGICAL_NOT = 6;        // !
+Go.ORDER_UNARY_PLUS = 7.1;       // +
+Go.ORDER_UNARY_NEGATION = 7.2;   // -
+Go.ORDER_MULTIPLICATION = 8.1;   // *
+Go.ORDER_DIVISION = 8.2;         // /
+Go.ORDER_MODULUS = 8.3;          // %
+Go.ORDER_ADDITION = 9.1;         // +
+Go.ORDER_SUBTRACTION = 9.2;      // -
+Go.ORDER_STRING_CONCAT = 9.3;    // .
+Go.ORDER_BITWISE_SHIFT = 10;     // << >>
+Go.ORDER_RELATIONAL = 11;        // < <= > >=
+Go.ORDER_EQUALITY = 12;          // == != === !== <> <=>
+Go.ORDER_REFERENCE = 13;         // &
+Go.ORDER_BITWISE_AND = 13;       // &
+Go.ORDER_BITWISE_XOR = 14;       // ^
+Go.ORDER_BITWISE_OR = 15;        // |
+Go.ORDER_LOGICAL_AND = 16;       // &&
+Go.ORDER_LOGICAL_OR = 17;        // ||
+Go.ORDER_IF_NULL = 18;           // ??
+Go.ORDER_CONDITIONAL = 19;       // ?:
+Go.ORDER_ASSIGNMENT = 20;        // = += -= *= /= %= <<= >>= ...
+Go.ORDER_LOGICAL_AND_WEAK = 21;  // and
+Go.ORDER_LOGICAL_XOR = 22;       // xor
+Go.ORDER_LOGICAL_OR_WEAK = 23;   // or
+Go.ORDER_COMMA = 24;             // ,
+Go.ORDER_NONE = 99;              // (...)
 
 /**
  * List of outer-inner pairings that do NOT require parentheses.
  * @type {!Array.<!Array.<number>>}
  */
-Blockly.Go.ORDER_OVERRIDES = [
+Go.ORDER_OVERRIDES = [
     // (foo()).bar() -> foo().bar()
     // (foo())[0] -> foo()[0]
-    [Blockly.Go.ORDER_MEMBER, Blockly.Go.ORDER_FUNCTION_CALL],
+    [Go.ORDER_MEMBER, Go.ORDER_FUNCTION_CALL],
     // (foo[0])[1] -> foo[0][1]
     // (foo.bar).baz -> foo.bar.baz
-    [Blockly.Go.ORDER_MEMBER, Blockly.Go.ORDER_MEMBER],
+    [Go.ORDER_MEMBER, Go.ORDER_MEMBER],
     // !(!foo) -> !!foo
-    [Blockly.Go.ORDER_LOGICAL_NOT, Blockly.Go.ORDER_LOGICAL_NOT],
+    [Go.ORDER_LOGICAL_NOT, Go.ORDER_LOGICAL_NOT],
     // a * (b * c) -> a * b * c
-    [Blockly.Go.ORDER_MULTIPLICATION, Blockly.Go.ORDER_MULTIPLICATION],
+    [Go.ORDER_MULTIPLICATION, Go.ORDER_MULTIPLICATION],
     // a + (b + c) -> a + b + c
-    [Blockly.Go.ORDER_ADDITION, Blockly.Go.ORDER_ADDITION],
+    [Go.ORDER_ADDITION, Go.ORDER_ADDITION],
     // a && (b && c) -> a && b && c
-    [Blockly.Go.ORDER_LOGICAL_AND, Blockly.Go.ORDER_LOGICAL_AND],
+    [Go.ORDER_LOGICAL_AND, Go.ORDER_LOGICAL_AND],
     // a || (b || c) -> a || b || c
-    [Blockly.Go.ORDER_LOGICAL_OR, Blockly.Go.ORDER_LOGICAL_OR]
+    [Go.ORDER_LOGICAL_OR, Go.ORDER_LOGICAL_OR]
 ];
 
 /**
  * Initialise the database of variable names.
  * @param {!Blockly.Workspace} workspace Workspace to generate code from.
  */
-Blockly.Go.init = function (workspace) {
-    Blockly.Go.variables_ = Object.create(null);
+Go.init = function (workspace) {
+    Go.variables_ = Object.create(null);
 
 
     // Create a dictionary of definitions to be printed before the code.
-    Blockly.Go.definitions_ = Object.create(null);
+    Go.definitions_ = Object.create(null);
     // Create a dictionary mapping desired function names in definitions_
     // to actual function names (to avoid collisions with user functions).
-    Blockly.Go.functionNames_ = Object.create(null);
+    Go.functionNames_ = Object.create(null);
 
-    if (!Blockly.Go.variableDB_) {
-        Blockly.Go.variableDB_ =
-            new Blockly.Names(Blockly.Go.RESERVED_WORDS_, '');
+    if (!Go.variableDB_) {
+        Go.variableDB_ =
+            new Blockly.Names(Go.RESERVED_WORDS_, '');
     } else {
-        Blockly.Go.variableDB_.reset();
+        Go.variableDB_.reset();
     }
 
-    Blockly.Go.variableDB_.setVariableMap(workspace.getVariableMap());
+    Go.variableDB_.setVariableMap(workspace.getVariableMap());
 
     var defvars = [];
     // Add developer variables (not created or named by the user).
     var devVarList = Blockly.Variables.allDeveloperVariables(workspace);
     for (var i = 0; i < devVarList.length; i++) {
-        defvars.push(Blockly.Go.variableDB_.getName(devVarList[i],
+        defvars.push(Go.variableDB_.getName(devVarList[i],
             Blockly.Names.DEVELOPER_VARIABLE_TYPE) + '');
     }
 
     // Add user variables, but only ones that are being used.
     var variables = Blockly.Variables.allUsedVarModels(workspace);
     for (var i = 0, variable; variable = variables[i]; i++) {
-        defvars.push(Blockly.Go.variableDB_.getName(variable.getId(),
+        defvars.push(Go.variableDB_.getName(variable.getId(),
             Blockly.VARIABLE_CATEGORY_NAME) + '');
     }
 
     // Iterate through to capture all blocks types and set the function arguments
-    var varsWithTypes = Blockly.Go.StaticTyping.collectVarsWithTypes(workspace);
-    Blockly.Go.StaticTyping.setProcedureArgs(workspace, varsWithTypes);
+    var varsWithTypes = Go.StaticTyping.collectVarsWithTypes(workspace);
+    Go.StaticTyping.setProcedureArgs(workspace, varsWithTypes);
     // Set variable declarations with their Go type in the defines dictionary
     for (let varName in varsWithTypes) {
         let vName = "xXx";
@@ -159,8 +159,8 @@ Blockly.Go.init = function (workspace) {
                 break;
             }
         }
-        Blockly.Go.addVariable(varName,
-            'var ' + vName + ' ' + Blockly.Go.getGoType_(varsWithTypes[varName]));
+        Go.addVariable(varName,
+            'var ' + vName + ' ' + Go.getGoType_(varsWithTypes[varName]));
     }
 
     Blockly.TinyGo.init(workspace);
@@ -172,10 +172,10 @@ Blockly.Go.init = function (workspace) {
  * @param {string} code Generated code.
  * @return {string} Completed code.
  */
-Blockly.Go.finish = function (code) {
+Go.finish = function (code) {
     var defvars = [];
-    for (var i in Blockly.Go.variables_) {
-        defvars.push(Blockly.Go.variables_[i]);
+    for (var i in Go.variables_) {
+        defvars.push(Go.variables_[i]);
     }
 
     for (var i in Blockly.TinyGo.variables_) {
@@ -195,8 +195,8 @@ Blockly.Go.finish = function (code) {
 
     // Convert the definitions dictionary into a list.
     var definitions = [];
-    for (var name in Blockly.Go.definitions_) {
-        definitions.push(Blockly.Go.definitions_[name]);
+    for (var name in Go.definitions_) {
+        definitions.push(Go.definitions_[name]);
     }
 
     defvars = [];
@@ -209,9 +209,9 @@ Blockly.Go.finish = function (code) {
     }
 
     // Clean up temporary data.
-    delete Blockly.Go.definitions_;
-    delete Blockly.Go.functionNames_;
-    Blockly.Go.variableDB_.reset();
+    delete Go.definitions_;
+    delete Go.functionNames_;
+    Go.variableDB_.reset();
     code = 'package main\n\n' + importsStr + '\n\n' + code + '\n' + definitions.join('\n');
     let dataCode = '';
     GoFmtServer.postJson('http://localhost:8737/api/fmt', code, function (data) {
@@ -226,7 +226,7 @@ Blockly.Go.finish = function (code) {
  * @param {string} line Line of generated code.
  * @return {string} Legal line of code.
  */
-Blockly.Go.scrubNakedValue = function (line) {
+Go.scrubNakedValue = function (line) {
     return line + '\n';
 };
 
@@ -237,7 +237,7 @@ Blockly.Go.scrubNakedValue = function (line) {
  * @return {string} Go string.
  * @private
  */
-Blockly.Go.quote_ = function (string) {
+Go.quote_ = function (string) {
     string = string.replace(/\\/g, '\\\\')
         .replace(/\n/g, '\\\n')
         .replace(/"/g, '\"');
@@ -251,7 +251,7 @@ Blockly.Go.quote_ = function (string) {
  * @return {string} Go string.
  * @private
  */
-Blockly.Go.multiline_quote_ = function (string) {
+Go.multiline_quote_ = function (string) {
     return '`' + string + '\n`';
 };
 
@@ -265,7 +265,7 @@ Blockly.Go.multiline_quote_ = function (string) {
  * @return {string} Go code with comments and subsequent blocks added.
  * @private
  */
-Blockly.Go.scrub_ = function (block, code, opt_thisOnly) {
+Go.scrub_ = function (block, code, opt_thisOnly) {
     var commentCode = '';
     // Only collect comments for blocks that aren't inline.
     if (!block.outputConnection || !block.outputConnection.targetConnection) {
@@ -273,8 +273,8 @@ Blockly.Go.scrub_ = function (block, code, opt_thisOnly) {
         var comment = block.getCommentText();
         if (comment) {
             comment = Blockly.utils.string.wrap(comment,
-                Blockly.Go.COMMENT_WRAP - 3);
-            commentCode += Blockly.Go.prefixLines(comment, '// ') + '\n';
+                Go.COMMENT_WRAP - 3);
+            commentCode += Go.prefixLines(comment, '// ') + '\n';
         }
         // Collect comments for all value arguments.
         // Don't collect comments for nested statements.
@@ -282,16 +282,16 @@ Blockly.Go.scrub_ = function (block, code, opt_thisOnly) {
             if (block.inputList[i].type == Blockly.INPUT_VALUE) {
                 var childBlock = block.inputList[i].connection.targetBlock();
                 if (childBlock) {
-                    comment = Blockly.Go.allNestedComments(childBlock);
+                    comment = Go.allNestedComments(childBlock);
                     if (comment) {
-                        commentCode += Blockly.Go.prefixLines(comment, '// ');
+                        commentCode += Go.prefixLines(comment, '// ');
                     }
                 }
             }
         }
     }
     var nextBlock = block.nextConnection && block.nextConnection.targetBlock();
-    var nextCode = opt_thisOnly ? '' : Blockly.Go.blockToCode(nextBlock);
+    var nextCode = opt_thisOnly ? '' : Go.blockToCode(nextBlock);
     return commentCode + code + nextCode;
 };
 
@@ -304,25 +304,25 @@ Blockly.Go.scrub_ = function (block, code, opt_thisOnly) {
  * @param {number=} opt_order The highest order acting on this value.
  * @return {string|number}
  */
-Blockly.Go.getAdjusted = function (block, atId, opt_delta, opt_negate,
+Go.getAdjusted = function (block, atId, opt_delta, opt_negate,
                                    opt_order) {
     var delta = opt_delta || 0;
-    var order = opt_order || Blockly.Go.ORDER_NONE;
+    var order = opt_order || Go.ORDER_NONE;
     if (block.workspace.options.oneBasedIndex) {
         delta--;
     }
     var defaultAtIndex = block.workspace.options.oneBasedIndex ? '1' : '0';
     if (delta > 0) {
-        var at = Blockly.Go.valueToCode(block, atId,
-            Blockly.Go.ORDER_ADDITION) || defaultAtIndex;
+        var at = Go.valueToCode(block, atId,
+            Go.ORDER_ADDITION) || defaultAtIndex;
     } else if (delta < 0) {
-        var at = Blockly.Go.valueToCode(block, atId,
-            Blockly.Go.ORDER_SUBTRACTION) || defaultAtIndex;
+        var at = Go.valueToCode(block, atId,
+            Go.ORDER_SUBTRACTION) || defaultAtIndex;
     } else if (opt_negate) {
-        var at = Blockly.Go.valueToCode(block, atId,
-            Blockly.Go.ORDER_UNARY_NEGATION) || defaultAtIndex;
+        var at = Go.valueToCode(block, atId,
+            Go.ORDER_UNARY_NEGATION) || defaultAtIndex;
     } else {
-        var at = Blockly.Go.valueToCode(block, atId, order) ||
+        var at = Go.valueToCode(block, atId, order) ||
             defaultAtIndex;
     }
 
@@ -336,10 +336,10 @@ Blockly.Go.getAdjusted = function (block, atId, opt_delta, opt_negate,
         // If the index is dynamic, adjust it in code.
         if (delta > 0) {
             at = at + ' + ' + delta;
-            var innerOrder = Blockly.Go.ORDER_ADDITION;
+            var innerOrder = Go.ORDER_ADDITION;
         } else if (delta < 0) {
             at = at + ' - ' + -delta;
-            var innerOrder = Blockly.Go.ORDER_SUBTRACTION;
+            var innerOrder = Go.ORDER_SUBTRACTION;
         }
         if (opt_negate) {
             if (delta) {
@@ -347,7 +347,7 @@ Blockly.Go.getAdjusted = function (block, atId, opt_delta, opt_negate,
             } else {
                 at = '-' + at;
             }
-            var innerOrder = Blockly.Go.ORDER_UNARY_NEGATION;
+            var innerOrder = Go.ORDER_UNARY_NEGATION;
         }
         innerOrder = Math.floor(innerOrder);
         order = Math.floor(order);
@@ -358,7 +358,7 @@ Blockly.Go.getAdjusted = function (block, atId, opt_delta, opt_negate,
     return at;
 };
 
-Blockly.Go.getGoType_ = function (typeBlockly) {
+Go.getGoType_ = function (typeBlockly) {
     console.log("TYPEBLOCKLY", typeBlockly, Blockly.Types.COLOUR);
     if (typeBlockly == undefined) {
         return 'Invalid Blockly Type';
@@ -402,11 +402,11 @@ Blockly.Go.getGoType_ = function (typeBlockly) {
  * @param {boolean=} overwrite Flag to ignore previously set value.
  * @return {!boolean} Indicates if the declaration overwrote a previous one.
  */
-Blockly.Go.addVariable = function (varName, code, overwrite) {
+Go.addVariable = function (varName, code, overwrite) {
     console.log("ADD VARIABLE", varName, code, overwrite);
     var overwritten = false;
-    if (overwrite || (Blockly.Go.variables_[varName] === undefined)) {
-        Blockly.Go.variables_[varName] = code;
+    if (overwrite || (Go.variables_[varName] === undefined)) {
+        Go.variables_[varName] = code;
         overwritten = true;
     }
     return overwritten;

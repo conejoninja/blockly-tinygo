@@ -12,10 +12,10 @@
 
 goog.provide('Blockly.Go.variablesDynamic');
 
-goog.require('Blockly.Go');
+const Go = goog.require('Blockly.Go');
 goog.require('Blockly.Go.variables');
 
 
 // Go is dynamically typed.
-Blockly.Go['variables_get_dynamic'] = Blockly.Go['variables_get'];
-Blockly.Go['variables_set_dynamic'] = Blockly.Go['variables_set'];
+Go['variables_get_dynamic'] = Go['variables_get'];
+Go['variables_set_dynamic'] = Go['variables_set'];
