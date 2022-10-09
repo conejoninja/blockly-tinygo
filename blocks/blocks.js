@@ -22,7 +22,10 @@ const procedures = goog.require('Blockly.libraryBlocks.procedures');
 const texts = goog.require('Blockly.libraryBlocks.texts');
 const variables = goog.require('Blockly.libraryBlocks.variables');
 const variablesDynamic = goog.require('Blockly.libraryBlocks.variablesDynamic');
-const TinyGo = goog.require('Blockly.libraryBlocks.TinyGo');
+
+const TinyGo = goog.require('Blockly.TinyGo');
+const machine = goog.require('Blockly.machine');
+
 /* eslint-disable-next-line no-unused-vars */
 const {BlockDefinition} = goog.requireType('Blockly.blocks');
 
@@ -34,9 +37,11 @@ exports.loops = loops;
 exports.math = math;
 exports.procedures = procedures;
 exports.texts = texts;
-exports.TinyGo = TinyGo;
 exports.variables = variables;
 exports.variablesDynamic = variablesDynamic;
+
+exports.TinyGo = TinyGo;
+exports.machine = machine;
 
 /**
  * A dictionary of the block definitions provided by all the

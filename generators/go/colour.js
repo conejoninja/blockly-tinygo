@@ -12,48 +12,48 @@
 
 goog.provide('Blockly.Go.colour');
 
-const Go = goog.require('Blockly.Go');
+goog.require('Blockly.Go');
 
 
-Go['colour_picker'] = function(block) {
+Blockly.Go['colour_picker'] = function(block) {
   // Colour picker.
-  var code = Go.quote_(block.getFieldValue('COLOUR'));
-  return [code, Go.ORDER_ATOMIC];
+  var code = Blockly.Go.quote_(block.getFieldValue('COLOUR'));
+  return [code, Blockly.Go.ORDER_ATOMIC];
 };
 
-Go['colour_array'] = function(block) {
+Blockly.Go['colour_array'] = function(block) {
     var code = new Array(block.itemCount_);
     for (var i = 0; i < block.itemCount_; i++) {
-      code[i] = Go.valueToCode(block, 'ADD' + i,
-          Go.ORDER_COMMA) || 'null';
+      code[i] = Blockly.Go.valueToCode(block, 'ADD' + i,
+          Blockly.Go.ORDER_COMMA) || 'null';
     }
     code = 'array(' + code.join(', ') + ')';
-    return [code, Go.ORDER_FUNCTION_CALL];
+    return [code, Blockly.Go.ORDER_FUNCTION_CALL];
   };
 
-Go['colour_random'] = function(block) {
+Blockly.Go['colour_random'] = function(block) {
   // Generate a random colour.
-  var functionName = Go.provideFunction_(
+  var functionName = Blockly.Go.provideFunction_(
       'colour_random',
-      ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ + '() {',
+      ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ + '() {',
        '  return \'#\' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), ' +
           '6, \'0\', STR_PAD_LEFT);',
        '}']);
   var code = functionName + '()';
-  return [code, Go.ORDER_FUNCTION_CALL];
+  return [code, Blockly.Go.ORDER_FUNCTION_CALL];
 };
 
-Go['colour_rgb'] = function(block) {
+Blockly.Go['colour_rgb'] = function(block) {
   // Compose a colour from RGB components expressed as percentages.
-  var red = Go.valueToCode(block, 'RED',
-      Go.ORDER_COMMA) || 0;
-  var green = Go.valueToCode(block, 'GREEN',
-      Go.ORDER_COMMA) || 0;
-  var blue = Go.valueToCode(block, 'BLUE',
-      Go.ORDER_COMMA) || 0;
-  var functionName = Go.provideFunction_(
+  var red = Blockly.Go.valueToCode(block, 'RED',
+      Blockly.Go.ORDER_COMMA) || 0;
+  var green = Blockly.Go.valueToCode(block, 'GREEN',
+      Blockly.Go.ORDER_COMMA) || 0;
+  var blue = Blockly.Go.valueToCode(block, 'BLUE',
+      Blockly.Go.ORDER_COMMA) || 0;
+  var functionName = Blockly.Go.provideFunction_(
       'colour_rgb',
-      ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
+      ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
           '($r, $g, $b) {',
        '  $r = round(max(min($r, 100), 0) * 2.55);',
        '  $g = round(max(min($g, 100), 0) * 2.55);',
@@ -65,20 +65,20 @@ Go['colour_rgb'] = function(block) {
        '  return $hex;',
        '}']);
   var code = functionName + '(' + red + ', ' + green + ', ' + blue + ')';
-  return [code, Go.ORDER_FUNCTION_CALL];
+  return [code, Blockly.Go.ORDER_FUNCTION_CALL];
 };
 
-Go['colour_blend'] = function(block) {
+Blockly.Go['colour_blend'] = function(block) {
   // Blend two colours together.
-  var c1 = Go.valueToCode(block, 'COLOUR1',
-      Go.ORDER_COMMA) || '\'#000000\'';
-  var c2 = Go.valueToCode(block, 'COLOUR2',
-      Go.ORDER_COMMA) || '\'#000000\'';
-  var ratio = Go.valueToCode(block, 'RATIO',
-      Go.ORDER_COMMA) || 0.5;
-  var functionName = Go.provideFunction_(
+  var c1 = Blockly.Go.valueToCode(block, 'COLOUR1',
+      Blockly.Go.ORDER_COMMA) || '\'#000000\'';
+  var c2 = Blockly.Go.valueToCode(block, 'COLOUR2',
+      Blockly.Go.ORDER_COMMA) || '\'#000000\'';
+  var ratio = Blockly.Go.valueToCode(block, 'RATIO',
+      Blockly.Go.ORDER_COMMA) || 0.5;
+  var functionName = Blockly.Go.provideFunction_(
       'colour_blend',
-      ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
+      ['func ' + Blockly.Go.FUNCTION_NAME_PLACEHOLDER_ +
           '($c1, $c2, $ratio) {',
        '  $ratio = max(min($ratio, 1), 0);',
        '  $r1 = hexdec(substr($c1, 1, 2));',
@@ -97,5 +97,5 @@ Go['colour_blend'] = function(block) {
        '  return $hex;',
        '}']);
   var code = functionName + '(' + c1 + ', ' + c2 + ', ' + ratio + ')';
-  return [code, Go.ORDER_FUNCTION_CALL];
+  return [code, Blockly.Go.ORDER_FUNCTION_CALL];
 };

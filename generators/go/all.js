@@ -20,7 +20,6 @@ goog.require('Blockly.Go.loops');
 goog.require('Blockly.Go.math');
 goog.require('Blockly.Go.procedures');
 goog.require('Blockly.Go.texts');
-goog.require('Blockly.Go.TinyGo');
 goog.require('Blockly.Go.variables');
 goog.require('Blockly.Go.variablesDynamic');
 

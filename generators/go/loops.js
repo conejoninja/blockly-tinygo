@@ -12,27 +12,27 @@
 
 goog.provide('Blockly.Go.loops');
 
-const Go = goog.require('Blockly.Go');
+goog.require('Blockly.Go');
 
 
-Go['controls_repeat_ext'] = function(block) {
+Blockly.Go['controls_repeat_ext'] = function(block) {
   // Repeat n times.
   if (block.getField('TIMES')) {
     // Internal number.
     var repeats = String(Number(block.getFieldValue('TIMES')));
   } else {
     // External number.
-    var repeats = Go.valueToCode(block, 'TIMES',
-        Go.ORDER_ASSIGNMENT) || '0';
+    var repeats = Blockly.Go.valueToCode(block, 'TIMES',
+        Blockly.Go.ORDER_ASSIGNMENT) || '0';
   }
-  var branch = Go.statementToCode(block, 'DO');
-  branch = Go.addLoopTrap(branch, block);
+  var branch = Blockly.Go.statementToCode(block, 'DO');
+  branch = Blockly.Go.addLoopTrap(branch, block);
   var code = '';
-  var loopVar = Go.variableDB_.getDistinctName(
+  var loopVar = Blockly.Go.variableDB_.getDistinctName(
       'count', Blockly.VARIABLE_CATEGORY_NAME);
   var endVar = repeats;
   if (!repeats.match(/^\w+$/) && !Blockly.isNumber(repeats)) {
-    endVar = Go.variableDB_.getDistinctName(
+    endVar = Blockly.Go.variableDB_.getDistinctName(
         'repeat_end', Blockly.VARIABLE_CATEGORY_NAME);
     code += endVar + ' = ' + repeats + '\n';
   }
@@ -43,34 +43,34 @@ Go['controls_repeat_ext'] = function(block) {
   return code;
 };
 
-Go['controls_repeat'] = Go['controls_repeat_ext'];
+Blockly.Go['controls_repeat'] = Blockly.Go['controls_repeat_ext'];
 
-Go['controls_whileUntil'] = function(block) {
+Blockly.Go['controls_whileUntil'] = function(block) {
   // Do while/until loop.
   var until = block.getFieldValue('MODE') == 'UNTIL';
-  var argument0 = Go.valueToCode(block, 'BOOL',
-      until ? Go.ORDER_LOGICAL_NOT :
-      Go.ORDER_NONE) || 'false';
-  var branch = Go.statementToCode(block, 'DO');
-  branch = Go.addLoopTrap(branch, block);
+  var argument0 = Blockly.Go.valueToCode(block, 'BOOL',
+      until ? Blockly.Go.ORDER_LOGICAL_NOT :
+      Blockly.Go.ORDER_NONE) || 'false';
+  var branch = Blockly.Go.statementToCode(block, 'DO');
+  branch = Blockly.Go.addLoopTrap(branch, block);
   if (until) {
     argument0 = '!' + argument0;
   }
   return 'for ' + argument0 + ' {\n' + branch + '}\n';
 };
 
-Go['controls_for'] = function(block) {
+Blockly.Go['controls_for'] = function(block) {
   // For loop.
-  var variable0 = Go.variableDB_.getName(
+  var variable0 = Blockly.Go.variableDB_.getName(
       block.getFieldValue('VAR'), Blockly.VARIABLE_CATEGORY_NAME);
-  var argument0 = Go.valueToCode(block, 'FROM',
-      Go.ORDER_ASSIGNMENT) || '0';
-  var argument1 = Go.valueToCode(block, 'TO',
-      Go.ORDER_ASSIGNMENT) || '0';
-  var increment = Go.valueToCode(block, 'BY',
-      Go.ORDER_ASSIGNMENT) || '1';
-  var branch = Go.statementToCode(block, 'DO');
-  branch = Go.addLoopTrap(branch, block);
+  var argument0 = Blockly.Go.valueToCode(block, 'FROM',
+      Blockly.Go.ORDER_ASSIGNMENT) || '0';
+  var argument1 = Blockly.Go.valueToCode(block, 'TO',
+      Blockly.Go.ORDER_ASSIGNMENT) || '0';
+  var increment = Blockly.Go.valueToCode(block, 'BY',
+      Blockly.Go.ORDER_ASSIGNMENT) || '1';
+  var branch = Blockly.Go.statementToCode(block, 'DO');
+  branch = Blockly.Go.addLoopTrap(branch, block);
   var code;
   if (Blockly.isNumber(argument0) && Blockly.isNumber(argument1) &&
       Blockly.isNumber(increment)) {
@@ -91,19 +91,19 @@ Go['controls_for'] = function(block) {
     // Cache non-trivial values to variables to prevent repeated look-ups.
     var startVar = argument0;
     if (!argument0.match(/^\w+$/) && !Blockly.isNumber(argument0)) {
-      startVar = Go.variableDB_.getDistinctName(
+      startVar = Blockly.Go.variableDB_.getDistinctName(
           variable0 + '_start', Blockly.VARIABLE_CATEGORY_NAME);
       code += startVar + ' = ' + argument0 + '\n';
     }
     var endVar = argument1;
     if (!argument1.match(/^\w+$/) && !Blockly.isNumber(argument1)) {
-      endVar = Go.variableDB_.getDistinctName(
+      endVar = Blockly.Go.variableDB_.getDistinctName(
           variable0 + '_end', Blockly.VARIABLE_CATEGORY_NAME);
       code += endVar + ' = ' + argument1 + '\n';
     }
     // Determine loop direction at start, in case one of the bounds
     // changes during loop execution.
-    var incVar = Go.variableDB_.getDistinctName(
+    var incVar = Blockly.Go.variableDB_.getDistinctName(
         variable0 + '_inc', Blockly.VARIABLE_CATEGORY_NAME);
     code += incVar + ' = ';
     if (Blockly.isNumber(increment)) {
@@ -112,7 +112,7 @@ Go['controls_for'] = function(block) {
       code += 'math.Abs(' + increment + ')\n';
     }
     code += 'if (' + startVar + ' > ' + endVar + ') {\n';
-    code += Go.INDENT + incVar + ' = -' + incVar + '\n';
+    code += Blockly.Go.INDENT + incVar + ' = -' + incVar + '\n';
     code += '}\n';
     code += 'for ' + variable0 + ' := ' + startVar + '; ' +
         incVar + ' >= 0 ? ' +
@@ -124,40 +124,40 @@ Go['controls_for'] = function(block) {
   return code;
 };
 
-Go['controls_forEach'] = function(block) {
+Blockly.Go['controls_forEach'] = function(block) {
   // For each loop.
-  var variable0 = Go.variableDB_.getName(
+  var variable0 = Blockly.Go.variableDB_.getName(
       block.getFieldValue('VAR'), Blockly.VARIABLE_CATEGORY_NAME);
-  var argument0 = Go.valueToCode(block, 'LIST',
-      Go.ORDER_ASSIGNMENT) || '[]';
-  var branch = Go.statementToCode(block, 'DO');
-  branch = Go.addLoopTrap(branch, block);
+  var argument0 = Blockly.Go.valueToCode(block, 'LIST',
+      Blockly.Go.ORDER_ASSIGNMENT) || '[]';
+  var branch = Blockly.Go.statementToCode(block, 'DO');
+  branch = Blockly.Go.addLoopTrap(branch, block);
   var code = '';
   code += 'for _,' + variable0 + ' := range ' + argument0 +
       ' {\n' + branch + '}\n';
   return code;
 };
 
-Go['controls_flow_statements'] = function(block) {
+Blockly.Go['controls_flow_statements'] = function(block) {
   // Flow statements: continue, break.
   var xfix = '';
-  if (Go.STATEMENT_PREFIX) {
+  if (Blockly.Go.STATEMENT_PREFIX) {
     // Automatic prefix insertion is switched off for this block.  Add manually.
-    xfix += Go.injectId(Go.STATEMENT_PREFIX, block);
+    xfix += Blockly.Go.injectId(Blockly.Go.STATEMENT_PREFIX, block);
   }
-  if (Go.STATEMENT_SUFFIX) {
+  if (Blockly.Go.STATEMENT_SUFFIX) {
     // Inject any statement suffix here since the regular one at the end
     // will not get executed if the break/continue is triggered.
-    xfix += Go.injectId(Go.STATEMENT_SUFFIX, block);
+    xfix += Blockly.Go.injectId(Blockly.Go.STATEMENT_SUFFIX, block);
   }
-  if (Go.STATEMENT_PREFIX) {
+  if (Blockly.Go.STATEMENT_PREFIX) {
     var loop = Blockly.Constants.Loops
         .CONTROL_FLOW_IN_LOOP_CHECK_MIXIN.getSurroundLoop(block);
     if (loop && !loop.suppressPrefixSuffix) {
       // Inject loop's statement prefix here since the regular one at the end
       // of the loop will not get executed if 'continue' is triggered.
       // In the case of 'break', a prefix is needed due to the loop's suffix.
-      xfix += Go.injectId(Go.STATEMENT_PREFIX, loop);
+      xfix += Blockly.Go.injectId(Blockly.Go.STATEMENT_PREFIX, loop);
     }
   }
   switch (block.getFieldValue('FLOW')) {
