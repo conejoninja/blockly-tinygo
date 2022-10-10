@@ -16,7 +16,6 @@ goog.require('Blockly.Types');
 goog.require('Blockly.Generator');
 goog.require('Blockly.utils.string');
 goog.require('GoFmtServer');
-goog.require('Blockly.TinyGo');
 goog.require('Blockly.Names');
 
 
@@ -115,6 +114,8 @@ Blockly.Go.ORDER_OVERRIDES = [
  */
 Blockly.Go.init = function (workspace) {
     Blockly.Go.variables_ = Object.create(null);
+    Blockly.Go.pins_ = Object.create(null);
+    Blockly.Go.imports_ = Object.create(null);
 
 
     // Create a dictionary of definitions to be printed before the code.
@@ -162,9 +163,6 @@ Blockly.Go.init = function (workspace) {
         Blockly.Go.addVariable(varName,
             'var ' + vName + ' ' + Blockly.Go.getGoType_(varsWithTypes[varName]));
     }
-
-    Blockly.TinyGo.init(workspace);
-
 };
 
 /**
@@ -178,17 +176,13 @@ Blockly.Go.finish = function (code) {
         defvars.push(Blockly.Go.variables_[i]);
     }
 
-    for (var i in Blockly.TinyGo.variables_) {
-        defvars.push(Blockly.TinyGo.variables_[i]);
-    }
-
     // Declare all of the variables.
     let variables = defvars.join('\n');
 
 
     defvars = [];
-    for (var i in Blockly.TinyGo.pins_) {
-        defvars.push(Blockly.TinyGo.pins_[i]);
+    for (var i in Blockly.Go.pins_) {
+        defvars.push(Blockly.Go.pins_[i]);
     }
 
     code = variables + '\n\nfunc main() {\n' + defvars.join('\n') + '\n' + code + '}';
@@ -200,8 +194,8 @@ Blockly.Go.finish = function (code) {
     }
 
     defvars = [];
-    for (var i in Blockly.TinyGo.imports_) {
-        defvars.push('"' + Blockly.TinyGo.imports_[i] + '"');
+    for (var i in Blockly.Go.imports_) {
+        defvars.push('"' + Blockly.Go.imports_[i] + '"');
     }
     let importsStr = '';
     if (defvars.length > 0) {
@@ -410,4 +404,19 @@ Blockly.Go.addVariable = function (varName, code, overwrite) {
         overwritten = true;
     }
     return overwritten;
+};
+
+
+Blockly.Go.addImport = function(id, path) {
+    Blockly.Go.imports_[id] = path;
+};
+
+Blockly.Go.addDeclaration = function(id, data) {
+    Blockly.Go.pins_[id] = data;
+};
+
+Blockly.Go.configurePin = function(id, pinNumber, mode) {
+    Blockly.Go.variables_[id] = 'const ' + id + ' = machine.Pin(' + pinNumber + ')';
+    Blockly.Go.pins_[id] = id + '.Configure(machine.PinConfig{Mode: machine.Pin' + mode + '})';
+    Blockly.Go.imports_['machine'] = 'machine';
 };
