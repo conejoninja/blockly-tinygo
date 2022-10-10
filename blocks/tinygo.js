@@ -13,6 +13,8 @@ goog.module('Blockly.TinyGo');
 const {createBlockDefinitionsFromJsonArray, defineBlocks} = goog.require('Blockly.common');
 goog.require('Blockly.Types');
 
+const CATEGORY_NAME = 'TINYGO';
+exports.CATEGORY_NAME = CATEGORY_NAME;
 
 Blockly.Blocks['tinygo_led'] = {
     init: function() {

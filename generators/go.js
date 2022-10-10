@@ -353,7 +353,6 @@ Blockly.Go.getAdjusted = function (block, atId, opt_delta, opt_negate,
 };
 
 Blockly.Go.getGoType_ = function (typeBlockly) {
-    console.log("TYPEBLOCKLY", typeBlockly, Blockly.Types.COLOUR);
     if (typeBlockly == undefined) {
         return 'Invalid Blockly Type';
     }
@@ -397,7 +396,6 @@ Blockly.Go.getGoType_ = function (typeBlockly) {
  * @return {!boolean} Indicates if the declaration overwrote a previous one.
  */
 Blockly.Go.addVariable = function (varName, code, overwrite) {
-    console.log("ADD VARIABLE", varName, code, overwrite);
     var overwritten = false;
     if (overwrite || (Blockly.Go.variables_[varName] === undefined)) {
         Blockly.Go.variables_[varName] = code;
