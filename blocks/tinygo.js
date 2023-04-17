@@ -114,7 +114,7 @@ const blocks = createBlockDefinitionsFromJsonArray([
             },
             {
                 "type": "field_image",
-                "src": "../blocks/img/led.png",
+                "src": "./img/led.png",
                 "width": 32,
                 "height": 32,
             },
@@ -229,7 +229,7 @@ Blockly.Blocks['tinygo_led'] = {
         this.setHelpUrl('http://www.seeedstudio.com/wiki/Grove_-_LED');
         this.setColour(180);
         this.appendValueInput('STATE')
-            .appendField(new Blockly.FieldImage('../blocks/img/led.png', 32, 32))
+            .appendField(new Blockly.FieldImage('./img/led.png', 32, 32))
             .appendField("LED on pin")
             .appendField(new Blockly.FieldDropdown(connectorIo), 'PINNUMBER')
             .setCheck('ledstate');

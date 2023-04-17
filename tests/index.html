@@ -262,32 +262,6 @@ function demohelloworld() {
                 '    </statement>\n' +
                 '  </block>\n' +
                 '</xml>';
-
-xml = '<xml xmlns="https://developers.google.com/blockly/xml">\n' +
-  '<variables>\n' +
-   ' <variable type="String" id="Uu9nP/j1]wZ!}^~?V/8,">textVar</variable>\n' +
-    '<variable type="Number" id="Qj-%3e,L{DvZICmZgQKz">numberVar</variable>\n' +
-  '</variables>\n' +
-  '<block type="variables_set_dynamic" id="*O.]Z[|,19yg;wjTSTL=" x="163" y="213">\n' +
-   ' <field name="VAR" id="Uu9nP/j1]wZ!}^~?V/8," variabletype="String">textVar</field>\n' +
-    '<value name="VALUE">\n' +
-     ' <block type="text" id="-^LdeeqPL!.zjpIX]E9@">\n' +
-      '  <field name="TEXT">asdfsdf</field>\n' +
-      '</block>\n' +
-    '</value>\n' +
-    '<next>\n' +
-      '<block type="variables_set_dynamic" id="PGnuJ%BG7AtNL7.71(hg">\n' +
-        '<field name="VAR" id="Qj-%3e,L{DvZICmZgQKz" variabletype="Number">numberVar</field>\n' +
-        '<value name="VALUE">\n' +
-          '<block type="math_number" id="{ynBDvn)c!=Wg/s|[M-`">\n' +
-            '<field name="NUM">123</field>\n' +
-          '</block>\n' +
-        '</value>\n' +
-      '</block>\n' +
-  '  </next>\n' +
- ' </block>\n' +
-'</xml>';
-
             var dom = Blockly.Xml.textToDom(xml);
             Blockly.Xml.domToWorkspace(dom, workspace);
         }
@@ -1718,14 +1692,6 @@ start();
       <block type="sensors_ds18b20_configure" categorystyle="text_category"></block>
       <block type="sensors_ds18b20_requesttemperature" categorystyle="text_category"></block>
       <block type="sensors_ds18b20_readtemperature" categorystyle="text_category"></block>
-    </category>
-    <category name="Gopherbot">
-      <block type="gopherbot_antenna" categorystyle="text_category"></block>
-      <block type="gopherbot_button" categorystyle="text_category"></block>
-      <block type="gopherbot_visor" categorystyle="text_category"></block>
-      <block type="gopherbot_backpack" categorystyle="text_category"></block>
-      <block type="gopherbot_backpack_alternate" categorystyle="text_category"></block>
-      <block type="gopherbot_speaker" categorystyle="text_category"></block>
     </category>
     <category name="Net/HTTP">
       <block type="nethttp_handlefunc" categorystyle="text_category"></block>

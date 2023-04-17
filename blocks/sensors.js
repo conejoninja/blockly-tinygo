@@ -22,7 +22,7 @@ const blocks = createBlockDefinitionsFromJsonArray([
         "args0": [
             {
                 "type": "field_image",
-                "src": "../blocks/img/ds18b20.png",
+                "src": "./img/ds18b20.png",
                 "width": 32,
                 "height": 32,
             },
@@ -38,7 +38,7 @@ const blocks = createBlockDefinitionsFromJsonArray([
         "args0": [
             {
                 "type": "field_image",
-                "src": "../blocks/img/ds18b20.png",
+                "src": "./img/ds18b20.png",
                 "width": 32,
                 "height": 32,
             },
@@ -118,7 +118,7 @@ const blocks = createBlockDefinitionsFromJsonArray([
             },
             {
                 "type": "field_image",
-                "src": "../blocks/img/ds18b20.png",
+                "src": "./img/ds18b20.png",
                 "width": 32,
                 "height": 32,
             },

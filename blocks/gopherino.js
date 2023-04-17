@@ -52,7 +52,7 @@ const blocks = createBlockDefinitionsFromJsonArray([
             },
             {
                 "type": "field_image",
-                "src": "../blocks/img/gopherino.png",
+                "src": "./img/gopherino.png",
                 "width": 32,
                 "height": 32,
             },
@@ -69,7 +69,7 @@ const blocks = createBlockDefinitionsFromJsonArray([
         "args0": [
             {
                 "type": "field_image",
-                "src": "../blocks/img/hcsr04.png",
+                "src": "./img/hcsr04.png",
                 "width": 32,
                 "height": 32,
             },

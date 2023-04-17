@@ -26,8 +26,8 @@ goog.require('Blockly.Go.variablesDynamic');
 
 goog.require('Blockly.TinyGo');
 goog.require('Blockly.Gopherino');
-goog.require('Blockly.Gopherbot');
-goog.require('Blockly.NetHTTP');
 goog.require('Blockly.Sensors');
+goog.require('Blockly.NetHTTP');
+//goog.require('Blockly.Gopherbot');
 
 exports = moduleExports;
