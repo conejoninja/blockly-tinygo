@@ -5,3 +5,4 @@ cp -r node_modules/@blockly public
 cp -r dist public
 cp -r media public
 cp -r build public
+echo "FINISHED COPYING FILES"
