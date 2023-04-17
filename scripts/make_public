@@ -1,8 +1,8 @@
 #!/bin/bash
-mkdir -p public/node_modules
-cp -r tests/* public
-cp -r node_modules/@blockly public
-cp -r dist public
-cp -r media public
-cp -r build public
+mkdir -p public
+mv tests/* public
+mv node_modules public
+mv dist public
+mv media public
+mv build public
 echo "FINISHED COPYING FILES"
