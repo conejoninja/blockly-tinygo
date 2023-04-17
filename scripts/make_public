@@ -1,0 +1,8 @@
+#!/bin/bash
+rm -r public
+mkdir -p public
+cp -r tests/* public
+cp -r node_modules public
+cp -r dist public
+cp -r media public
+cp -r build public
