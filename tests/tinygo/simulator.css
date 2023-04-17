@@ -1,0 +1,263 @@
+/* CSS file for the 'output' part: the entire webview in VSCode or the right hand
+ * side of the webpage on play.tinygo.org. */
+
+/* Generic styles */
+
+/* Codicons from VS Code: https://github.com/microsoft/vscode-codicons */
+@font-face {
+	font-family: codicon;
+	src: url(resources/codicon/codicon.ttf);
+}
+.codicon {
+    font-family: codicon;
+}
+
+/* Area at the top with all the devices */
+
+#schematic {
+    position: relative;
+    overflow: hidden;
+}
+#schematic.compiling {
+    opacity: 0.7;
+}
+body.no-schematic #schematic {
+    display: none;
+}
+
+#schematic-buttons {
+    position: absolute;
+    right: 0;
+    top: 1px;
+    z-index: 1;
+}
+.schematic-button {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    color: white;
+    line-height: 1;
+    font-size: 24px;
+    text-align: center;
+    background-color: rgba(150, 150, 150, 0.5);
+    border: none;
+    border-radius: 3px;
+    opacity: 0.3;
+    transition: opacity 150ms;
+}
+.schematic-button:hover,
+.schematic-button:disabled {
+    opacity: 1;
+}
+
+#schematic .board-wrapper {
+    position: absolute;
+    filter: drop-shadow(0 0 6px #777c);
+}
+#schematic .board-wrapper > .background {
+    fill: transparent;
+}
+#schematic .board-wrapper.selected > .background {
+    outline: 1.7px dashed gray;
+}
+
+#schematic .pin-hover-dot {
+    r: 1px; /* actually: 1mm */
+    fill: #080;
+}
+#schematic [data-pin]:not(:hover) .pin-hover-dot {
+    visibility: hidden;
+}
+
+#schematic .hover-connection {
+    filter: brightness(1.4);
+}
+
+#schematic .wire {
+    stroke: #008800;
+    stroke-width: 1mm;
+    stroke-linecap: round;
+}
+#schematic .wire:hover {
+    stroke-width: 1.5mm;
+}
+#schematic .wire.selected {
+    stroke: #009900;
+    stroke-width: 1.5mm;
+}
+body.adding-wire .wire {
+    /* ignore clicks on other wires (they only get in the way) */
+    pointer-events: none;
+}
+
+/* Tooltip for pin names */
+#schematic-tooltip {
+    position: absolute;
+    border: 1px solid var(--vscode-editorHoverWidget-border, #454545);
+    padding: 2px 8px;
+    font-size: 12px;
+    color: var(--vscode-editorHoverWidget-foreground, #cccccc);
+    background: var(--vscode-editorHoverWidget-background, #252526);
+    box-shadow: 0 2px 8px var(--vscode-widget-shadow, rgb(0 0 0 / 36%));
+    pointer-events: none;
+}
+#schematic-tooltip:not(.visible) {
+    opacity: 0;
+}
+#schematic-tooltip:after {
+    content: "";
+    position: absolute;
+    display: block;
+    width: 5px;
+    height: 5px;
+    transform: rotate(45deg);
+    border: solid var(--vscode-editorHoverWidget-border, #454545);
+    border-width: 0px 1px 1px 0px;
+    background: var(--vscode-editorHoverWidget-background, #252526);
+}
+
+/* Panels */
+
+#panels {
+    border-top: 1px solid var(--vscode-terminal-border);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Tab bar */
+
+.tabbar {
+    padding: 0 10px;
+    display: flex;
+    flex: 0 0;
+}
+
+.tabbar > .tab {
+    padding: 4px 12px 3px;
+    cursor: pointer;
+}
+.tabbar > .tab a {
+    text-transform: uppercase;
+    font-size: 11px;
+    color: var(--vscode-panelTitle-inactiveForeground, rgba(231, 231, 231, 0.6));
+    line-height: 27px;
+    outline: 0;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+}
+.tabbar > .tab.active a {
+    border-bottom-color: var(--vscode-panelTitle-activeBorder, #e7e7e7);
+    color: var(--vscode-panelTitle-activeForeground, #e7e7e7);
+    display: inline-block;
+}
+.tabbar > .tab:hover a {
+    color: var(--vscode-panelTitle-activeForeground, #e7e7e7) !important;
+}
+
+.tabcontent {
+    color: var(--vscode-terminal-foreground, white);
+    flex: 1 0;
+    min-height: calc((var(--vscode-editor-font-size, 13px) + 5px) * 10); /* 10 terminal lines */
+    height:     calc((var(--vscode-editor-font-size, 13px) + 5px) * 10); /* 10 terminal lines */
+}
+
+.tabcontent:not(.active) {
+    display: none !important;
+}
+
+body.no-schematic .tab:not([data-for="#terminal-box"]) {
+    display: none;
+}
+
+/* Terminal at the bottom of the screen */
+
+#terminal-box {
+    display: flex;
+}
+
+#terminal {
+    width: 100%;
+    line-height: calc(var(--vscode-editor-font-size, 13px) + 5px);
+    font-size: var(--vscode-editor-font-size, 13px);
+    resize: none;
+    padding: 0 20px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--vscode-terminal-foreground, white);
+    font-family: var(--vscode-editor-font-family, monospace);
+}
+#terminal::selection {
+    background: var(--vscode-terminal-selectionBackground, rgba(255, 255, 255, 0.3));
+}
+#terminal.error {
+    color: var(--vscode-terminal-ansiBrightRed, #f55);
+}
+
+/* Properties tab at the bottom */
+
+#properties > .content {
+    padding: 0 20px;
+    overflow: auto;
+    display: grid;
+    grid-template-columns: auto minmax(auto, 100%);
+    column-gap: 1ch;
+    align-content: start;
+    line-height: 1.5;
+    height: inherit;
+}
+
+#properties .ledstrip {
+    display: flex;
+}
+#properties .ledstrip-channel {
+    text-align: right;
+    width: 4ch;
+    /* line under the number that graphically indicates the percent the channel is on */
+    background-position: bottom right;
+    background-size: 4ch 2px;
+    background-repeat: repeat-x;
+}
+
+/* Add parts tab */
+
+#add {
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: auto minmax(auto, 100%) auto auto;
+    column-gap: 1ch;
+    align-content: start;
+}
+
+body.adding-part #add {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+#add .part-image {
+    filter: drop-shadow(0 0 6px #777c);
+    border: 0;
+    width: 10mm;
+    height: 10mm;
+}
+
+#add select {
+    /* Not exactly the same as in VSCode but close enough */
+    background-color: var(--vscode-settings-dropdownBackground, #3c3c3c);
+    border: 1px solid var(--vscode-settings-dropdownBorder, #3c3c3c);
+    color: var(--vscode-settings-dropdownForeground, inherit);
+    padding: 2px 8px;
+}
+
+#add button {
+    display: inline-block;
+    border: 0px;
+    padding: 2px 14px;
+    color: var(--vscode-button-foreground, inherit);
+    background: var(--vscode-button-background, #0e639c);
+    font-size: 13px;
+}
+#add button:hover {
+    background: var(--vscode-button-hoverBackground, #1177bb);
+}
