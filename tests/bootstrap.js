@@ -175,7 +175,7 @@
     // previous one.
     let requires = options.requires.slice();
     const scripts =
-        ['tests/bootstrap_helper.js', ...options.additionalScripts];
+        ['bootstrap_helper.js', ...options.additionalScripts];
     const scriptDeps = [];
     for (const script of scripts) {
       const fakeModuleName = `script.${script.replace(/[./]/g, '-')}`;
@@ -202,7 +202,7 @@
     // blockly_compressed.js et al. using <script> tags.
     const scripts = [
       ...options.compressedScripts,
-      'tests/bootstrap_helper.js',
+      'bootstrap_helper.js',
       ...options.additionalScripts,
     ];
     for (const script of scripts) {
