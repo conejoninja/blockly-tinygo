@@ -44,7 +44,7 @@
   const options = {
     // Decide whether to use compressed mode or not.  Please see issue
     // #5557 for more information.
-    loadCompressed: !(isLocalhost || isFileUrl),
+    loadCompressed: true, //!(isLocalhost || isFileUrl),
 
     // URL of the blockly repository.  This is needed for a few reasons:
     //
@@ -67,11 +67,7 @@
     requires: [
       'Blockly',
       'Blockly.libraryBlocks',
-      'Blockly.Dart.all',
-      'Blockly.JavaScript.all',
-      'Blockly.Lua.all',
-      'Blockly.PHP.all',
-      'Blockly.Python.all',
+      'Blockly.Go.all',
     ],
 
     // List of scripts to load in compressed mode, instead of
@@ -79,11 +75,7 @@
     compressedScripts: [
       'dist/blockly_compressed.js',
       'dist/blocks_compressed.js',
-      'dist/dart_compressed.js',
-      'dist/javascript_compressed.js',
-      'dist/lua_compressed.js',
-      'dist/php_compressed.js',
-      'dist/python_compressed.js',
+      'dist/go_compressed.js',
     ],
 
     // List of imports to give global names to.  The keys are the
@@ -107,11 +99,7 @@
     // out the desired named export - so in that case the entries here
     // are treated identically to those in namedImports.
     destructuredImports: {
-      dartGenerator: 'Blockly.Dart',
-      javascriptGenerator: 'Blockly.JavaScript',
-      luaGenerator: 'Blockly.Lua',
-      phpGenerator: 'Blockly.PHP',
-      pythonGenerator: 'Blockly.Python',
+      goGenerator: 'Blockly.Go',
     },
 
     // Additional scripts to be loaded after Blockly is loaded,

@@ -143,6 +143,13 @@ const chunks = [
     exports: 'module$exports$Blockly$Dart',
     reexport: 'Blockly.Dart',
     reexportOnly: 'dartGenerator',
+  },
+  {
+    name: 'go',
+    entry: path.join(TSC_OUTPUT_DIR, 'generators', 'go', 'all.js'),
+    exports: 'module$exports$Blockly$Go',
+    reexport: 'Blockly.Go',
+    reexportOnly: 'goGenerator',
   }
 ];
 

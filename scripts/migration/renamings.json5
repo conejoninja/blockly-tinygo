@@ -1368,6 +1368,11 @@
       newPath: 'Blockly.PHP',
     },
     {
+      oldName: 'Blockly.Go',
+      newExport: 'goGenerator',
+      newPath: 'Blockly.Go',
+    },
+    {
       oldName: 'Blockly.Python',
       newExport: 'pythonGenerator',
       newPath: 'Blockly.Python',

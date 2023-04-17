@@ -1,0 +1,1741 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Blockly Playground</title>
+
+  <!-- This script loads uncompressed when on localhost and loads
+     compressed when it is being hosted or on Internet Explorer.  -->
+  <link rel="stylesheet" href="tinygo/resources/bootstrap-4.3.1.min.css">
+  <link rel="stylesheet" href="tinygo/simulator.css" />
+  <link rel="stylesheet" href="tinygo/dashboard.css" />
+  <link rel="icon" type="image/png" href="tinygo/resources/favicon-32x32.png" sizes="32x32" />
+  <script src="tinygo/simulator.js" defer></script>
+  <script src="tinygo/dashboard.js" defer></script>
+  <script src="tinygo/project.js" defer></script>
+  <script src="tinygo/resources/jquery-3.3.1.slim.min.js" defer></script>
+  <script src="tinygo/resources/popper-1.14.7.min.js" defer></script>
+  <script src="tinygo/resources/bootstrap-4.3.1.min.js" defer></script>
+
+
+  <script>
+    var BLOCKLY_BOOTSTRAP_OPTIONS = {
+      additionalScripts: [
+        'build/msg/en.js',
+        'tests/playgrounds/screenshot.js',
+        'node_modules/@blockly/dev-tools/dist/index.js',
+      ],
+    }
+  </script>
+  <script src="bootstrap.js"></script>
+  <script type=module>
+// Wait for Blockly to finish loading.
+import './bootstrap_done.mjs';
+
+const IS_UNCOMPRESSED = !window.bootstrapInfo.compressed;  // See bootstrap.js
+var workspace = null;
+
+function start() {
+  setBackgroundColour();
+
+  // Parse the URL arguments.
+  var match = location.search.match(/dir=([^&]+)/);
+  var rtl = match && match[1] == 'rtl';
+  var toolbox = getToolboxElement();
+  match = location.search.match(/side=([^&]+)/);
+  var autoimport = !!location.search.match(/autoimport=([^&]+)/);
+  // Create main workspace.
+  workspace = Blockly.inject('blocklyDiv',
+      {
+        comments: true,
+        collapse: true,
+        disable: true,
+        grid:
+          {
+            spacing: 25,
+            length: 3,
+            colour: '#ccc',
+            snap: true
+          },
+        horizontalLayout: false,
+        maxBlocks: Infinity,
+        maxInstances: {'test_basic_limit_instances': 3},
+        maxTrashcanContents: 256,
+        media: '../media/',
+        oneBasedIndex: true,
+        readOnly: false,
+        rtl: rtl,
+        move: {
+          scrollbars: true,
+          drag: true,
+          wheel: false,
+        },
+        toolbox: toolbox,
+        toolboxPosition: 'start',
+        renderer: 'geras',
+        zoom:
+          {
+            controls: true,
+            wheel: true,
+            startScale: 1.0,
+            maxScale: 4,
+            minScale: 0.25,
+            scaleSpeed: 1.1
+          }
+      });
+  initToolbox(workspace);
+  workspace.configureContextMenu = configureContextMenu;
+  // Restore previously displayed text.
+  if (sessionStorage) {
+    var text = sessionStorage.getItem('textarea');
+    if (text) {
+      document.getElementById('input').value = text;
+    }
+    // Restore event logging state.
+    var logMainEventsState = sessionStorage.getItem('logEvents');
+    //logEvents(Boolean(Number(logMainEventsState)));
+    var logToolboxFlyoutEventsState = sessionStorage.getItem('logFlyoutEvents');
+    //logFlyoutEvents(Boolean(Number(logToolboxFlyoutEventsState)));
+  } else {
+    // MSIE 11 does not support sessionStorage on file:// URLs.
+    //logEvents(false);
+  }
+  taChange();
+  if (autoimport) {
+    load();
+  }
+
+  addEventHandlers();
+}
+
+function setBackgroundColour() {
+  // Set background colour to differentiate between compressed and uncompressed mode.
+  if (IS_UNCOMPRESSED) {
+    document.body.style.backgroundColor = '#d6d6ff';  // Familiar lilac.
+  } else {
+    document.body.style.backgroundColor = '#60fcfc';  // Unfamiliar blue.
+  }
+}
+
+function getToolboxElement() {
+  return document.getElementById('toolbox-categories-typed-variables');
+}
+
+function initToolbox(workspace) {
+  var toolboxSuffix = 'categories-typed-variable';
+  if (toolboxSuffix == 'test-blocks' &&
+      typeof window.toolboxTestBlocksInit !== 'undefined') {
+    toolboxTestBlocksInit(workspace);
+  }
+}
+
+function saveXml() {
+  var output = document.getElementById('input');
+  var xml = Blockly.Xml.workspaceToDom(workspace);
+  output.value = Blockly.Xml.domToPrettyText(xml);
+  output.focus();
+  output.select();
+  taChange();
+}
+
+function copyToClipboard() {
+            var output = document.getElementById("input");
+            if (!navigator.clipboard) {
+                // Clipboard API not available
+                return;
+            }
+            try {
+                navigator.clipboard.writeText(output.value);
+            } catch (err) {
+                console.error('Failed to copy!', err);
+            }
+        }
+
+function saveJson() {
+  var output = document.getElementById('input');
+  var state = Blockly.serialization.workspaces.save(workspace);
+  output.value = JSON.stringify(state, null, 2);
+  output.focus();
+  output.select();
+  taChange();
+}
+
+function load() {
+  var input = document.getElementById('input');
+  if (!input.value) {
+    return;
+  }
+  var valid = saveIsValid(input.value);
+  if (valid.json) {
+    var state = JSON.parse(input.value);
+    Blockly.serialization.workspaces.load(state, workspace);
+  } else if (valid.xml) {
+    var xml = Blockly.utils.xml.textToDom(input.value);
+    Blockly.Xml.domToWorkspace(xml, workspace);
+  }
+  taChange();
+}
+
+function toCode(lang) {
+  var generator = ({
+    'Go': goGenerator,
+  })[lang];
+  var output = document.getElementById('input');
+  output.value = generator.workspaceToCode(workspace);
+  taChange();
+}
+
+// Disable the "Load" button if the save state is invalid.
+// Preserve text between page reloads.
+function taChange() {
+  /*var textarea = document.getElementById('input');
+  if (sessionStorage) {
+    sessionStorage.setItem('textarea', textarea.value);
+  }
+  var valid = saveIsValid(textarea.value);
+  document.getElementById('import').disabled = !valid.json && !valid.xml;*/
+}
+
+function saveIsValid(save) {
+  var validJson = true;
+  try {
+    JSON.parse(save);
+  } catch (e) {
+    validJson = false;
+  }
+  var validXml = true
+  try {
+    Blockly.utils.xml.textToDom(save);
+  } catch (e) {
+    validXml = false;
+  }
+  return {
+    json: validJson,
+    xml: validXml
+  }
+}
+
+function configureContextMenu(menuOptions, e) {
+  var screenshotOption = {
+    text: 'Download Screenshot',
+    enabled: workspace.getTopBlocks().length,
+    callback: function() {
+      downloadScreenshot(workspace);
+    }
+  };
+  menuOptions.push(screenshotOption);
+
+  // Adds a default-sized workspace comment to the workspace.
+  menuOptions.push(Blockly.ContextMenu.workspaceCommentOption(workspace, e));
+}
+
+function logger(e) {
+  console.log(e);
+}
+
+function demohelloworld() {
+            let xml = '<xml xmlns="https://developers.google.com/blockly/xml">\n' +
+                '  <block type="controls_repeat_ext" id="S9sUTYefO#q8wEWBJXjE" x="213" y="463">\n' +
+                '    <value name="TIMES">\n' +
+                '      <shadow type="math_number" id="Wo~zIJRbq17Ik.KZj2s?">\n' +
+                '        <field name="NUM">5</field>\n' +
+                '      </shadow>\n' +
+                '    </value>\n' +
+                '    <statement name="DO">\n' +
+                '      <block type="text_print" id=":$z$1#m{97MW2si(O#{O">\n' +
+                '        <value name="TEXT">\n' +
+                '          <shadow type="text" id="KW%P)23#*d#@D3)2UxG~">\n' +
+                '            <field name="TEXT">abc</field>\n' +
+                '          </shadow>\n' +
+                '          <block type="text" id="1rR@}M`tznV6{KuV|U#f">\n' +
+                '            <field name="TEXT">Hello FOSDEM</field>\n' +
+                '          </block>\n' +
+                '        </value>\n' +
+                '        <next>\n' +
+                '          <block type="tinygo_time_sleep" id="mtaSCpcX|H0%B|jC||~^">\n' +
+                '            <field name="AMOUNT">500</field>\n' +
+                '            <field name="UNIT">time.Millisecond</field>\n' +
+                '          </block>\n' +
+                '        </next>\n' +
+                '      </block>\n' +
+                '    </statement>\n' +
+                '  </block>\n' +
+                '</xml>';
+
+xml = '<xml xmlns="https://developers.google.com/blockly/xml">\n' +
+  '<variables>\n' +
+   ' <variable type="String" id="Uu9nP/j1]wZ!}^~?V/8,">textVar</variable>\n' +
+    '<variable type="Number" id="Qj-%3e,L{DvZICmZgQKz">numberVar</variable>\n' +
+  '</variables>\n' +
+  '<block type="variables_set_dynamic" id="*O.]Z[|,19yg;wjTSTL=" x="163" y="213">\n' +
+   ' <field name="VAR" id="Uu9nP/j1]wZ!}^~?V/8," variabletype="String">textVar</field>\n' +
+    '<value name="VALUE">\n' +
+     ' <block type="text" id="-^LdeeqPL!.zjpIX]E9@">\n' +
+      '  <field name="TEXT">asdfsdf</field>\n' +
+      '</block>\n' +
+    '</value>\n' +
+    '<next>\n' +
+      '<block type="variables_set_dynamic" id="PGnuJ%BG7AtNL7.71(hg">\n' +
+        '<field name="VAR" id="Qj-%3e,L{DvZICmZgQKz" variabletype="Number">numberVar</field>\n' +
+        '<value name="VALUE">\n' +
+          '<block type="math_number" id="{ynBDvn)c!=Wg/s|[M-`">\n' +
+            '<field name="NUM">123</field>\n' +
+          '</block>\n' +
+        '</value>\n' +
+      '</block>\n' +
+  '  </next>\n' +
+ ' </block>\n' +
+'</xml>';
+
+            var dom = Blockly.Xml.textToDom(xml);
+            Blockly.Xml.domToWorkspace(dom, workspace);
+        }
+
+        function demofizzbuzz() {
+            let xml = '<xml xmlns="https://developers.google.com/blockly/xml">\n' +
+                '  <variables>\n' +
+                '    <variable type="Number" id="y0*?v],t!PX{`@mQ+wh$">fb</variable>\n' +
+                '  </variables>\n' +
+                '  <block type="variables_set_dynamic" id="4*oRlqC=nFe*pG:}gdP`" x="213" y="238">\n' +
+                '    <field name="VAR" id="y0*?v],t!PX{`@mQ+wh$" variabletype="Number">fb</field>\n' +
+                '    <value name="VALUE">\n' +
+                '      <block type="math_number" id="sS#+uC([L+2o}s+YbfTN">\n' +
+                '        <field name="NUM">1</field>\n' +
+                '      </block>\n' +
+                '    </value>\n' +
+                '    <next>\n' +
+                '      <block type="controls_whileUntil" id="NdFBDNfPJi6a9L$ZV(go">\n' +
+                '        <field name="MODE">WHILE</field>\n' +
+                '        <value name="BOOL">\n' +
+                '          <block type="logic_boolean" id="([T)NzsUtq*yY/Jcn_JZ">\n' +
+                '            <field name="BOOL">TRUE</field>\n' +
+                '          </block>\n' +
+                '        </value>\n' +
+                '        <statement name="DO">\n' +
+                '          <block type="controls_if" id="|mCW_Nn?IgE73SPzf(:%">\n' +
+                '            <mutation elseif="2" else="1"></mutation>\n' +
+                '            <value name="IF0">\n' +
+                '              <block type="logic_compare" id="mCSL(r?BlG;gGvnrSjpQ">\n' +
+                '                <field name="OP">EQ</field>\n' +
+                '                <value name="A">\n' +
+                '                  <block type="math_modulo" id="C6PUHbb-1jh/nAzW!rbJ">\n' +
+                '                    <value name="DIVIDEND">\n' +
+                '                      <shadow type="math_number" id="}SB`Z,yX3)b]WC=]KB-2">\n' +
+                '                        <field name="NUM">64</field>\n' +
+                '                      </shadow>\n' +
+                '                      <block type="variables_get_dynamic" id="a=UheO6:ER~*+abIb]`2">\n' +
+                '                        <field name="VAR" id="y0*?v],t!PX{`@mQ+wh$" variabletype="Number">fb</field>\n' +
+                '                      </block>\n' +
+                '                    </value>\n' +
+                '                    <value name="DIVISOR">\n' +
+                '                      <shadow type="math_number" id="|A}j.zLb080nq?c$qT5K">\n' +
+                '                        <field name="NUM">3</field>\n' +
+                '                      </shadow>\n' +
+                '                      <block type="math_number" id="7[~Fk0J,|R/[52CmXuik">\n' +
+                '                        <field name="NUM">15</field>\n' +
+                '                      </block>\n' +
+                '                    </value>\n' +
+                '                  </block>\n' +
+                '                </value>\n' +
+                '                <value name="B">\n' +
+                '                  <block type="math_number" id="RKtPK,.3Dbv:7urtSQDZ">\n' +
+                '                    <field name="NUM">0</field>\n' +
+                '                  </block>\n' +
+                '                </value>\n' +
+                '              </block>\n' +
+                '            </value>\n' +
+                '            <statement name="DO0">\n' +
+                '              <block type="text_print" id="#M^^x#J}J.Ir2/3dbE8Z">\n' +
+                '                <value name="TEXT">\n' +
+                '                  <shadow type="text" id="4EIUyrr+VTJlP}=qV+}R">\n' +
+                '                    <field name="TEXT">abc</field>\n' +
+                '                  </shadow>\n' +
+                '                  <block type="text" id="4ccHj2}e|D$]rzNcPFqu">\n' +
+                '                    <field name="TEXT">FizzBuzz</field>\n' +
+                '                  </block>\n' +
+                '                </value>\n' +
+                '              </block>\n' +
+                '            </statement>\n' +
+                '            <value name="IF1">\n' +
+                '              <block type="logic_compare" id="n{r}vo=p`#-xw,y]wk(I">\n' +
+                '                <field name="OP">EQ</field>\n' +
+                '                <value name="A">\n' +
+                '                  <block type="math_modulo" id="-RwRSSs]kjYU*MF{X+9[">\n' +
+                '                    <value name="DIVIDEND">\n' +
+                '                      <shadow type="math_number" id="}SB`Z,yX3)b]WC=]KB-2">\n' +
+                '                        <field name="NUM">64</field>\n' +
+                '                      </shadow>\n' +
+                '                      <block type="variables_get_dynamic" id="TDsgsmpjNxkd{~w~j5(-">\n' +
+                '                        <field name="VAR" id="y0*?v],t!PX{`@mQ+wh$" variabletype="Number">fb</field>\n' +
+                '                      </block>\n' +
+                '                    </value>\n' +
+                '                    <value name="DIVISOR">\n' +
+                '                      <shadow type="math_number" id="|A}j.zLb080nq?c$qT5K">\n' +
+                '                        <field name="NUM">3</field>\n' +
+                '                      </shadow>\n' +
+                '                      <block type="math_number" id="TxyqjiRK*ER@0P#@**tM">\n' +
+                '                        <field name="NUM">3</field>\n' +
+                '                      </block>\n' +
+                '                    </value>\n' +
+                '                  </block>\n' +
+                '                </value>\n' +
+                '                <value name="B">\n' +
+                '                  <block type="math_number" id="r~nP!^+#0CjBjja,f[^f">\n' +
+                '                    <field name="NUM">0</field>\n' +
+                '                  </block>\n' +
+                '                </value>\n' +
+                '              </block>\n' +
+                '            </value>\n' +
+                '            <statement name="DO1">\n' +
+                '              <block type="text_print" id="Zn%L[r@sD?_E.`C0md9N">\n' +
+                '                <value name="TEXT">\n' +
+                '                  <shadow type="text" id="vcgHk-OmcK#uj3BvP62A">\n' +
+                '                    <field name="TEXT">abc</field>\n' +
+                '                  </shadow>\n' +
+                '                  <block type="text" id="XTY|}6-.20qDG+2r[d/^">\n' +
+                '                    <field name="TEXT">Fizz</field>\n' +
+                '                  </block>\n' +
+                '                </value>\n' +
+                '              </block>\n' +
+                '            </statement>\n' +
+                '            <value name="IF2">\n' +
+                '              <block type="logic_compare" id="V5.4:`-XXFa#gb#PaE!j">\n' +
+                '                <field name="OP">EQ</field>\n' +
+                '                <value name="A">\n' +
+                '                  <block type="math_modulo" id="D1Zrf@*W}w*;]/j;.NvU">\n' +
+                '                    <value name="DIVIDEND">\n' +
+                '                      <shadow type="math_number" id="}SB`Z,yX3)b]WC=]KB-2">\n' +
+                '                        <field name="NUM">64</field>\n' +
+                '                      </shadow>\n' +
+                '                      <block type="variables_get_dynamic" id="?G(2$+JM4=r378lUJ#U}">\n' +
+                '                        <field name="VAR" id="y0*?v],t!PX{`@mQ+wh$" variabletype="Number">fb</field>\n' +
+                '                      </block>\n' +
+                '                    </value>\n' +
+                '                    <value name="DIVISOR">\n' +
+                '                      <shadow type="math_number" id="|A}j.zLb080nq?c$qT5K">\n' +
+                '                        <field name="NUM">3</field>\n' +
+                '                      </shadow>\n' +
+                '                      <block type="math_number" id="j0anRl!arz!kf$f2a!d|">\n' +
+                '                        <field name="NUM">5</field>\n' +
+                '                      </block>\n' +
+                '                    </value>\n' +
+                '                  </block>\n' +
+                '                </value>\n' +
+                '                <value name="B">\n' +
+                '                  <block type="math_number" id="tZ%``W3b:3~m*Q{2[*2F">\n' +
+                '                    <field name="NUM">0</field>\n' +
+                '                  </block>\n' +
+                '                </value>\n' +
+                '              </block>\n' +
+                '            </value>\n' +
+                '            <statement name="DO2">\n' +
+                '              <block type="text_print" id="c?SR_!B70?qNnm`pqRaq">\n' +
+                '                <value name="TEXT">\n' +
+                '                  <shadow type="text" id="tVl;}N^gUk(f;7W=MNTX">\n' +
+                '                    <field name="TEXT">abc</field>\n' +
+                '                  </shadow>\n' +
+                '                  <block type="text" id="T9EStq?CxLmpTXP79_/W">\n' +
+                '                    <field name="TEXT">Buzz</field>\n' +
+                '                  </block>\n' +
+                '                </value>\n' +
+                '              </block>\n' +
+                '            </statement>\n' +
+                '            <statement name="ELSE">\n' +
+                '              <block type="text_print" id="}{O!G_RXUXnN+5P%%_D?">\n' +
+                '                <value name="TEXT">\n' +
+                '                  <shadow type="text" id="SYVgnil}SDB/~t,l,Zoe">\n' +
+                '                    <field name="TEXT">abc</field>\n' +
+                '                  </shadow>\n' +
+                '                  <block type="variables_get_dynamic" id="^w*Vrt10V9NBaKAq{-Ze">\n' +
+                '                    <field name="VAR" id="y0*?v],t!PX{`@mQ+wh$" variabletype="Number">fb</field>\n' +
+                '                  </block>\n' +
+                '                </value>\n' +
+                '              </block>\n' +
+                '            </statement>\n' +
+                '            <next>\n' +
+                '              <block type="variables_set_dynamic" id="2kEdi;_?XI%TGwg3ofXu">\n' +
+                '                <field name="VAR" id="y0*?v],t!PX{`@mQ+wh$" variabletype="Number">fb</field>\n' +
+                '                <value name="VALUE">\n' +
+                '                  <block type="math_arithmetic" id="dKg[}oU^#;dWMA?WSb=@">\n' +
+                '                    <field name="OP">ADD</field>\n' +
+                '                    <value name="A">\n' +
+                '                      <shadow type="math_number" id="+/z2=-Ba5q|(v8vtP)@w">\n' +
+                '                        <field name="NUM">1</field>\n' +
+                '                      </shadow>\n' +
+                '                      <block type="variables_get_dynamic" id="{Jid34+eMZzSx`2ueJuc">\n' +
+                '                        <field name="VAR" id="y0*?v],t!PX{`@mQ+wh$" variabletype="Number">fb</field>\n' +
+                '                      </block>\n' +
+                '                    </value>\n' +
+                '                    <value name="B">\n' +
+                '                      <shadow type="math_number" id="b0rB%:|I}QTl$=38h$8s">\n' +
+                '                        <field name="NUM">1</field>\n' +
+                '                      </shadow>\n' +
+                '                      <block type="math_number" id="h67e_~+01zvJeO~uT+a1">\n' +
+                '                        <field name="NUM">1</field>\n' +
+                '                      </block>\n' +
+                '                    </value>\n' +
+                '                  </block>\n' +
+                '                </value>\n' +
+                '                <next>\n' +
+                '                  <block type="tinygo_time_sleep" id="mtaSCpcX|H0%B|jC||~^">\n' +
+                '                    <field name="AMOUNT">500</field>\n' +
+                '                    <field name="UNIT">time.Millisecond</field>\n' +
+                '                  </block>\n' +
+                '                </next>\n' +
+                '              </block>\n' +
+                '            </next>\n' +
+                '          </block>\n' +
+                '        </statement>\n' +
+                '      </block>\n' +
+                '    </next>\n' +
+                '  </block>\n' +
+                '</xml>';
+            var dom = Blockly.Xml.textToDom(xml);
+            Blockly.Xml.domToWorkspace(dom, workspace);
+        }
+
+        function democfworker() {
+            let xml = '<xml xmlns="https://developers.google.com/blockly/xml">\n' +
+                '  <variables>\n' +
+                '    <variable type="String" id="PtL90|bxlM!W`[EPy(mB">countStr</variable>\n' +
+                '    <variable type="Number" id="rQveb_QgV~vVe)EE[npY">count</variable>\n' +
+                '    <variable type="String" id="l|dEWFj!?bM_?i=I5Ik8">countKey</variable>\n' +
+                '  </variables>\n' +
+                '  <block type="variables_set_dynamic" id="_OP|`50W%*zF6/8HY`Xh" x="163" y="188">\n' +
+                '    <field name="VAR" id="PtL90|bxlM!W`[EPy(mB" variabletype="String">countStr</field>\n' +
+                '    <value name="VALUE">\n' +
+                '      <block type="text" id="!oy`6@S(KWt^kUl~:YJ-">\n' +
+                '        <field name="TEXT">0</field>\n' +
+                '      </block>\n' +
+                '    </value>\n' +
+                '    <next>\n' +
+                '      <block type="variables_set_dynamic" id="yt~a0=1ct!%!L[-kt5Uk">\n' +
+                '        <field name="VAR" id="rQveb_QgV~vVe)EE[npY" variabletype="Number">count</field>\n' +
+                '        <value name="VALUE">\n' +
+                '          <block type="math_number" id="v*%k5]{8F_!8H7093P{C">\n' +
+                '            <field name="NUM">0</field>\n' +
+                '          </block>\n' +
+                '        </value>\n' +
+                '        <next>\n' +
+                '          <block type="variables_set_dynamic" id="0@57sW:x~X8TWznNwp-W">\n' +
+                '            <field name="VAR" id="l|dEWFj!?bM_?i=I5Ik8" variabletype="String">countKey</field>\n' +
+                '            <value name="VALUE">\n' +
+                '              <block type="text" id="A*+l:JgT=74!7m|9m1Y;">\n' +
+                '                <field name="TEXT">count</field>\n' +
+                '              </block>\n' +
+                '            </value>\n' +
+                '            <next>\n' +
+                '              <block type="nethttp_cf_newkv" id="~yIiFNZ?k$+;[EIzQ*(#">\n' +
+                '                <value name="TEXT">\n' +
+                '                  <block type="text" id="1tqqiq)KT]K7nD-%H%B=">\n' +
+                '                    <field name="TEXT">COUNTER</field>\n' +
+                '                  </block>\n' +
+                '                </value>\n' +
+                '                <next>\n' +
+                '                  <block type="nethttp_handlefunc" id="3HPUmp{V+C*y7$*z^}gv">\n' +
+                '                    <field name="ROUTE">/</field>\n' +
+                '                    <statement name="GR0">\n' +
+                '                      <block type="tinygo_tuple2" id="iUs`LW!8M%Rlx*H-j|-8">\n' +
+                '                        <field name="VAR1">countStr</field>\n' +
+                '                        <field name="VAR2">_</field>\n' +
+                '                        <value name="TUPLE2">\n' +
+                '                          <block type="nethttp_cf_kvgetstring" id="9D|Iez[8MSueT6MJlMG+">\n' +
+                '                            <value name="TEXT">\n' +
+                '                              <block type="variables_get_dynamic" id="6{dQw/P)z[+/v+?8G$^l">\n' +
+                '                                <field name="VAR" id="l|dEWFj!?bM_?i=I5Ik8" variabletype="String">countKey</field>\n' +
+                '                              </block>\n' +
+                '                            </value>\n' +
+                '                          </block>\n' +
+                '                        </value>\n' +
+                '                        <next>\n' +
+                '                          <block type="tinygo_tuple2" id="2lk_$,R$7Wa9Hx?dU,D.">\n' +
+                '                            <field name="VAR1">count</field>\n' +
+                '                            <field name="VAR2">_</field>\n' +
+                '                            <value name="TUPLE2">\n' +
+                '                              <block type="tinygo_strconv_atoi" id="#.(GO%`,k)Cp!^VL)1Lv">\n' +
+                '                                <value name="TEXT">\n' +
+                '                                  <block type="variables_get_dynamic" id="_KQ|n~6Bl:1c$9{53u^#">\n' +
+                '                                    <field name="VAR" id="PtL90|bxlM!W`[EPy(mB" variabletype="String">countStr</field>\n' +
+                '                                  </block>\n' +
+                '                                </value>\n' +
+                '                              </block>\n' +
+                '                            </value>\n' +
+                '                            <next>\n' +
+                '                              <block type="variables_set_dynamic" id="%EE[vS%$3}09W(K{BF+P">\n' +
+                '                                <field name="VAR" id="PtL90|bxlM!W`[EPy(mB" variabletype="String">countStr</field>\n' +
+                '                                <value name="VALUE">\n' +
+                '                                  <block type="tinygo_strconv_itoa" id="l,VpJkf^]pwuH{,vEwM%">\n' +
+                '                                    <value name="TEXT">\n' +
+                '                                      <block type="math_arithmetic" id="A^CD%liYllq~9G_Dr}X]">\n' +
+                '                                        <field name="OP">ADD</field>\n' +
+                '                                        <value name="A">\n' +
+                '                                          <shadow type="math_number" id="MkJ:y@hIN+x[?S?Q$ZSH">\n' +
+                '                                            <field name="NUM">1</field>\n' +
+                '                                          </shadow>\n' +
+                '                                          <block type="variables_get_dynamic" id="05[UA@|X,CKwN,80%AQG">\n' +
+                '                                            <field name="VAR" id="rQveb_QgV~vVe)EE[npY" variabletype="Number">count</field>\n' +
+                '                                          </block>\n' +
+                '                                        </value>\n' +
+                '                                        <value name="B">\n' +
+                '                                          <shadow type="math_number" id="+NtPf=]wt*zTN28*2JzN">\n' +
+                '                                            <field name="NUM">1</field>\n' +
+                '                                          </shadow>\n' +
+                '                                        </value>\n' +
+                '                                      </block>\n' +
+                '                                    </value>\n' +
+                '                                  </block>\n' +
+                '                                </value>\n' +
+                '                                <next>\n' +
+                '                                  <block type="nethttp_cf_kvputstring" id="qge6Cw)rO|l;oLg2J:eT">\n' +
+                '                                    <value name="TEXT">\n' +
+                '                                      <block type="variables_get_dynamic" id="M{PmLF|]SEp(UG-E..?@">\n' +
+                '                                        <field name="VAR" id="l|dEWFj!?bM_?i=I5Ik8" variabletype="String">countKey</field>\n' +
+                '                                      </block>\n' +
+                '                                    </value>\n' +
+                '                                    <value name="TEXT2">\n' +
+                '                                      <block type="variables_get_dynamic" id="9SZXfnGB[1#8v2JffANN">\n' +
+                '                                        <field name="VAR" id="PtL90|bxlM!W`[EPy(mB" variabletype="String">countStr</field>\n' +
+                '                                      </block>\n' +
+                '                                    </value>\n' +
+                '                                    <next>\n' +
+                '                                      <block type="nethttp_write_response" id="Oy*2$)k/|fHLA7W[x`$k">\n' +
+                '                                        <value name="TEXT">\n' +
+                '                                          <block type="variables_get_dynamic" id="|MpB^^n%sq-)EKD9_D)7">\n' +
+                '                                            <field name="VAR" id="PtL90|bxlM!W`[EPy(mB" variabletype="String">countStr</field>\n' +
+                '                                          </block>\n' +
+                '                                        </value>\n' +
+                '                                      </block>\n' +
+                '                                    </next>\n' +
+                '                                  </block>\n' +
+                '                                </next>\n' +
+                '                              </block>\n' +
+                '                            </next>\n' +
+                '                          </block>\n' +
+                '                        </next>\n' +
+                '                      </block>\n' +
+                '                    </statement>\n' +
+                '                    <next>\n' +
+                '                      <block type="nethttp_cf_serve" id="A^,uBGIM#x;7-Hvw!3N="></block>\n' +
+                '                    </next>\n' +
+                '                  </block>\n' +
+                '                </next>\n' +
+                '              </block>\n' +
+                '            </next>\n' +
+                '          </block>\n' +
+                '        </next>\n' +
+                '      </block>\n' +
+                '    </next>\n' +
+                '  </block>\n' +
+                '</xml>';
+            var dom = Blockly.Xml.textToDom(xml);
+            Blockly.Xml.domToWorkspace(dom, workspace);
+        }
+
+        function demogopherino() {
+            let xml = '<xml xmlns="https://developers.google.com/blockly/xml">\n' +
+                '  <variables>\n' +
+                '    <variable type="Number" id="MYTR:pe9phG9@Ik63uQh">distance</variable>\n' +
+                '  </variables>\n' +
+                '  <block type="variables_set_dynamic" id="LF;37EjH,aWcrNx$l(N=" x="113" y="338">\n' +
+                '    <field name="VAR" id="MYTR:pe9phG9@Ik63uQh" variabletype="Number">distance</field>\n' +
+                '    <value name="VALUE">\n' +
+                '      <block type="math_number" id="j+eybxwn6zcmxFv,J6:0">\n' +
+                '        <field name="NUM">123</field>\n' +
+                '      </block>\n' +
+                '    </value>\n' +
+                '    <next>\n' +
+                '      <block type="controls_whileUntil" id="1.tpH(C0F[kg?^Wmz5$z">\n' +
+                '        <field name="MODE">WHILE</field>\n' +
+                '        <value name="BOOL">\n' +
+                '          <block type="logic_boolean" id="1lCGebs6ce%*y=;Cy`8n">\n' +
+                '            <field name="BOOL">TRUE</field>\n' +
+                '          </block>\n' +
+                '        </value>\n' +
+                '        <statement name="DO">\n' +
+                '          <block type="variables_set_dynamic" id=",5`23-`3t}SHf1A:a$!~">\n' +
+                '            <field name="VAR" id="MYTR:pe9phG9@Ik63uQh" variabletype="Number">distance</field>\n' +
+                '            <value name="VALUE">\n' +
+                '              <block type="gopherino_hcsr04_readdistance" id="71K$SeS95(|E$u?O^HAU"></block>\n' +
+                '            </value>\n' +
+                '            <next>\n' +
+                '              <block type="controls_if" id="Gd$6~c2[:+FcxYeP*9s1">\n' +
+                '                <mutation else="1"></mutation>\n' +
+                '                <value name="IF0">\n' +
+                '                  <block type="logic_compare" id="$`daXp`ahkPF/z?O!Qxb">\n' +
+                '                    <field name="OP">LT</field>\n' +
+                '                    <value name="A">\n' +
+                '                      <block type="variables_get_dynamic" id="8kRDKsMQ}s|m2JMTCv@C">\n' +
+                '                        <field name="VAR" id="MYTR:pe9phG9@Ik63uQh" variabletype="Number">distance</field>\n' +
+                '                      </block>\n' +
+                '                    </value>\n' +
+                '                    <value name="B">\n' +
+                '                      <block type="math_number" id="1|Z8l{:lCVj+#[[+M*1J">\n' +
+                '                        <field name="NUM">60</field>\n' +
+                '                      </block>\n' +
+                '                    </value>\n' +
+                '                  </block>\n' +
+                '                </value>\n' +
+                '                <statement name="DO0">\n' +
+                '                  <block type="gopherino_move" id="O!!iN1VS?};ZHQwGL=Qk">\n' +
+                '                    <field name="DIRECTION">SpinRight</field>\n' +
+                '                  </block>\n' +
+                '                </statement>\n' +
+                '                <statement name="ELSE">\n' +
+                '                  <block type="gopherino_move" id="pRKEEn0,C.3twZe.{{s_">\n' +
+                '                    <field name="DIRECTION">Forward</field>\n' +
+                '                  </block>\n' +
+                '                </statement>\n' +
+                '                <next>\n' +
+                '                  <block type="tinygo_time_sleep" id="wI8tcUf)oEsvnd5E+HHi">\n' +
+                '                    <field name="AMOUNT">500</field>\n' +
+                '                    <field name="UNIT">time.Millisecond</field>\n' +
+                '                  </block>\n' +
+                '                </next>\n' +
+                '              </block>\n' +
+                '            </next>\n' +
+                '          </block>\n' +
+                '        </statement>\n' +
+                '      </block>\n' +
+                '    </next>\n' +
+                '  </block>\n' +
+                '</xml>';
+            var dom = Blockly.Xml.textToDom(xml);
+            Blockly.Xml.domToWorkspace(dom, workspace);
+        }
+
+        function demods18b20() {
+            let xml = '<xml xmlns="https://developers.google.com/blockly/xml">\n' +
+                '  <variables>\n' +
+                '    <variable type="Number" id="8uz^|tI$bmN}HGOwV64b">temperature</variable>\n' +
+                '  </variables>\n' +
+                '  <block type="variables_set_dynamic" id="!at1|U.nm{}pEkyU8*[)" x="212" y="312">\n' +
+                '    <field name="VAR" id="8uz^|tI$bmN}HGOwV64b" variabletype="Number">temperature</field>\n' +
+                '    <value name="VALUE">\n' +
+                '      <block type="math_number" id="4rl`2f#~,{(-RB,yJb{Q">\n' +
+                '        <field name="NUM">25000</field>\n' +
+                '      </block>\n' +
+                '    </value>\n' +
+                '    <next>\n' +
+                '      <block type="sensors_ds18b20_configure" id="d}p%BW@R:f]8z^@L1m(}">\n' +
+                '        <field name="PIN">D2</field>\n' +
+                '        <next>\n' +
+                '          <block type="controls_whileUntil" id="wzrfpxDW~DN^$}bpDU_H">\n' +
+                '            <field name="MODE">WHILE</field>\n' +
+                '            <value name="BOOL">\n' +
+                '              <block type="logic_boolean" id="Ul8-y6n95@YTI13+dx2/">\n' +
+                '                <field name="BOOL">TRUE</field>\n' +
+                '              </block>\n' +
+                '            </value>\n' +
+                '            <statement name="DO">\n' +
+                '              <block type="sensors_ds18b20_requesttemperature" id="iq`v$x@*UUZ9Dy+BH$U?">\n' +
+                '                <next>\n' +
+                '                  <block type="tinygo_time_sleep" id="!^EqZ5H,|4j_VG.YzgBa">\n' +
+                '                    <field name="AMOUNT">1024</field>\n' +
+                '                    <field name="UNIT">time.Millisecond</field>\n' +
+                '                    <next>\n' +
+                '                      <block type="tinygo_tuple2" id="M]d4w*KS34a!~%E%HB#n">\n' +
+                '                        <field name="VAR1">temperature</field>\n' +
+                '                        <field name="VAR2">_</field>\n' +
+                '                        <value name="TUPLE2">\n' +
+                '                          <block type="sensors_ds18b20_readtemperature" id="/l|xQq_d7x@Ofi]CHv3^"></block>\n' +
+                '                        </value>\n' +
+                '                        <next>\n' +
+                '                          <block type="tinygo_led_complete" id="O@c~6iCy$6!0E=GlKo^*">\n' +
+                '                            <field name="PIN">4</field>\n' +
+                '                            <field name="STATE">Low</field>\n' +
+                '                            <next>\n' +
+                '                              <block type="tinygo_led_complete" id=":nSvsw^nK`t{KmxYG{AV">\n' +
+                '                                <field name="PIN">5</field>\n' +
+                '                                <field name="STATE">Low</field>\n' +
+                '                                <next>\n' +
+                '                                  <block type="tinygo_led_complete" id="[MjcRAUd^!b]4u-FPWF9">\n' +
+                '                                    <field name="PIN">6</field>\n' +
+                '                                    <field name="STATE">Low</field>\n' +
+                '                                    <next>\n' +
+                '                                      <block type="controls_if" id="?iCzkE4dotv+R@[8m`}v">\n' +
+                '                                        <mutation elseif="1" else="1"></mutation>\n' +
+                '                                        <value name="IF0">\n' +
+                '                                          <block type="logic_compare" id="]4~0KurpgM,;x3pEe^j,">\n' +
+                '                                            <field name="OP">GT</field>\n' +
+                '                                            <value name="A">\n' +
+                '                                              <block type="variables_get_dynamic" id="e|a6GU3q.f4e/iny-T)W">\n' +
+                '                                                <field name="VAR" id="8uz^|tI$bmN}HGOwV64b" variabletype="Number">temperature</field>\n' +
+                '                                              </block>\n' +
+                '                                            </value>\n' +
+                '                                            <value name="B">\n' +
+                '                                              <block type="math_number" id="_c/7le.dZg3F:pi,HzmO">\n' +
+                '                                                <field name="NUM">30000</field>\n' +
+                '                                              </block>\n' +
+                '                                            </value>\n' +
+                '                                          </block>\n' +
+                '                                        </value>\n' +
+                '                                        <statement name="DO0">\n' +
+                '                                          <block type="tinygo_led_complete" id="YoxETc00+J8up#Ib.PQj">\n' +
+                '                                            <field name="PIN">4</field>\n' +
+                '                                            <field name="STATE">High</field>\n' +
+                '                                          </block>\n' +
+                '                                        </statement>\n' +
+                '                                        <value name="IF1">\n' +
+                '                                          <block type="logic_compare" id="TLDLMgSap/%c#Ul_CI5$">\n' +
+                '                                            <field name="OP">LT</field>\n' +
+                '                                            <value name="A">\n' +
+                '                                              <block type="variables_get_dynamic" id="x{)mx17[9sCOqcT#,9C;">\n' +
+                '                                                <field name="VAR" id="8uz^|tI$bmN}HGOwV64b" variabletype="Number">temperature</field>\n' +
+                '                                              </block>\n' +
+                '                                            </value>\n' +
+                '                                            <value name="B">\n' +
+                '                                              <block type="math_number" id="?(#y$N~aio5n22Z0u/n%">\n' +
+                '                                                <field name="NUM">20000</field>\n' +
+                '                                              </block>\n' +
+                '                                            </value>\n' +
+                '                                          </block>\n' +
+                '                                        </value>\n' +
+                '                                        <statement name="DO1">\n' +
+                '                                          <block type="tinygo_led_complete" id="kTkk_l|UNDeR9e^BYx9.">\n' +
+                '                                            <field name="PIN">5</field>\n' +
+                '                                            <field name="STATE">High</field>\n' +
+                '                                          </block>\n' +
+                '                                        </statement>\n' +
+                '                                        <statement name="ELSE">\n' +
+                '                                          <block type="tinygo_led_complete" id="U?$mI0s)%8P8d_(Q4;RT">\n' +
+                '                                            <field name="PIN">6</field>\n' +
+                '                                            <field name="STATE">High</field>\n' +
+                '                                          </block>\n' +
+                '                                        </statement>\n' +
+                '                                        <next>\n' +
+                '                                          <block type="tinygo_time_sleep" id="JPYx8[5S#J!0/M1=:zO1">\n' +
+                '                                            <field name="AMOUNT">1</field>\n' +
+                '                                            <field name="UNIT">time.Second</field>\n' +
+                '                                          </block>\n' +
+                '                                        </next>\n' +
+                '                                      </block>\n' +
+                '                                    </next>\n' +
+                '                                  </block>\n' +
+                '                                </next>\n' +
+                '                              </block>\n' +
+                '                            </next>\n' +
+                '                          </block>\n' +
+                '                        </next>\n' +
+                '                      </block>\n' +
+                '                    </next>\n' +
+                '                  </block>\n' +
+                '                </next>\n' +
+                '              </block>\n' +
+                '            </statement>\n' +
+                '          </block>\n' +
+                '        </next>\n' +
+                '      </block>\n' +
+                '    </next>\n' +
+                '  </block>\n' +
+                '</xml>';
+            var dom = Blockly.Xml.textToDom(xml);
+            Blockly.Xml.domToWorkspace(dom, workspace);
+        }
+
+function addEventHandlers() {
+    document.getElementById('btn-save-xml').addEventListener('click', saveXml);
+    document.getElementById('btn-import').addEventListener('click', load);
+    document.getElementById('btn-copy-cb').addEventListener('click', copyToClipboard);
+
+    document.getElementById('btn-to-code-go')
+    .addEventListener('click', () => toCode('Go'));
+
+    document.getElementById('btn-demohelloworld')
+    .addEventListener('click', () => demohelloworld());
+    document.getElementById('btn-demofizzbuzz')
+    .addEventListener('click', () => demofizzbuzz());
+    document.getElementById('btn-democfworker')
+    .addEventListener('click', () => democfworker());
+    document.getElementById('btn-demogopherino')
+    .addEventListener('click', () => demogopherino());
+    document.getElementById('btn-demods18b20')
+    .addEventListener('click', () => demods18b20());
+
+
+    document.getElementById("input").addEventListener('change', taChange);
+    document.getElementById("input").addEventListener('keyup', taChange);
+}
+
+// Call start().  Because this <script> has type=module, it is
+// automatically deferred, so it will not be run until after the
+// document has been parsed, but before firing DOMContentLoaded.
+start();
+
+</script>
+
+  <style>
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      background-color: #fff;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-weight: normal;
+      font-size: 140%;
+    }
+
+    #blocklyDiv {
+      float: right;
+      height: 95%;
+      width: 70%;
+    }
+
+    #input {
+      font-family: monospace;
+    }
+
+    .ioLabel>.blocklyFlyoutLabelText {
+      font-style: italic;
+    }
+
+    #blocklyDiv.renderingDebug .blockRenderDebug {
+      display: block;
+    }
+
+    .playgroundToggleOptions {
+      list-style: none;
+      padding: 0;
+    }
+
+    .playgroundToggleOptions li {
+      margin-top: 1em;
+    }
+
+    .zelos-renderer .blocklyFlyoutButton .blocklyText {
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="blocklyDiv"></div>
+
+  <h1>Blockly Playground</h1>
+
+  <div id="target" class="btn-group">
+    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+      aria-expanded="false">
+      Console
+    </button>
+    <div class="dropdown-menu">
+      <a class="dropdown-item active" href>Console</a>
+      <span id="target-loading" class="dropdown-item disabled">Loading...</span>
+    </div>
+  </div>
+  <button type="button" id="btn-flash" class="btn btn-secondary" disabled>Flash</button>
+  <button type="button" id="btn-copy-cb" class="btn btn-secondary">Copy to Clipboard</button>
+  <button type="button" id="btn-save-xml" class="btn btn-secondary">Save XML</button>
+  <button type="button" id="btn-import" class="btn btn-secondary">Load</button>
+  <button type="button" id="btn-to-code-go" class="btn btn-secondary">To Go</button>
+
+  <p>
+    <button type="button" id="btn-demohelloworld" class="btn btn-secondary">Hello world</button>
+    <button type="button" id="btn-demofizzbuzz" class="btn btn-secondary">FizzBuzz</button>
+    <button type="button" id="btn-democfworker" class="btn btn-secondary">CF worker</button>
+    <button type="button" id="btn-demogopherino" class="btn btn-secondary">Gopherino</button>
+    <button type="button" id="btn-demods18b20" class="btn btn-secondary">DS18B20</button>
+  </p>
+
+
+
+
+
+
+  <div id="middle">
+    <textarea id="input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" disabled
+      rows="20">Loading...</textarea>
+    <div id="output">
+      <div id="schematic-buttons">
+        <button id="schematic-button-pause" class="codicon schematic-button" title="Pause/resume the simulation">
+          &#xead1;
+        </button>
+      </div>
+      <svg id="schematic">
+        <g id="schematic-wrapper" style="transform: translate(50%, 50%)">
+          <g id="schematic-parts"></g>
+          <g id="schematic-wires"></g>
+        </g>
+      </svg>
+      <div id="panels">
+        <div class="tabbar">
+          <span class="tab active" data-for="#terminal-box"><a>Terminal</a></span>
+          <span class="tab" data-for="#properties"><a>Properties</a></span>
+          <span class="tab" data-for="#add"><a>Add</a></span>
+        </div>
+        <div class="tabcontent active" id="terminal-box">
+          <textarea id="terminal" readonly></textarea>
+        </div>
+        <div class="tabcontent" id="properties">
+          <div class="content"></div>
+        </div>
+        <div class="tabcontent" id="add">
+          Loading...
+        </div>
+      </div>
+      <div id="schematic-tooltip"></div>
+    </div>
+  </div>
+  <!-- The next three blocks of XML are sample toolboxes for testing basic
+  configurations.  For more information on building toolboxes, see https://developers.google.com/blockly/guides/configure/web/toolbox -->
+
+  <!-- toolbox-simple is an always-open flyout with no category menu.
+  Always-open flyouts are a good idea if you have a small number of blocks. -->
+  <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox-simple" style="display: none">
+    <block type="controls_ifelse"></block>
+    <block type="logic_compare"></block>
+    <!-- <block type="control_repeat"></block> -->
+    <block type="logic_operation"></block>
+    <block type="controls_repeat_ext">
+      <value name="TIMES">
+        <shadow type="math_number">
+          <field name="NUM">10</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="logic_operation"></block>
+    <block type="logic_negate"></block>
+    <block type="logic_boolean"></block>
+    <block type="logic_null" disabled="true"></block>
+    <block type="logic_ternary"></block>
+    <block type="text_charAt">
+      <value name="VALUE">
+        <block type="variables_get">
+          <field name="VAR">text</field>
+        </block>
+      </value>
+    </block>
+  </xml>
+
+  <!-- toolbox-categories has a category menu and an auto-closing flyout.  The
+  Variables category uses untyped variable blocks.
+  See https://developers.google.com/blockly/guides/create-custom-blocks/variables#untyped_variable_blocks for more information. -->
+  <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox-categories" style="display: none">
+    <category name="Logic" categorystyle="logic_category">
+      <block type="controls_if"></block>
+      <block type="logic_compare"></block>
+      <block type="logic_operation"></block>
+      <block type="logic_negate"></block>
+      <block type="logic_boolean"></block>
+      <block type="logic_null" disabled="true"></block>
+      <block type="logic_ternary"></block>
+    </category>
+    <category name="Loops" categorystyle="loop_category">
+      <block type="controls_repeat_ext">
+        <value name="TIMES">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="controls_repeat" disabled="true"></block>
+      <block type="controls_whileUntil"></block>
+      <block type="controls_for">
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+        <value name="BY">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="controls_forEach"></block>
+      <block type="controls_flow_statements"></block>
+    </category>
+    <category name="Math" categorystyle="math_category">
+      <block type="math_number" gap="32">
+        <field name="NUM">123</field>
+      </block>
+      <block type="math_arithmetic">
+        <value name="A">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="B">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_single">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">9</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_trig">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">45</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_constant"></block>
+      <block type="math_number_property">
+        <value name="NUMBER_TO_CHECK">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_round">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">3.1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_on_list"></block>
+      <block type="math_modulo">
+        <value name="DIVIDEND">
+          <shadow type="math_number">
+            <field name="NUM">64</field>
+          </shadow>
+        </value>
+        <value name="DIVISOR">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_constrain">
+        <value name="VALUE">
+          <shadow type="math_number">
+            <field name="NUM">50</field>
+          </shadow>
+        </value>
+        <value name="LOW">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="HIGH">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_random_int">
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_random_float"></block>
+      <block type="math_atan2">
+        <value name="X">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="Y">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <category name="Text" categorystyle="text_category">
+      <block type="text"></block>
+      <block type="text_multiline"></block>
+      <block type="text_join"></block>
+      <block type="text_append">
+        <value name="TEXT">
+          <shadow type="text"></shadow>
+        </value>
+      </block>
+      <block type="text_length">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_isEmpty">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_indexOf">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+        <value name="FIND">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_charAt">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+      </block>
+      <block type="text_getSubstring">
+        <value name="STRING">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+      </block>
+      <block type="text_changeCase">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_trim">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_count">
+        <value name="SUB">
+          <shadow type="text"></shadow>
+        </value>
+        <value name="TEXT">
+          <shadow type="text"></shadow>
+        </value>
+      </block>
+      <block type="text_replace">
+        <value name="FROM">
+          <shadow type="text"></shadow>
+        </value>
+        <value name="TO">
+          <shadow type="text"></shadow>
+        </value>
+        <value name="TEXT">
+          <shadow type="text"></shadow>
+        </value>
+      </block>
+      <block type="text_reverse">
+        <value name="TEXT">
+          <shadow type="text"></shadow>
+        </value>
+      </block>
+      <label text="Input/Output:" web-class="ioLabel"></label>
+      <block type="text_print">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_prompt_ext">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <category name="Lists" categorystyle="list_category">
+      <block type="lists_create_with">
+        <mutation items="0"></mutation>
+      </block>
+      <block type="lists_create_with"></block>
+      <block type="lists_repeat">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">5</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="lists_length"></block>
+      <block type="lists_isEmpty"></block>
+      <block type="lists_indexOf">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_getIndex">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_setIndex">
+        <value name="LIST">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_getSublist">
+        <value name="LIST">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_split">
+        <value name="DELIM">
+          <shadow type="text">
+            <field name="TEXT">,</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="lists_sort"></block>
+      <block type="lists_reverse"></block>
+    </category>
+    <category name="Colour" categorystyle="colour_category">
+      <block type="colour_picker"></block>
+      <block type="colour_random"></block>
+      <block type="colour_rgb">
+        <value name="RED">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="GREEN">
+          <shadow type="math_number">
+            <field name="NUM">50</field>
+          </shadow>
+        </value>
+        <value name="BLUE">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="colour_blend">
+        <value name="COLOUR1">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#ff0000</field>
+          </shadow>
+        </value>
+        <value name="COLOUR2">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#3333ff</field>
+          </shadow>
+        </value>
+        <value name="RATIO">
+          <shadow type="math_number">
+            <field name="NUM">0.5</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <sep></sep>
+    <category name="Variables" categorystyle="variable_category" custom="VARIABLE"></category>
+    <category name="Functions" categorystyle="procedure_category" custom="PROCEDURE"></category>
+  </xml>
+
+  <!-- toolbox-categories-typed-variables has a category menu and an
+  auto-closing flyout.  The Variables category uses typed variable blocks.
+  See https://developers.google.com/blockly/guides/create-custom-blocks/variables#typed_variable_blocks for more information. -->
+  <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox-categories-typed-variables" style="display: none">
+    <category name="Logic" categorystyle="logic_category">
+      <block type="controls_if"></block>
+      <block type="logic_compare"></block>
+      <block type="logic_operation"></block>
+      <block type="logic_negate"></block>
+      <block type="logic_boolean"></block>
+      <block type="logic_null" disabled="true"></block>
+      <block type="logic_ternary"></block>
+    </category>
+    <category name="Loops" categorystyle="loop_category">
+      <block type="controls_repeat_ext">
+        <value name="TIMES">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="controls_repeat" disabled="true"></block>
+      <block type="controls_whileUntil"></block>
+      <block type="controls_for">
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+        <value name="BY">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="controls_forEach"></block>
+      <block type="controls_flow_statements"></block>
+    </category>
+    <category name="Math" categorystyle="math_category">
+      <block type="math_number" gap="32">
+        <field name="NUM">123</field>
+      </block>
+      <block type="math_arithmetic">
+        <value name="A">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="B">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_single">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">9</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_trig">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">45</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_constant"></block>
+      <block type="math_number_property">
+        <value name="NUMBER_TO_CHECK">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_round">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">3.1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_on_list"></block>
+      <block type="math_modulo">
+        <value name="DIVIDEND">
+          <shadow type="math_number">
+            <field name="NUM">64</field>
+          </shadow>
+        </value>
+        <value name="DIVISOR">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_constrain">
+        <value name="VALUE">
+          <shadow type="math_number">
+            <field name="NUM">50</field>
+          </shadow>
+        </value>
+        <value name="LOW">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="HIGH">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_random_int">
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_random_float"></block>
+      <block type="math_atan2">
+        <value name="X">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="Y">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <category name="Text" categorystyle="text_category">
+      <block type="text"></block>
+      <block type="text_multiline"></block>
+      <block type="text_join"></block>
+      <block type="text_append">
+        <value name="TEXT">
+          <shadow type="text"></shadow>
+        </value>
+      </block>
+      <block type="text_length">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_isEmpty">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_indexOf">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+        <value name="FIND">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_charAt">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+      </block>
+      <block type="text_getSubstring">
+        <value name="STRING">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+      </block>
+      <block type="text_changeCase">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_trim">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_count">
+        <value name="SUB">
+          <shadow type="text"></shadow>
+        </value>
+        <value name="TEXT">
+          <shadow type="text"></shadow>
+        </value>
+      </block>
+      <block type="text_replace">
+        <value name="FROM">
+          <shadow type="text"></shadow>
+        </value>
+        <value name="TO">
+          <shadow type="text"></shadow>
+        </value>
+        <value name="TEXT">
+          <shadow type="text"></shadow>
+        </value>
+      </block>
+      <block type="text_reverse">
+        <value name="TEXT">
+          <shadow type="text"></shadow>
+        </value>
+      </block>
+      <label text="Input/Output:" web-class="ioLabel"></label>
+      <block type="text_print">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_prompt_ext">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <category name="Lists" categorystyle="list_category">
+      <block type="lists_create_with">
+        <mutation items="0"></mutation>
+      </block>
+      <block type="lists_create_with"></block>
+      <block type="lists_repeat">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">5</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="lists_length"></block>
+      <block type="lists_isEmpty"></block>
+      <block type="lists_indexOf">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_getIndex">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_setIndex">
+        <value name="LIST">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_getSublist">
+        <value name="LIST">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_split">
+        <value name="DELIM">
+          <shadow type="text">
+            <field name="TEXT">,</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="lists_sort"></block>
+      <block type="lists_reverse"></block>
+    </category>
+    <category name="Colour" categorystyle="colour_category">
+      <block type="colour_picker"></block>
+      <block type="colour_random"></block>
+      <block type="colour_rgb">
+        <value name="RED">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="GREEN">
+          <shadow type="math_number">
+            <field name="NUM">50</field>
+          </shadow>
+        </value>
+        <value name="BLUE">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="colour_blend">
+        <value name="COLOUR1">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#ff0000</field>
+          </shadow>
+        </value>
+        <value name="COLOUR2">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#3333ff</field>
+          </shadow>
+        </value>
+        <value name="RATIO">
+          <shadow type="math_number">
+            <field name="NUM">0.5</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <sep></sep>
+    <category name="Variables" categorystyle="variable_category" custom="VARIABLE_DYNAMIC"></category>
+    <category name="Functions" categorystyle="procedure_category" custom="PROCEDURE"></category>
+    <sep></sep>
+    <category name="TinyGo">
+      <block type="tinygo_led" categorystyle="text_category"></block>
+      <block type="tinygo_led_state" categorystyle="text_category"></block>
+      <block type="tinygo_led_complete" categorystyle="text_category"></block>
+      <block type="tinygo_goroutine" categorystyle="text_category"></block>
+      <block type="tinygo_time_sleep" categorystyle="text_category"></block>
+      <block type="tinygo_readdata" categorystyle="text_category"></block>
+      <block type="tinygo_tuple2" categorystyle="text_category"></block>
+      <block type="tinygo_tuple3" categorystyle="text_category"></block>
+      <block type="tinygo_tuple4" categorystyle="text_category"></block>
+      <block type="tinygo_strconv_atoi" categorystyle="text_category"></block>
+      <block type="tinygo_strconv_itoa" categorystyle="text_category"></block>
+    </category>
+    <category name="Gopherino">
+      <block type="gopherino_move" categorystyle="text_category"></block>
+      <block type="gopherino_hcsr04_readdistance" categorystyle="text_category"></block>
+    </category>
+    <category name="Sensors">
+      <block type="sensors_ds18b20_configure" categorystyle="text_category"></block>
+      <block type="sensors_ds18b20_requesttemperature" categorystyle="text_category"></block>
+      <block type="sensors_ds18b20_readtemperature" categorystyle="text_category"></block>
+    </category>
+    <category name="Gopherbot">
+      <block type="gopherbot_antenna" categorystyle="text_category"></block>
+      <block type="gopherbot_button" categorystyle="text_category"></block>
+      <block type="gopherbot_visor" categorystyle="text_category"></block>
+      <block type="gopherbot_backpack" categorystyle="text_category"></block>
+      <block type="gopherbot_backpack_alternate" categorystyle="text_category"></block>
+      <block type="gopherbot_speaker" categorystyle="text_category"></block>
+    </category>
+    <category name="Net/HTTP">
+      <block type="nethttp_handlefunc" categorystyle="text_category"></block>
+      <block type="nethttp_write_response" categorystyle="text_category"></block>
+      <block type="nethttp_cf_newkv" categorystyle="text_category"></block>
+      <block type="nethttp_cf_kvgetstring" categorystyle="text_category"></block>
+      <block type="nethttp_cf_kvputstring" categorystyle="text_category"></block>
+      <block type="nethttp_cf_serve" categorystyle="text_category"></block>
+    </category>
+  </xml>
+</body>
+
+</html>
