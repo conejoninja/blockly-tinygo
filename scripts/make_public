@@ -1,7 +1,7 @@
 #!/bin/bash
-mkdir -p public
+mkdir -p public/node_modules
 cp -r tests/* public
-cp -r node_modules public
+cp -r node_modules/@blockly public
 cp -r dist public
 cp -r media public
 cp -r build public
