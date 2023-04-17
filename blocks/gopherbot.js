@@ -6,10 +6,9 @@
  * @fileoverview Code generator for the test 2 blocks.
  */
 'use strict';
-goog.modulede('Blockly.Gopherbot');
+goog.module('Blockly.Gopherbot');
 const { goGenerator: Go } = goog.require('Blockly.Go');
 
-const {TinyGo} = goog.require('Blockly.TinyGo');
 /**
  * A dictionary of the block definitions provided by this module.
  * @type {!Object<string, !BlockDefinition>}
@@ -236,57 +235,57 @@ exports.blocks = blocks;
 
 
 Go['gopherbot_antenna'] = function (block) {
-    TinyGo.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
-    TinyGo.addVariable('gopherbot_antenna', 'var antenna *gopherbot.AntennaDevice');
-    TinyGo.addDeclaration('gopherbot_antenna', 'antenna = gopherbot.Antenna()');
+    Go.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
+    Go.addVariable('gopherbot_antenna', 'var antenna *gopherbot.AntennaDevice');
+    Go.addDeclaration('gopherbot_antenna', 'antenna = gopherbot.Antenna()');
     const state = block.getFieldValue('STATE');
     const code = 'antenna.' + state + '()\n';
     return code;
 };
 Go['gopherbot_visor'] = function (block) {
-    TinyGo.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
-    TinyGo.addVariable('gopherbot_visor', 'var visor *gopherbot.VisorDevice');
-    TinyGo.addDeclaration('gopherbot_visor', 'visor = gopherbot.Visor()');
+    Go.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
+    Go.addVariable('gopherbot_visor', 'var visor *gopherbot.VisorDevice');
+    Go.addDeclaration('gopherbot_visor', 'visor = gopherbot.Visor()');
     const mode = block.getFieldValue('MODE');
     const code = 'visor.' + mode + '()\n';
     return code;
 };
 Go['gopherbot_button'] = function (block) {
-    TinyGo.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
+    Go.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
     const btn = block.getFieldValue('BUTTON');
     if (btn == "LEFT") {
-        TinyGo.addVariable('gopherbot_btn_left', 'var btnLeft *gopherbot.ButtonDevice');
-        TinyGo.addDeclaration('gopherbot_btn_left', 'btnLeft = gopherbot.LeftButton()');
+        Go.addVariable('gopherbot_btn_left', 'var btnLeft *gopherbot.ButtonDevice');
+        Go.addDeclaration('gopherbot_btn_left', 'btnLeft = gopherbot.LeftButton()');
         return ['btnLeft.Pushed()', Go.ORDER_NONE];
     }
-    TinyGo.addVariable('gopherbot_btn_right', 'var btnRight *gopherbot.ButtonDevice');
-    TinyGo.addDeclaration('gopherbot_btn_right', 'btnRight = gopherbot.RightButton()');
+    Go.addVariable('gopherbot_btn_right', 'var btnRight *gopherbot.ButtonDevice');
+    Go.addDeclaration('gopherbot_btn_right', 'btnRight = gopherbot.RightButton()');
     return ['btnRight.Pushed()', Go.ORDER_NONE];
 };
 Go['gopherbot_backpack'] = function (block) {
-    TinyGo.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
-    TinyGo.addVariable('gopherbot_backpack', 'var backpack *gopherbot.BackpackDevice');
-    TinyGo.addDeclaration('gopherbot_backpack', 'backpack = gopherbot.Backpack()');
+    Go.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
+    Go.addVariable('gopherbot_backpack', 'var backpack *gopherbot.BackpackDevice');
+    Go.addDeclaration('gopherbot_backpack', 'backpack = gopherbot.Backpack()');
     const mode = block.getFieldValue('MODE');
     const code = 'backpack.' + mode + '()\n';
     return code;
 };
 Go['gopherbot_backpack_alternate'] = function (block) {
-    TinyGo.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
-    TinyGo.addVariable('gopherbot_backpack', 'var backpack *gopherbot.BackpackDevice');
-    TinyGo.addDeclaration('gopherbot_backpack', 'backpack = gopherbot.Backpack()');
-    const code = 'backpack.Alternate(' + TinyGo.HexToRgbA(block.getFieldValue('COLOR1')) + ', ' + TinyGo.HexToRgbA(block.getFieldValue('COLOR2')) + ')\n';
+    Go.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
+    Go.addVariable('gopherbot_backpack', 'var backpack *gopherbot.BackpackDevice');
+    Go.addDeclaration('gopherbot_backpack', 'backpack = gopherbot.Backpack()');
+    const code = 'backpack.Alternate(' + Go.HexToRgbA(block.getFieldValue('COLOR1')) + ', ' + Go.HexToRgbA(block.getFieldValue('COLOR2')) + ')\n';
     return code;
 };
 Go['gopherbot_speaker'] = function (block) {
-    TinyGo.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
-    TinyGo.addVariable('gopherbot_speaker', 'var speaker *gopherbot.SpeakerDevice');
-    TinyGo.addDeclaration('gopherbot_speaker', 'speaker = gopherbot.Speaker()');
+    Go.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
+    Go.addVariable('gopherbot_speaker', 'var speaker *gopherbot.SpeakerDevice');
+    Go.addDeclaration('gopherbot_speaker', 'speaker = gopherbot.Speaker()');
     const mode = block.getFieldValue('MODE');
     const code = 'speaker.' + mode + '()\n';
     return code;
 };
-TinyGo.HexToRgbA = function (hex) {
+Go.HexToRgbA = function (hex) {
     let c;
     if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
         c = hex.substring(1).split('');
