@@ -239,7 +239,6 @@ Blockly.Blocks['tinygo_led'] = {
         this.setTooltip("Tooltip LED");
     },
     updateFields: function () {
-        Blockly.Arduino.Boards.refreshBlockFieldDropdown(this, 'PINNUMBER', 'groveDigital');
     },
     connectorPinUsage: function () {
         return [this.getFieldValue('PINNUMBER')];
