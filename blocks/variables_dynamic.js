@@ -74,6 +74,49 @@ const blocks = createBlockDefinitionsFromJsonArray([
     'helpUrl': '%{BKY_VARIABLES_SET_HELPURL}',
     'extensions': ['contextMenu_variableDynamicSetterGetter'],
   },
+  {
+    'type': 'variables_get_dynamic_list',
+    'message0': 'from %1 index %2',
+    'args0': [{
+      'type': 'field_variable',
+      'name': 'VAR',
+      'variable': '%{BKY_VARIABLES_DEFAULT_NAME}',
+    },
+    {
+      'type': 'field_input',
+      'name': 'INDEX',
+    }],
+    'output': null,
+    'style': 'variable_dynamic_blocks',
+    'helpUrl': '%{BKY_VARIABLES_GET_HELPURL}',
+    'tooltip': '%{BKY_VARIABLES_GET_TOOLTIP}',
+    'extensions': ['contextMenu_variableDynamicSetterGetter'],
+  },
+  {
+    'type': 'variables_set_dynamic_list',
+    'message0': 'Set %1 index %2',
+    'args0': [
+      {
+        'type': 'field_variable',
+        'name': 'VAR',
+        'variable': '%{BKY_VARIABLES_DEFAULT_NAME}',
+      },
+      {
+        'type': 'field_input',
+        'name': 'INDEX',
+      },
+      {
+        'type': 'input_value',
+        'name': 'VALUE',
+      },
+    ],
+    'previousStatement': null,
+    'nextStatement': null,
+    'style': 'variable_dynamic_blocks',
+    'tooltip': '%{BKY_VARIABLES_SET_TOOLTIP}',
+    'helpUrl': '%{BKY_VARIABLES_SET_HELPURL}',
+    'extensions': ['contextMenu_variableDynamicSetterGetter'],
+  },
 ]);
 exports.blocks = blocks;
 

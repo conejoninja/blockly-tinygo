@@ -7,14 +7,14 @@
 import * as goog from '../closure/goog/goog.js';
 goog.declareModuleId('Blockly.VariablesDynamic');
 
-import {Blocks} from './blocks.js';
-import {Msg} from './msg.js';
+import { Blocks } from './blocks.js';
+import { Msg } from './msg.js';
 import * as xml from './utils/xml.js';
-import {VariableModel} from './variable_model.js';
+import { VariableModel } from './variable_model.js';
 import * as Variables from './variables.js';
-import type {Workspace} from './workspace.js';
-import type {WorkspaceSvg} from './workspace_svg.js';
-import type {FlyoutButton} from './flyout_button.js';
+import type { Workspace } from './workspace.js';
+import type { WorkspaceSvg } from './workspace_svg.js';
+import type { FlyoutButton } from './flyout_button.js';
 
 
 /**
@@ -33,7 +33,7 @@ export const CATEGORY_NAME = 'VARIABLE_DYNAMIC';
  */
 function stringButtonClickHandler(button: FlyoutButton) {
   Variables.createVariableButtonHandler(
-      button.getTargetWorkspace(), undefined, 'String');
+    button.getTargetWorkspace(), undefined, 'String');
 }
 // eslint-disable-next-line camelcase
 export const onCreateVariableButtonClick_String = stringButtonClickHandler;
@@ -45,7 +45,7 @@ export const onCreateVariableButtonClick_String = stringButtonClickHandler;
  */
 function numberButtonClickHandler(button: FlyoutButton) {
   Variables.createVariableButtonHandler(
-      button.getTargetWorkspace(), undefined, 'Number');
+    button.getTargetWorkspace(), undefined, 'Number');
 }
 // eslint-disable-next-line camelcase
 export const onCreateVariableButtonClick_Number = numberButtonClickHandler;
@@ -57,10 +57,22 @@ export const onCreateVariableButtonClick_Number = numberButtonClickHandler;
  */
 function colourButtonClickHandler(button: FlyoutButton) {
   Variables.createVariableButtonHandler(
-      button.getTargetWorkspace(), undefined, 'Colour');
+    button.getTargetWorkspace(), undefined, 'Colour');
 }
 // eslint-disable-next-line camelcase
 export const onCreateVariableButtonClick_Colour = colourButtonClickHandler;
+
+/**
+ * Click handler for a button that creates List variables.
+ *
+ * @param button
+ */
+function listButtonClickHandler(button: FlyoutButton) {
+  Variables.createVariableButtonHandler(
+    button.getTargetWorkspace(), undefined, 'Array');
+}
+// eslint-disable-next-line camelcase
+export const onCreateVariableButtonClick_List = listButtonClickHandler;
 
 /**
  * Construct the elements (blocks and button) required by the flyout for the
@@ -82,14 +94,19 @@ export function flyoutCategory(workspace: WorkspaceSvg): Element[] {
   button = document.createElement('button');
   button.setAttribute('text', Msg['NEW_COLOUR_VARIABLE']);
   button.setAttribute('callbackKey', 'CREATE_VARIABLE_COLOUR');
+  button = document.createElement('button');
+  button.setAttribute('text', "New list variable");
+  button.setAttribute('callbackKey', 'CREATE_VARIABLE_LIST');
   xmlList.push(button);
 
   workspace.registerButtonCallback(
-      'CREATE_VARIABLE_STRING', stringButtonClickHandler);
+    'CREATE_VARIABLE_STRING', stringButtonClickHandler);
   workspace.registerButtonCallback(
-      'CREATE_VARIABLE_NUMBER', numberButtonClickHandler);
+    'CREATE_VARIABLE_NUMBER', numberButtonClickHandler);
   workspace.registerButtonCallback(
-      'CREATE_VARIABLE_COLOUR', colourButtonClickHandler);
+    'CREATE_VARIABLE_COLOUR', colourButtonClickHandler);
+  workspace.registerButtonCallback(
+    'CREATE_VARIABLE_LIST', listButtonClickHandler);
 
   const blockList = flyoutCategoryBlocks(workspace);
   xmlList = xmlList.concat(blockList);
