@@ -28,6 +28,7 @@ goog.require('Blockly.TinyGo');
 goog.require('Blockly.Gopherino');
 goog.require('Blockly.Sensors');
 goog.require('Blockly.NetHTTP');
+goog.require('Blockly.GopherBadge');
 //goog.require('Blockly.Gopherbot');
 
 exports = moduleExports;

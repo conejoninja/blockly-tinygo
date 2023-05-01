@@ -42,14 +42,36 @@ Go['lists_create_with'] = function(block) {
   return [code, Go.ORDER_FUNCTION_CALL];
 };
 
-Go['lists_create_with_typed'] = function(block) {
+Go['lists_create_with_string'] = function(block) {
   // Create a list with any number of elements of any type.
   var code = new Array(block.itemCount_);
   for (var i = 0; i < block.itemCount_; i++) {
     code[i] = Go.valueToCode(block, 'ADD' + i,
         Go.ORDER_COMMA) || 'null';
   }
-  code = 'array(' + code.join(', ') + ')';
+  code = '['+block.itemCount_+']string{' + code.join(', ') + '}';
+  return [code, Go.ORDER_FUNCTION_CALL];
+};
+
+Go['lists_create_with_color'] = function(block) {
+  // Create a list with any number of elements of any type.
+  var code = new Array(block.itemCount_);
+  for (var i = 0; i < block.itemCount_; i++) {
+    code[i] = Go.HexToRgbA(Go.valueToCode(block, 'ADD' + i,
+        Go.ORDER_COMMA) || 'null');
+  }
+  code = '['+block.itemCount_+']color.RGBA{' + code.join(', ') + '}';
+  return [code, Go.ORDER_FUNCTION_CALL];
+};
+
+Go['lists_create_with_number'] = function(block) {
+  // Create a list with any number of elements of any type.
+  var code = new Array(block.itemCount_);
+  for (var i = 0; i < block.itemCount_; i++) {
+    code[i] = Go.valueToCode(block, 'ADD' + i,
+        Go.ORDER_COMMA) || 'null';
+  }
+  code = '['+block.itemCount_+']int32{' + code.join(', ') + '}';
   return [code, Go.ORDER_FUNCTION_CALL];
 };
 
