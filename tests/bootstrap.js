@@ -33,7 +33,7 @@
  */
 'use strict';
 
-(function() {
+(function () {
   // Values used to compute default bootstrap options.
   const localhosts = ['localhost', '127.0.0.1', '[::1]'];
   const isLocalhost = localhosts.includes(location.hostname);
@@ -59,8 +59,60 @@
     root: window.location.href.replace(/\/tests\/.*$/, '/'),
 
     // List of deps files to load.  Paths relative to root.
-    depsFiles: [
-      'build/deps.js',
+    depsFiles: ['build/deps.js'],
+
+    // List of modules to load.
+    // - id: goog.module ID to require in uncompressed mode.
+    // - script: path, relative to root, to .js file to load via
+    //   <script> in compressed mode.
+    // - scriptExport: path at which script will save exports object
+    //   (see chunks in build_tasks.js); defaults to id.
+    // - importAt: gloal variable to set to export object.
+    // - destructure: map of globalVariable: exportName; globals will
+    //   be set to the corresponding exports.
+    modules: [
+      {
+        id: 'Blockly',
+        script: 'dist/blockly_compressed.js',
+        scriptExport: 'Blockly',
+        importAt: 'Blockly',
+      },
+      {
+        id: 'Blockly.libraryBlocks',
+        script: 'dist/blocks_compressed.js',
+        scriptExport: 'Blockly.libraryBlocks',
+        importAt: 'libraryBlocks',
+      },
+      {
+        id: 'Blockly.Dart.all',
+        script: 'dist/dart_compressed.js',
+        scriptExport: 'dart',
+        destructure: {dartGenerator: 'dartGenerator'},
+      },
+      {
+        id: 'Blockly.JavaScript.all',
+        script: 'dist/javascript_compressed.js',
+        scriptExport: 'javascript',
+        destructure: {javascriptGenerator: 'javascriptGenerator'},
+      },
+      {
+        id: 'Blockly.Lua.all',
+        script: 'dist/lua_compressed.js',
+        scriptExport: 'lua',
+        destructure: {luaGenerator: 'luaGenerator'},
+      },
+      {
+        id: 'Blockly.PHP.all',
+        script: 'dist/php_compressed.js',
+        scriptExport: 'php',
+        destructure: {phpGenerator: 'phpGenerator'},
+      },
+      {
+        id: 'Blockly.Python.all',
+        script: 'dist/python_compressed.js',
+        scriptExport: 'python',
+        destructure: {pythonGenerator: 'pythonGenerator'},
+      },
     ],
 
     // List of goog.modules to goog.require.
@@ -105,9 +157,7 @@
     // Additional scripts to be loaded after Blockly is loaded,
     // whether Blockly is loaded from compressed or uncompressed.
     // Paths relative to root.
-    additionalScripts: [
-      'build/msg/en.js',
-    ],
+    scripts: ['build/msg/en.js'],
   };
   if (typeof window.BLOCKLY_BOOTSTRAP_OPTIONS === 'object') {
     Object.assign(options, window.BLOCKLY_BOOTSTRAP_OPTIONS);
@@ -126,9 +176,9 @@
   // needed by later scripts.
   window.bootstrapInfo = {
     /** boolean */ compressed: options.loadCompressed,
+    /** Object<{id: string, script: string, scriptExport: string,
+     *          destructure: Object<string>}> */ modules: options.modules,
     /** ?Array<string> */ requires: null,
-    /** Object<string> */ namedImports: options.namedImports,
-    /** Object<string> */ destructuredImports: options.destructuredImports,
     /** ?Promise */ done: null,
   };
 
@@ -141,8 +191,8 @@
     // library we use, mainly for goog.require / goog.provide /
     // goog.module).
     document.write(
-        `<script src="${options.root}build/src/closure/goog/base.js"></script>`
-        );
+      `<script src="${options.root}build/src/closure/goog/base.js"></script>`
+    );
 
     // Prevent spurious transpilation warnings.
     document.write('<script>goog.TRANSPILE = "never";</script>');
@@ -154,13 +204,12 @@
       document.write(`<script src="${options.root + depsFile}"></script>`);
     }
 
-    // Record require targets for bootstrap_helper.js.
-    window.bootstrapInfo.requires = options.requires;
-
     // Assemble a list of module targets to bootstrap.
     //
-    // The first group of targets are those listed in
-    // options.requires.
+    // The first group of targets are those listed in options.modules
+    // and options.requires.  These are recorded on bootstrapInfo so
+    // so bootstrap_helper.js can goog.require() them to force loading
+    // to complete.
     //
     // The next target is a fake one that will load
     // bootstrap_helper.js.  We generate a call to goog.addDependency
@@ -169,20 +218,23 @@
     // first group (and indeed bootstrap_helper.js will make a call to
     // goog.require for each one).
     //
-    // We then create another target for each of
-    // options.additionalScripts, again generating calls to
-    // goog.addDependency for each one making it dependent on the
-    // previous one.
-    let requires = options.requires.slice();
-    const scripts =
-        ['bootstrap_helper.js', ...options.additionalScripts];
+    // We then create another target for each of options.scripts,
+    // again generating calls to goog.addDependency for each one
+    // making it dependent on the previous one.
+    let requires = (window.bootstrapInfo.requires = [
+      ...options.modules.map((module) => module.id),
+      ...options.requires,
+    ]);
+
+    const scripts = ['tests/bootstrap_helper.js', ...options.scripts];
     const scriptDeps = [];
     for (const script of scripts) {
       const fakeModuleName = `script.${script.replace(/[./]/g, '-')}`;
       scriptDeps.push(
-          `goog.addDependency(${quote('../../../../' + script)}, ` +
+        `goog.addDependency(${quote('../../../../' + script)}, ` +
           `[${quote(fakeModuleName)}], [${requires.map(quote).join()}], ` +
-          `{'lang': 'es6'});`);
+          `{'lang': 'es6'});`
+      );
       requires = [fakeModuleName];
     }
 
@@ -201,16 +253,16 @@
     // We need to load Blockly in compressed mode.  Load
     // blockly_compressed.js et al. using <script> tags.
     const scripts = [
-      ...options.compressedScripts,
-      'bootstrap_helper.js',
-      ...options.additionalScripts,
+      ...options.modules.map((module) => module.script),
+      'tests/bootstrap_helper.js',
+      ...options.scripts,
     ];
     for (const script of scripts) {
       document.write(`<script src="${options.root + script}"></script>`);
     }
   }
 
-  return;  // All done.  Only helper functions after this point.
+  return; // All done.  Only helper functions after this point.
 
   /**
    * Convert a string into a string literal.  Strictly speaking we
@@ -230,12 +282,27 @@
 
     /** Map of control character replacements. */
     const replacements = {
-      '\x00': '\\0',   '\x01': '\\x01', '\x02': '\\x02', '\x03': '\\x03',
-      '\x04': '\\x04', '\x05': '\\x05', '\x06': '\\x06', '\x07': '\\x07',
-      '\x08': '\\b',   '\x09': '\\t',   '\x0a': '\\n',   '\x0b': '\\v',
-      '\x0c': '\\f',   '\x0d': '\\r',   '\x0e': '\\x0e', '\x0f': '\\x0f',
-      '"': '\\"', "'": "\\'", '\\': '\\\\',
-      '\u2028': '\\u2028', '\u2029': '\\u2029',
+      '\x00': '\\0',
+      '\x01': '\\x01',
+      '\x02': '\\x02',
+      '\x03': '\\x03',
+      '\x04': '\\x04',
+      '\x05': '\\x05',
+      '\x06': '\\x06',
+      '\x07': '\\x07',
+      '\x08': '\\b',
+      '\x09': '\\t',
+      '\x0a': '\\n',
+      '\x0b': '\\v',
+      '\x0c': '\\f',
+      '\x0d': '\\r',
+      '\x0e': '\\x0e',
+      '\x0f': '\\x0f',
+      '"': '\\"',
+      "'": "\\'",
+      '\\': '\\\\',
+      '\u2028': '\\u2028',
+      '\u2029': '\\u2029',
     };
     /* eslint-enable no-control-regex, no-multi-spaces */
 
