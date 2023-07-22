@@ -37,6 +37,7 @@
     // which turns out to have syntax errors (see e.g. discussion on
     // PR #6564: https://github.com/google/blockly/pull/6564), so
     // disable it except for the explicitly-specified types.
-    "types": []
+    "types": [],
+    "allowSyntheticDefaultImports": true
   }
 }
