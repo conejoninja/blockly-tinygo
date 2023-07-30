@@ -18,6 +18,13 @@ import * as variables from './variables.js';
 import * as variablesDynamic from './variables_dynamic.js';
 import type {BlockDefinition} from '../core/blocks.js';
 
+import * as TinyGo from './tinygo.js';
+import * as GopherBadge from './gopherbadge.js';
+import * as GopherBot from './gopherbot.js';
+import * as Gopherino from './gopherino.js';
+import * as NetHTTP from './nethttp.js';
+import * as Sensors from './sensors.js';
+
 export {
   colour,
   lists,
@@ -27,6 +34,12 @@ export {
   texts,
   variables,
   variablesDynamic,
+  TinyGo,
+  GopherBadge,
+  GopherBot,
+  Gopherino,
+  NetHTTP,
+  Sensors
 };
 
 /**

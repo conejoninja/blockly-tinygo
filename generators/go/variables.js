@@ -6,27 +6,28 @@
 
 /**
  * @fileoverview Generating Go for variable blocks.
- * @author daarond@gmail.com (Daaron Dwyer)
  */
-'use strict';
+import * as goog from '../../closure/goog/goog.js';
+goog.declareModuleId('Blockly.Go.variables');
 
-goog.module('Blockly.Go.variables');
+import {NameType} from '../../core/names.js';
+import {Order} from './go_generator.js';
 
-const {goGenerator: Go} = goog.require('Blockly.Go');
 
-
-Go['variables_get'] = function(block) {
+export function variables_get(block, generator) {
     // Variable getter.
-    var code = Go.variableDB_.getName(block.getFieldValue('VAR'),
-        Blockly.VARIABLE_CATEGORY_NAME);
-    return [code, Go.ORDER_ATOMIC];
-};
-
-Go['variables_set'] = function(block) {
+    const code =
+        generator.nameDB_.getName(
+          block.getFieldValue('VAR'), NameType.VARIABLE);
+    return [code, Order.ATOMIC];
+  };
+  
+  export function variables_set(block, generator) {
     // Variable setter.
-    var argument0 = Go.valueToCode(block, 'VALUE',
-            Go.ORDER_ASSIGNMENT) || '0';
-    var varName = Go.variableDB_.getName(
-        block.getFieldValue('VAR'), Blockly.VARIABLE_CATEGORY_NAME);
+    const argument0 =
+        generator.valueToCode(block, 'VALUE', Order.ASSIGNMENT) || '0';
+    const varName =
+        generator.nameDB_.getName(
+          block.getFieldValue('VAR'), NameType.VARIABLE);
     return varName + ' = ' + argument0 + '\n';
-};
+  };

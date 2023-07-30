@@ -2,19 +2,24 @@
  * @license Licensed under the Apache License, Version 2.0 (the "License"):
  *          http://www.apache.org/licenses/LICENSE-2.0
  */
-/**
- * @fileoverview Code generator for the test 2 blocks.
- */
-'use strict';
-goog.module('Blockly.Gopherbot');
-const { goGenerator: Go } = goog.require('Blockly.Go');
+import * as goog from '../closure/goog/goog.js';
+goog.declareModuleId('Blockly.libraryBlocks.GopherBot');
 
-/**
- * A dictionary of the block definitions provided by this module.
- * @type {!Object<string, !BlockDefinition>}
- */
-const blocks = createBlockDefinitionsFromJsonArray([
-    // Block for boolean data type: true and false.
+import * as Extensions from '../core/extensions.js';
+import type { FieldDropdown } from '../core/field_dropdown.js';
+import * as xmlUtils from '../core/utils/xml.js';
+import type { Block } from '../core/block.js';
+import {
+    createBlockDefinitionsFromJsonArray,
+    defineBlocks,
+} from '../core/common.js';
+import '../core/field_dropdown.js';
+import '../core/field_label.js';
+import '../core/field_number.js';
+import '../core/field_variable.js';
+
+
+export const blocks = createBlockDefinitionsFromJsonArray([
     {
         "type": "gopherbot_antenna",
         "message0": "antenna %1",
@@ -231,73 +236,5 @@ const blocks = createBlockDefinitionsFromJsonArray([
         "helpUrl": "",
     },
 ]);
-exports.blocks = blocks;
 
-
-Go['gopherbot_antenna'] = function (block) {
-    Go.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
-    Go.addVariable('gopherbot_antenna', 'var antenna *gopherbot.AntennaDevice');
-    Go.addDeclaration('gopherbot_antenna', 'antenna = gopherbot.Antenna()');
-    const state = block.getFieldValue('STATE');
-    const code = 'antenna.' + state + '()\n';
-    return code;
-};
-Go['gopherbot_visor'] = function (block) {
-    Go.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
-    Go.addVariable('gopherbot_visor', 'var visor *gopherbot.VisorDevice');
-    Go.addDeclaration('gopherbot_visor', 'visor = gopherbot.Visor()');
-    const mode = block.getFieldValue('MODE');
-    const code = 'visor.' + mode + '()\n';
-    return code;
-};
-Go['gopherbot_button'] = function (block) {
-    Go.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
-    const btn = block.getFieldValue('BUTTON');
-    if (btn == "LEFT") {
-        Go.addVariable('gopherbot_btn_left', 'var btnLeft *gopherbot.ButtonDevice');
-        Go.addDeclaration('gopherbot_btn_left', 'btnLeft = gopherbot.LeftButton()');
-        return ['btnLeft.Pushed()', Go.ORDER_NONE];
-    }
-    Go.addVariable('gopherbot_btn_right', 'var btnRight *gopherbot.ButtonDevice');
-    Go.addDeclaration('gopherbot_btn_right', 'btnRight = gopherbot.RightButton()');
-    return ['btnRight.Pushed()', Go.ORDER_NONE];
-};
-Go['gopherbot_backpack'] = function (block) {
-    Go.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
-    Go.addVariable('gopherbot_backpack', 'var backpack *gopherbot.BackpackDevice');
-    Go.addDeclaration('gopherbot_backpack', 'backpack = gopherbot.Backpack()');
-    const mode = block.getFieldValue('MODE');
-    const code = 'backpack.' + mode + '()\n';
-    return code;
-};
-Go['gopherbot_backpack_alternate'] = function (block) {
-    Go.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
-    Go.addVariable('gopherbot_backpack', 'var backpack *gopherbot.BackpackDevice');
-    Go.addDeclaration('gopherbot_backpack', 'backpack = gopherbot.Backpack()');
-    const code = 'backpack.Alternate(' + Go.HexToRgbA(block.getFieldValue('COLOR1')) + ', ' + Go.HexToRgbA(block.getFieldValue('COLOR2')) + ')\n';
-    return code;
-};
-Go['gopherbot_speaker'] = function (block) {
-    Go.addImport('gopherbot', 'github.com/hybridgroup/gopherbot');
-    Go.addVariable('gopherbot_speaker', 'var speaker *gopherbot.SpeakerDevice');
-    Go.addDeclaration('gopherbot_speaker', 'speaker = gopherbot.Speaker()');
-    const mode = block.getFieldValue('MODE');
-    const code = 'speaker.' + mode + '()\n';
-    return code;
-};
-Go.HexToRgbA = function (hex) {
-    let c;
-    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
-        c = hex.substring(1).split('');
-        if (c.length == 3) {
-            c = [c[0], c[0], c[1], c[1], c[2], c[2]];
-        }
-        c = '0x' + c.join('');
-        return 'color.RGBA{' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',255}';
-    }
-    throw new Error('Bad Hex');
-};
-
-// Register provided blocks.
 defineBlocks(blocks);
-//# sourceMappingURL=gopherbot.js.map

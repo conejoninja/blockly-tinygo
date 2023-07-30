@@ -2,20 +2,24 @@
  * @license Licensed under the Apache License, Version 2.0 (the "License"):
  *          http://www.apache.org/licenses/LICENSE-2.0
  */
-/**
- * @fileoverview Code generator for the test 2 blocks.
- */
-'use strict';
-goog.module('Blockly.Sensors');
-const { createBlockDefinitionsFromJsonArray, defineBlocks } = goog.require('Blockly.common');
-const { goGenerator: Go } = goog.require('Blockly.Go');
+import * as goog from '../closure/goog/goog.js';
+goog.declareModuleId('Blockly.libraryBlocks.Sensors');
 
-/**
- * A dictionary of the block definitions provided by this module.
- * @type {!Object<string, !BlockDefinition>}
- */
-const blocks = createBlockDefinitionsFromJsonArray([
-    // Block for boolean data type: true and false.
+import * as Extensions from '../core/extensions.js';
+import type { FieldDropdown } from '../core/field_dropdown.js';
+import * as xmlUtils from '../core/utils/xml.js';
+import type { Block } from '../core/block.js';
+import {
+    createBlockDefinitionsFromJsonArray,
+    defineBlocks,
+} from '../core/common.js';
+import '../core/field_dropdown.js';
+import '../core/field_label.js';
+import '../core/field_number.js';
+import '../core/field_variable.js';
+
+
+export const blocks = createBlockDefinitionsFromJsonArray([
     {
         "type": "sensors_ds18b20_readtemperature",
         "message0": "%1 DS18B20 read temperature",
@@ -130,32 +134,5 @@ const blocks = createBlockDefinitionsFromJsonArray([
         "helpUrl": "",
     },
 ]);
-exports.blocks = blocks;
 
-
-Go['sensors_ds18b20_readtemperature'] = function (block) {
-    Go.addImport('machine', 'machine');
-    Go.addImport('tinygo.org/x/drivers/1-wire', 'wire "tinygo.org/x/drivers/1-wire"');
-    Go.addImport('tinygo.org/x/drivers/ds18b20', 'tinygo.org/x/drivers/ds18b20');
-    Go.addVariable('sensors_ds18b20', 'var sensors_ds18b20 ds18b20.Device');
-    return 'sensors_ds18b20.ReadTemperature()\n';
-};
-Go['sensors_ds18b20_requesttemperature'] = function (block) {
-    Go.addImport('machine', 'machine');
-    Go.addImport('tinygo.org/x/drivers/1-wire', 'wire "tinygo.org/x/drivers/1-wire"');
-    Go.addImport('tinygo.org/x/drivers/ds18b20', 'tinygo.org/x/drivers/ds18b20');
-    Go.addVariable('sensors_ds18b20', 'var sensors_ds18b20 ds18b20.Device');
-    return '_ = sensors_ds18b20.RequestTemperature()\n';
-};
-Go['sensors_ds18b20_configure'] = function (block) {
-    Go.addImport('machine', 'machine');
-    Go.addImport('tinygo.org/x/drivers/1-wire', 'wire "tinygo.org/x/drivers/1-wire"');
-    Go.addImport('tinygo.org/x/drivers/ds18b20', 'tinygo.org/x/drivers/ds18b20');
-    Go.addVariable('sensors_ds18b20', 'var sensors_ds18b20 ds18b20.Device');
-    const pin = block.getFieldValue('PIN');
-    return 'sensors_ds18b20 = ds18b20.New(wire.New(machine.' + pin + '))\n';
-};
-
-// Register provided blocks.
 defineBlocks(blocks);
-//# sourceMappingURL=sensors.js.map

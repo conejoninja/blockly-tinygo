@@ -6,257 +6,245 @@
 
 /**
  * @fileoverview Generating Go for text blocks.
- * @author daarond@gmail.com (Daaron Dwyer)
  */
-'use strict';
+import * as goog from '../../closure/goog/goog.js';
+goog.declareModuleId('Blockly.Go.texts');
 
-goog.module('Blockly.Go.texts');
-
-const {goGenerator: Go} = goog.require('Blockly.Go');
-
+import {NameType} from '../../core/names.js';
+import {Order} from './go_generator.js';
 
 
-Go['text'] = function(block) {
+
+export function text(block, generator) {
   // Text value.
-  var code = Go.quote_(block.getFieldValue('TEXT'));
-  return [code, Go.ORDER_ATOMIC];
+  const code = generator.quote_(block.getFieldValue('TEXT'));
+  return [code, Order.ATOMIC];
 };
 
-Go['text_multiline'] = function(block) {
+export function text_multiline(block, generator) {
   // Text value.
-  var code = Go.multiline_quote_(block.getFieldValue('TEXT'));
-  return [code, Go.ORDER_ATOMIC];
+  const code = generator.multiline_quote_(block.getFieldValue('TEXT'));
+  const order =
+      code.indexOf('+') !== -1 ? Order.STRING_CONCAT : Order.ATOMIC;
+  return [code, order];
 };
 
-Go['text_join'] = function(block) {
+export function text_join(block, generator) {
   // Create a string made up of any number of elements of any type.
-  if (block.itemCount_ == 0) {
-    return ['\'\'', Go.ORDER_ATOMIC];
-  } else if (block.itemCount_ == 1) {
-    var element = Go.valueToCode(block, 'ADD0',
-        Go.ORDER_NONE) || '\'\'';
-    var code = element;
-    return [code, Go.ORDER_FUNCTION_CALL];
-  } else if (block.itemCount_ == 2) {
-    var element0 = Go.valueToCode(block, 'ADD0',
-        Go.ORDER_ATOMIC) || '\'\'';
-    var element1 = Go.valueToCode(block, 'ADD1',
-        Go.ORDER_ATOMIC) || '\'\'';
-    var code = element0 + ' . ' + element1;
-    return [code, Go.ORDER_STRING_CONCAT];
+  if (block.itemCount_ === 0) {
+    return ["\"\"", Order.ATOMIC];
+  } else if (block.itemCount_ === 1) {
+    const element = generator.valueToCode(block, 'ADD0', Order.NONE) || "\"\"";
+    const code = element;
+    return [code, Order.NONE];
+  } else if (block.itemCount_ === 2) {
+    const element0 =
+        generator.valueToCode(block, 'ADD0', Order.STRING_CONCAT) || "\"\"";
+    const element1 =
+        generator.valueToCode(block, 'ADD1', Order.STRING_CONCAT) || "\"\"";
+    const code = element0 + ' + ' + element1;
+    return [code, Order.STRING_CONCAT];
   } else {
-    var elements = new Array(block.itemCount_);
-    for (var i = 0; i < block.itemCount_; i++) {
-      elements[i] = Go.valueToCode(block, 'ADD' + i,
-          Go.ORDER_COMMA) || '\'\'';
+    const elements = new Array(block.itemCount_);
+    for (let i = 0; i < block.itemCount_; i++) {
+      elements[i] =
+          generator.valueToCode(block, 'ADD' + i, Order.NONE) || "\"\"";
     }
     var code = 'strings.Join(\'\', []string{' + elements.join(',') + '})';
-    return [code, Go.ORDER_FUNCTION_CALL];
+    return [code, Order.FUNCTION_CALL];
   }
 };
 
-Go['text_append'] = function(block) {
+export function text_append(block, generator) {
   // Append to a variable in place.
-  var varName = Go.variableDB_.getName(
-      block.getFieldValue('VAR'), Blockly.VARIABLE_CATEGORY_NAME);
-  var value = Go.valueToCode(block, 'TEXT',
-      Go.ORDER_ASSIGNMENT) || '\'\'';
+  const varName =
+      generator.nameDB_.getName(
+        block.getFieldValue('VAR'), NameType.VARIABLE);
+  const value =
+      generator.valueToCode(block, 'TEXT', Order.ASSIGNMENT) || "\"\"";
   return varName + ' += ' + value + '\n';
 };
 
-Go['text_length'] = function(block) {
-  var text = Go.valueToCode(block, 'VALUE',
-      Go.ORDER_NONE) || '\'\'';
-  return 'len(' + text + ')';
+export function text_length(block, generator) {
+  var text = generator.valueToCode(block, 'VALUE',
+  Order.NONE) || "\"\"";
+return 'len(' + text + ')';
 };
 
-Go['text_isEmpty'] = function(block) {
+export function text_isEmpty(block, generator) {
   // Is the string null or array empty?
-  var text = Go.valueToCode(block, 'VALUE',
-      Go.ORDER_NONE) || '\'\'';
-  return ['empty(' + text + ')', Go.ORDER_FUNCTION_CALL];
+  const text = generator.valueToCode(block, 'VALUE', Order.NONE) || "\"\"";
+  return ['empty(' + text + ')', Order.FUNCTION_CALL];
 };
 
-Go['text_indexOf'] = function(block) {
+export function text_indexOf(block, generator) {
   // Search the text for a substring.
-  var operator = block.getFieldValue('END') == 'FIRST' ?
-      'strpos' : 'strrpos';
-  var substring = Go.valueToCode(block, 'FIND',
-      Go.ORDER_NONE) || '\'\'';
-  var text = Go.valueToCode(block, 'VALUE',
-      Go.ORDER_NONE) || '\'\'';
+  const operator =
+      block.getFieldValue('END') === 'FIRST' ? 'strpos' : 'strrpos';
+  const substring = generator.valueToCode(block, 'FIND', Order.NONE) || "\"\"";
+  const text = generator.valueToCode(block, 'VALUE', Order.NONE) || "\"\"";
+  let errorIndex = ' -1';
+  let indexAdjustment = '';
   if (block.workspace.options.oneBasedIndex) {
-    var errorIndex = ' 0';
-    var indexAdjustment = ' + 1';
-  } else {
-    var errorIndex = ' -1';
-    var indexAdjustment = '';
+    errorIndex = ' 0';
+    indexAdjustment = ' + 1';
   }
-  var functionName = Go.provideFunction_(
-      block.getFieldValue('END') == 'FIRST' ?
-          'text_indexOf' : 'text_lastIndexOf',
-      ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
-          '($text, $search) {',
-       '  $pos = ' + operator + '($text, $search)',
-       '  return $pos === false ? ' + errorIndex + ' : $pos' +
-          indexAdjustment + '',
-       '}']);
-  var code = functionName + '(' + text + ', ' + substring + ')';
-  return [code, Go.ORDER_FUNCTION_CALL];
+  const functionName = generator.provideFunction_(
+      block.getFieldValue('END') === 'FIRST' ? 'text_indexOf' :
+                                               'text_lastIndexOf',
+      `
+func ${generator.FUNCTION_NAME_PLACEHOLDER_}($text, $search) {
+  $pos = ${operator}($text, $search);
+  return $pos === false ? ${errorIndex} : $pos${indexAdjustment};
+}
+`);
+  const code = functionName + '(' + text + ', ' + substring + ')';
+  return [code, Order.FUNCTION_CALL];
 };
 
-Go['text_charAt'] = function(block) {
+export function text_charAt(block, generator) {
   // Get letter at index.
-  var where = block.getFieldValue('WHERE') || 'FROM_START';
-  var textOrder = (where == 'RANDOM') ? Go.ORDER_NONE :
-      Go.ORDER_COMMA;
-  var text = Go.valueToCode(block, 'VALUE', textOrder) || '\'\'';
+  const where = block.getFieldValue('WHERE') || 'FROM_START';
+  const textOrder = (where === 'RANDOM') ? Order.NONE : Order.NONE;
+  const text = generator.valueToCode(block, 'VALUE', textOrder) || "\"\"";
   switch (where) {
-    case 'FIRST':
-      var code = 'substr(' + text + ', 0, 1)';
-      return [code, Go.ORDER_FUNCTION_CALL];
-    case 'LAST':
-      var code = 'substr(' + text + ', -1)';
-      return [code, Go.ORDER_FUNCTION_CALL];
-    case 'FROM_START':
-      var at = Go.getAdjusted(block, 'AT');
-      var code = 'substr(' + text + ', ' + at + ', 1)';
-      return [code, Go.ORDER_FUNCTION_CALL];
-    case 'FROM_END':
-      var at = Go.getAdjusted(block, 'AT', 1, true);
-      var code = 'substr(' + text + ', ' + at + ', 1)';
-      return [code, Go.ORDER_FUNCTION_CALL];
-    case 'RANDOM':
-      var functionName = Go.provideFunction_(
-          'text_random_letter',
-          ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ + '($text) {',
-           '  return $text[rand(0, strlen($text) - 1)]',
-           '}']);
-      code = functionName + '(' + text + ')';
-      return [code, Go.ORDER_FUNCTION_CALL];
+    case 'FIRST': {
+      const code = 'substr(' + text + ', 0, 1)';
+      return [code, Order.FUNCTION_CALL];
+    }
+    case 'LAST': {
+      const code = 'substr(' + text + ', -1)';
+      return [code, Order.FUNCTION_CALL];
+    }
+    case 'FROM_START': {
+      const at = generator.getAdjusted(block, 'AT');
+      const code = 'substr(' + text + ', ' + at + ', 1)';
+      return [code, Order.FUNCTION_CALL];
+    }
+    case 'FROM_END': {
+      const at = generator.getAdjusted(block, 'AT', 1, true);
+      const code = 'substr(' + text + ', ' + at + ', 1)';
+      return [code, Order.FUNCTION_CALL];
+    }
+    case 'RANDOM': {
+      const functionName = generator.provideFunction_('text_random_letter', `
+function ${generator.FUNCTION_NAME_PLACEHOLDER_}($text) {
+  return $text[rand(0, strlen($text) - 1)];
+}
+`);
+      const code = functionName + '(' + text + ')';
+      return [code, Order.FUNCTION_CALL];
+    }
   }
   throw Error('Unhandled option (text_charAt).');
 };
 
-Go['text_getSubstring'] = function(block) {
+export function text_getSubstring(block, generator) {
   // Get substring.
-  var text = Go.valueToCode(block, 'STRING',
-      Go.ORDER_FUNCTION_CALL) || '\'\'';
-  var where1 = block.getFieldValue('WHERE1');
-  var where2 = block.getFieldValue('WHERE2');
-  if (where1 == 'FIRST' && where2 == 'LAST') {
-    var code = text;
+  const where1 = block.getFieldValue('WHERE1');
+  const where2 = block.getFieldValue('WHERE2');
+  const text = generator.valueToCode(block, 'STRING', Order.NONE) || "\"\"";
+  if (where1 === 'FIRST' && where2 === 'LAST') {
+    const code = text;
+    return [code, Order.NONE];
   } else {
-    var at1 = Go.getAdjusted(block, 'AT1');
-    var at2 = Go.getAdjusted(block, 'AT2');
-    var functionName = Go.provideFunction_(
-        'text_get_substring',
-        ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
-            '($text, $where1, $at1, $where2, $at2) {',
-         '  if ($where1 == \'FROM_END\') {',
-         '    $at1 = strlen($text) - 1 - $at1',
-         '  } else if ($where1 == \'FIRST\') {',
-         '    $at1 = 0',
-         '  } else if ($where1 != \'FROM_START\') {',
-         '    throw new Exception(\'Unhandled option (text_get_substring).\')',
-         '  }',
-         '  $length = 0',
-         '  if ($where2 == \'FROM_START\') {',
-         '    $length = $at2 - $at1 + 1',
-         '  } else if ($where2 == \'FROM_END\') {',
-         '    $length = strlen($text) - $at1 - $at2',
-         '  } else if ($where2 == \'LAST\') {',
-         '    $length = strlen($text) - $at1',
-         '  } else {',
-         '    throw new Exception(\'Unhandled option (text_get_substring).\')',
-         '  }',
-         '  return substr($text, $at1, $length)',
-         '}']);
-    var code = functionName + '(' + text + ', \'' +
-        where1 + '\', ' + at1 + ', \'' + where2 + '\', ' + at2 + ')';
+    const at1 = generator.getAdjusted(block, 'AT1');
+    const at2 = generator.getAdjusted(block, 'AT2');
+    const functionName = generator.provideFunction_('text_get_substring', `
+func ${generator.FUNCTION_NAME_PLACEHOLDER_}($text, $where1, $at1, $where2, $at2) {
+  if ($where1 == 'FROM_END') {
+    $at1 = strlen($text) - 1 - $at1;
+  } else if ($where1 == 'FIRST') {
+    $at1 = 0;
+  } else if ($where1 != 'FROM_START') {
+    throw new Exception('Unhandled option (text_get_substring).');
   }
-  return [code, Go.ORDER_FUNCTION_CALL];
+  $length = 0;
+  if ($where2 == 'FROM_START') {
+    $length = $at2 - $at1 + 1;
+  } else if ($where2 == 'FROM_END') {
+    $length = strlen($text) - $at1 - $at2;
+  } else if ($where2 == 'LAST') {
+    $length = strlen($text) - $at1;
+  } else {
+    throw new Exception('Unhandled option (text_get_substring).');
+  }
+  return substr($text, $at1, $length);
+}
+`);
+    const code = functionName + '(' + text + ', \'' + where1 + '\', ' + at1 +
+        ', \'' + where2 + '\', ' + at2 + ')';
+    return [code, Order.FUNCTION_CALL];
+  }
 };
 
-Go['text_changeCase'] = function(block) {
+export function text_changeCase(block, generator) {
   // Change capitalization.
-  var text = Go.valueToCode(block, 'TEXT',
-          Go.ORDER_NONE) || '\'\'';
-  if (block.getFieldValue('CASE') == 'UPPERCASE') {
-    var code = 'strtoupper(' + text + ')';
-  } else if (block.getFieldValue('CASE') == 'LOWERCASE') {
-    var code = 'strtolower(' + text + ')';
-  } else if (block.getFieldValue('CASE') == 'TITLECASE') {
-    var code = 'ucwords(strtolower(' + text + '))';
+  const text = generator.valueToCode(block, 'TEXT', Order.NONE) || "\"\"";
+  let code;
+  if (block.getFieldValue('CASE') === 'UPPERCASE') {
+    code = 'strtoupper(' + text + ')';
+  } else if (block.getFieldValue('CASE') === 'LOWERCASE') {
+    code = 'strtolower(' + text + ')';
+  } else if (block.getFieldValue('CASE') === 'TITLECASE') {
+    code = 'ucwords(strtolower(' + text + '))';
   }
-  return [code, Go.ORDER_FUNCTION_CALL];
+  return [code, Order.FUNCTION_CALL];
 };
 
-Go['text_trim'] = function(block) {
+export function text_trim(block, generator) {
   // Trim spaces.
-  var OPERATORS = {
-    'LEFT': 'ltrim',
-    'RIGHT': 'rtrim',
-    'BOTH': 'trim'
-  };
-  var operator = OPERATORS[block.getFieldValue('MODE')];
-  var text = Go.valueToCode(block, 'TEXT',
-      Go.ORDER_NONE) || '\'\'';
-  return [operator + '(' + text + ')', Go.ORDER_FUNCTION_CALL];
+  const OPERATORS = {'LEFT': 'ltrim', 'RIGHT': 'rtrim', 'BOTH': 'trim'};
+  const operator = OPERATORS[block.getFieldValue('MODE')];
+  const text = generator.valueToCode(block, 'TEXT', Order.NONE) || "\"\"";
+  return [operator + '(' + text + ')', Order.FUNCTION_CALL];
 };
 
-Go['text_print'] = function(block) {
+export function text_print(block, generator) {
   // Print statement.
-  var msg = Go.valueToCode(block, 'TEXT',
-      Go.ORDER_NONE) || '\'\'';
-  return 'println(' + msg + ')\n';
+  const msg = generator.valueToCode(block, 'TEXT', Order.NONE) || "\"\"";
+  return 'print(' + msg + ');\n';
 };
 
-Go['text_prompt_ext'] = function(block) {
+export function text_prompt_ext(block, generator) {
   // Prompt function.
+  let msg;
   if (block.getField('TEXT')) {
     // Internal message.
-    var msg = Go.quote_(block.getFieldValue('TEXT'));
+    msg = generator.quote_(block.getFieldValue('TEXT'));
   } else {
     // External message.
-    var msg = Go.valueToCode(block, 'TEXT',
-        Go.ORDER_NONE) || '\'\'';
+    msg = generator.valueToCode(block, 'TEXT', Order.NONE) || "\"\"";
   }
-  var code = 'readline(' + msg + ')';
-  var toNumber = block.getFieldValue('TYPE') == 'NUMBER';
+  let code = 'readline(' + msg + ')';
+  const toNumber = block.getFieldValue('TYPE') === 'NUMBER';
   if (toNumber) {
     code = 'floatval(' + code + ')';
   }
-  return [code, Go.ORDER_FUNCTION_CALL];
+  return [code, Order.FUNCTION_CALL];
 };
 
-Go['text_prompt'] = Go['text_prompt_ext'];
+export const text_prompt = text_prompt_ext;
 
-Go['text_count'] = function(block) {
-  var text = Go.valueToCode(block, 'TEXT',
-      Go.ORDER_MEMBER) || '\'\'';
-  var sub = Go.valueToCode(block, 'SUB',
-      Go.ORDER_NONE) || '\'\'';
-  var code = 'strlen(' + sub + ') === 0'
-    + ' ? strlen(' + text + ') + 1'
-    + ' : substr_count(' + text + ', ' + sub + ')';
-  return [code, Go.ORDER_CONDITIONAL];
+export function text_count(block, generator) {
+  const text = generator.valueToCode(block, 'TEXT', Order.NONE) || "\"\"";
+  const sub = generator.valueToCode(block, 'SUB', Order.NONE) || "\"\"";
+  const code = 'strlen(' + sub + ') === 0' +
+      ' ? strlen(' + text + ') + 1' +
+      ' : substr_count(' + text + ', ' + sub + ')';
+  return [code, Order.CONDITIONAL];
 };
 
-Go['text_replace'] = function(block) {
-  var text = Go.valueToCode(block, 'TEXT',
-      Go.ORDER_MEMBER) || '\'\'';
-  var from = Go.valueToCode(block, 'FROM',
-      Go.ORDER_NONE) || '\'\'';
-  var to = Go.valueToCode(block, 'TO',
-      Go.ORDER_NONE) || '\'\'';
-  var code = 'str_replace(' + from + ', ' + to + ', ' + text + ')';
-  return [code, Go.ORDER_FUNCTION_CALL];
+export function text_replace(block, generator) {
+  const text = generator.valueToCode(block, 'TEXT', Order.NONE) || "\"\"";
+  const from = generator.valueToCode(block, 'FROM', Order.NONE) || "\"\"";
+  const to = generator.valueToCode(block, 'TO', Order.NONE) || "\"\"";
+  const code = 'str_replace(' + from + ', ' + to + ', ' + text + ')';
+  return [code, Order.FUNCTION_CALL];
 };
 
-Go['text_reverse'] = function(block) {
-  var text = Go.valueToCode(block, 'TEXT',
-      Go.ORDER_MEMBER) || '\'\'';
-  var code = 'strrev(' + text + ')';
-  return [code, Go.ORDER_FUNCTION_CALL];
+export function text_reverse(block, generator) {
+  const text = generator.valueToCode(block, 'TEXT', Order.NONE) || "\"\"";
+  const code = 'strrev(' + text + ')';
+  return [code, Order.FUNCTION_CALL];
 };

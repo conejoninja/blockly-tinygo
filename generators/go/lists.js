@@ -19,36 +19,36 @@
  * Go (because only variables can be passed by reference).
  * ex:  end(true ? list1 : list2)
  */
-'use strict';
+import * as goog from '../../closure/goog/goog.js';
+goog.declareModuleId('Blockly.Go.lists');
 
-goog.module('Blockly.Go.lists');
+import * as stringUtils from '../../core/utils/string.js';
+import {NameType} from '../../core/names.js';
+import {Order} from './go_generator.js';
 
-const { goGenerator: Go } = goog.require('Blockly.Go');
 
-
-Go['lists_create_empty'] = function (block) {
+export function lists_create_empty(block, generator) {
   // Create an empty list.
-  return ['array()', Go.ORDER_FUNCTION_CALL];
+  return ['array()', Order.FUNCTION_CALL];
 };
 
-Go['lists_create_with'] = function (block) {
+export function lists_create_with(block, generator) {
   // Create a list with any number of elements of any type.
-  var code = new Array(block.itemCount_);
-  for (var i = 0; i < block.itemCount_; i++) {
-    code[i] = Go.valueToCode(block, 'ADD' + i,
-      Go.ORDER_COMMA) || 'nil';
+  let code = new Array(block.itemCount_);
+  for (let i = 0; i < block.itemCount_; i++) {
+    code[i] = generator.valueToCode(block, 'ADD' + i, Order.NONE) || 'null';
   }
   code = 'array(' + code.join(', ') + ')';
-  return [code, Go.ORDER_FUNCTION_CALL];
+  return [code, Order.FUNCTION_CALL];
 };
 
-Go['lists_create_with_string'] = function (block) {
+export function lists_create_with_string(block, generator) {
   // Create a list with any number of elements of any type.
   var code = new Array(block.itemCount_);
   let emptylist = true;
   for (var i = 0; i < block.itemCount_; i++) {
-    code[i] = Go.valueToCode(block, 'ADD' + i,
-      Go.ORDER_COMMA) || 'nil';
+    code[i] = generator.valueToCode(block, 'ADD' + i,
+      Order.COMMA) || 'nil';
     if (code[i] != 'nil') {
       emptylist = false;
     }
@@ -58,16 +58,16 @@ Go['lists_create_with_string'] = function (block) {
   } else {
     code = '[' + block.itemCount_ + ']string{' + code.join(', ') + '}';
   }
-  return [code, Go.ORDER_FUNCTION_CALL];
+  return [code, Order.FUNCTION_CALL];
 };
 
-Go['lists_create_with_color'] = function (block) {
+export function lists_create_with_color(block, generator) {
   // Create a list with any number of elements of any type.
   var code = new Array(block.itemCount_);
   let emptylist = true;
   for (var i = 0; i < block.itemCount_; i++) {
-    code[i] = Go.HexToRgbA(Go.valueToCode(block, 'ADD' + i,
-      Go.ORDER_COMMA) || 'nil');
+    code[i] = generatorHexToRgbA(generatorvalueToCode(block, 'ADD' + i,
+      Order.COMMA) || 'nil');
       if (code[i] != 'nil') {
         emptylist = false;
       }
@@ -77,16 +77,16 @@ Go['lists_create_with_color'] = function (block) {
   } else {
     code = '[' + block.itemCount_ + ']color.RGBA{' + code.join(', ') + '}';
   }
-  return [code, Go.ORDER_FUNCTION_CALL];
+  return [code, Order.FUNCTION_CALL];
 };
 
-Go['lists_create_with_number'] = function (block) {
+export function lists_create_with_number(block, generator) {
   // Create a list with any number of elements of any type.
   var code = new Array(block.itemCount_);
   let emptylist = true;
   for (var i = 0; i < block.itemCount_; i++) {
-    code[i] = Go.valueToCode(block, 'ADD' + i,
-      Go.ORDER_COMMA) || 'nil';
+    code[i] = generatorvalueToCode(block, 'ADD' + i,
+      Order.COMMA) || 'nil';
       if (code[i] != 'nil') {
         emptylist = false;
       }
@@ -96,304 +96,303 @@ Go['lists_create_with_number'] = function (block) {
   } else {
     code = '[' + block.itemCount_ + ']int32{' + code.join(', ') + '}';
   }
-  return [code, Go.ORDER_FUNCTION_CALL];
+  return [code, Order.FUNCTION_CALL];
 };
 
-Go['lists_repeat'] = function (block) {
+
+export function lists_repeat(block, generator) {
   // Create a list with one element repeated.
-  var functionName = Go.provideFunction_(
-    'lists_repeat',
-    ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
-      '($value, $count) {',
-      '  $array = array();',
-      '  for ($index = 0; $index < $count; $index++) {',
-      '    $array[] = $value;',
-      '  }',
-      '  return $array;',
-      '}']);
-  var element = Go.valueToCode(block, 'ITEM',
-    Go.ORDER_COMMA) || 'null';
-  var repeatCount = Go.valueToCode(block, 'NUM',
-    Go.ORDER_COMMA) || '0';
-  var code = functionName + '(' + element + ', ' + repeatCount + ')';
-  return [code, Go.ORDER_FUNCTION_CALL];
-};
-
-Go['lists_length'] = function (block) {
-  // String or array length.
-  var functionName = Go.provideFunction_(
-    'length',
-    ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ + '($value) {',
-      '  if (is_string($value)) {',
-      '    return strlen($value);',
-      '  } else {',
-      '    return count($value);',
-      '  }',
-      '}']);
-  var list = Go.valueToCode(block, 'VALUE',
-    Go.ORDER_NONE) || '\'\'';
-  return [functionName + '(' + list + ')', Go.ORDER_FUNCTION_CALL];
-};
-
-Go['lists_isEmpty'] = function (block) {
-  // Is the string null or array empty?
-  var argument0 = Go.valueToCode(block, 'VALUE',
-    Go.ORDER_FUNCTION_CALL) || 'array()';
-  return ['empty(' + argument0 + ')', Go.ORDER_FUNCTION_CALL];
-};
-
-Go['lists_indexOf'] = function (block) {
-  // Find an item in the list.
-  var argument0 = Go.valueToCode(block, 'FIND',
-    Go.ORDER_NONE) || '\'\'';
-  var argument1 = Go.valueToCode(block, 'VALUE',
-    Go.ORDER_MEMBER) || '[]';
-  if (block.workspace.options.oneBasedIndex) {
-    var errorIndex = ' 0';
-    var indexAdjustment = ' + 1';
-  } else {
-    var errorIndex = ' -1';
-    var indexAdjustment = '';
+  const functionName = generator.provideFunction_('lists_repeat', `
+function ${generator.FUNCTION_NAME_PLACEHOLDER_}($value, $count) {
+  $array = array();
+  for ($index = 0; $index < $count; $index++) {
+    $array[] = $value;
   }
-  if (block.getFieldValue('END') == 'FIRST') {
+  return $array;
+}
+`);
+  const element = generator.valueToCode(block, 'ITEM', Order.NONE) || 'null';
+  const repeatCount = generator.valueToCode(block, 'NUM', Order.NONE) || '0';
+  const code = functionName + '(' + element + ', ' + repeatCount + ')';
+  return [code, Order.FUNCTION_CALL];
+};
+
+export function lists_length(block, generator) {
+  // String or array length.
+  const functionName = generator.provideFunction_('length', `
+function ${generator.FUNCTION_NAME_PLACEHOLDER_}($value) {
+  if (is_string($value)) {
+    return strlen($value);
+  } else {
+    return count($value);
+  }
+}
+`);
+  const list = generator.valueToCode(block, 'VALUE', Order.NONE) || "''";
+  return [functionName + '(' + list + ')', Order.FUNCTION_CALL];
+};
+
+export function lists_isEmpty(block, generator) {
+  // Is the string null or array empty?
+  const argument0 =
+      generator.valueToCode(block, 'VALUE', Order.FUNCTION_CALL)
+      || 'array()';
+  return ['empty(' + argument0 + ')', Order.FUNCTION_CALL];
+};
+
+export function lists_indexOf(block, generator) {
+  // Find an item in the list.
+  const argument0 = generator.valueToCode(block, 'FIND', Order.NONE) || "''";
+  const argument1 =
+      generator.valueToCode(block, 'VALUE', Order.MEMBER) || '[]';
+  let errorIndex = ' -1';
+  let indexAdjustment = '';
+  if (block.workspace.options.oneBasedIndex) {
+    errorIndex = ' 0';
+    indexAdjustment = ' + 1';
+  }
+  let functionName;
+  if (block.getFieldValue('END') === 'FIRST') {
     // indexOf
-    var functionName = Go.provideFunction_(
-      'indexOf',
-      ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
-        '($haystack, $needle) {',
-        '  for ($index = 0; $index < count($haystack); $index++) {',
-      '    if ($haystack[$index] == $needle) return $index' +
-      indexAdjustment + ';',
-        '  }',
-      '  return ' + errorIndex + ';',
-        '}']);
+    functionName = generator.provideFunction_('indexOf', `
+function ${generator.FUNCTION_NAME_PLACEHOLDER_}($haystack, $needle) {
+  for ($index = 0; $index < count($haystack); $index++) {
+    if ($haystack[$index] == $needle) return $index${indexAdjustment};
+  }
+  return ${errorIndex};
+}
+`);
   } else {
     // lastIndexOf
-    var functionName = Go.provideFunction_(
-      'lastIndexOf',
-      ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
-        '($haystack, $needle) {',
-      '  $last = ' + errorIndex + ';',
-        '  for ($index = 0; $index < count($haystack); $index++) {',
-      '    if ($haystack[$index] == $needle) $last = $index' +
-      indexAdjustment + ';',
-        '  }',
-        '  return $last;',
-        '}']);
+    functionName = generator.provideFunction_('lastIndexOf', `
+function ${generator.FUNCTION_NAME_PLACEHOLDER_}($haystack, $needle) {
+  $last = ${errorIndex};
+  for ($index = 0; $index < count($haystack); $index++) {
+    if ($haystack[$index] == $needle) $last = $index${indexAdjustment};
+  }
+  return $last;
+}
+`);
   }
 
-  var code = functionName + '(' + argument1 + ', ' + argument0 + ')';
-  return [code, Go.ORDER_FUNCTION_CALL];
+  const code = functionName + '(' + argument1 + ', ' + argument0 + ')';
+  return [code, Order.FUNCTION_CALL];
 };
 
-Go['lists_getIndex'] = function (block) {
+export function lists_getIndex(block, generator) {
   // Get element at index.
-  var mode = block.getFieldValue('MODE') || 'GET';
-  var where = block.getFieldValue('WHERE') || 'FROM_START';
+  const mode = block.getFieldValue('MODE') || 'GET';
+  const where = block.getFieldValue('WHERE') || 'FROM_START';
   switch (where) {
     case 'FIRST':
-      if (mode == 'GET') {
-        var list = Go.valueToCode(block, 'VALUE',
-          Go.ORDER_MEMBER) || 'array()';
-        var code = list + '[0]';
-        return [code, Go.ORDER_MEMBER];
-      } else if (mode == 'GET_REMOVE') {
-        var list = Go.valueToCode(block, 'VALUE',
-          Go.ORDER_NONE) || 'array()';
-        var code = 'array_shift(' + list + ')';
-        return [code, Go.ORDER_FUNCTION_CALL];
-      } else if (mode == 'REMOVE') {
-        var list = Go.valueToCode(block, 'VALUE',
-          Go.ORDER_NONE) || 'array()';
-        return 'array_shift(' + list + ')\n';
+      if (mode === 'GET') {
+        const list =
+            generator.valueToCode(block, 'VALUE', Order.MEMBER) || 'array()';
+        const code = list + '[0]';
+        return [code, Order.MEMBER];
+      } else if (mode === 'GET_REMOVE') {
+        const list =
+            generator.valueToCode(block, 'VALUE', Order.NONE) || 'array()';
+        const code = 'array_shift(' + list + ')';
+        return [code, Order.FUNCTION_CALL];
+      } else if (mode === 'REMOVE') {
+        const list =
+            generator.valueToCode(block, 'VALUE', Order.NONE) || 'array()';
+        return 'array_shift(' + list + ');\n';
       }
       break;
     case 'LAST':
-      if (mode == 'GET') {
-        var list = Go.valueToCode(block, 'VALUE',
-          Go.ORDER_NONE) || 'array()';
-        var code = 'end(' + list + ')';
-        return [code, Go.ORDER_FUNCTION_CALL];
-      } else if (mode == 'GET_REMOVE') {
-        var list = Go.valueToCode(block, 'VALUE',
-          Go.ORDER_NONE) || 'array()';
-        var code = 'array_pop(' + list + ')';
-        return [code, Go.ORDER_FUNCTION_CALL];
-      } else if (mode == 'REMOVE') {
-        var list = Go.valueToCode(block, 'VALUE',
-          Go.ORDER_NONE) || 'array()';
-        return 'array_pop(' + list + ')\n';
+      if (mode === 'GET') {
+        const list =
+            generator.valueToCode(block, 'VALUE', Order.NONE) || 'array()';
+        const code = 'end(' + list + ')';
+        return [code, Order.FUNCTION_CALL];
+      } else if (mode === 'GET_REMOVE') {
+        const list =
+            generator.valueToCode(block, 'VALUE', Order.NONE) || 'array()';
+        const code = 'array_pop(' + list + ')';
+        return [code, Order.FUNCTION_CALL];
+      } else if (mode === 'REMOVE') {
+        const list =
+            generator.valueToCode(block, 'VALUE', Order.NONE) || 'array()';
+        return 'array_pop(' + list + ');\n';
       }
       break;
-    case 'FROM_START':
-      var at = Go.getAdjusted(block, 'AT');
-      if (mode == 'GET') {
-        var list = Go.valueToCode(block, 'VALUE',
-          Go.ORDER_MEMBER) || 'array()';
-        var code = list + '[' + at + ']';
-        return [code, Go.ORDER_MEMBER];
-      } else if (mode == 'GET_REMOVE') {
-        var list = Go.valueToCode(block, 'VALUE',
-          Go.ORDER_COMMA) || 'array()';
-        var code = 'array_splice(' + list + ', ' + at + ', 1)[0]';
-        return [code, Go.ORDER_FUNCTION_CALL];
-      } else if (mode == 'REMOVE') {
-        var list = Go.valueToCode(block, 'VALUE',
-          Go.ORDER_COMMA) || 'array()';
-        return 'array_splice(' + list + ', ' + at + ', 1)\n';
+    case 'FROM_START': {
+      const at = generator.getAdjusted(block, 'AT');
+      if (mode === 'GET') {
+        const list =
+            generator.valueToCode(block, 'VALUE', Order.MEMBER) || 'array()';
+        const code = list + '[' + at + ']';
+        return [code, Order.MEMBER];
+      } else if (mode === 'GET_REMOVE') {
+        const list =
+            generator.valueToCode(block, 'VALUE', Order.NONE) || 'array()';
+        const code = 'array_splice(' + list + ', ' + at + ', 1)[0]';
+        return [code, Order.FUNCTION_CALL];
+      } else if (mode === 'REMOVE') {
+        const list =
+            generator.valueToCode(block, 'VALUE', Order.NONE) || 'array()';
+        return 'array_splice(' + list + ', ' + at + ', 1);\n';
       }
       break;
+    }
     case 'FROM_END':
-      if (mode == 'GET') {
-        var list = Go.valueToCode(block, 'VALUE',
-          Go.ORDER_COMMA) || 'array()';
-        var at = Go.getAdjusted(block, 'AT', 1, true);
-        var code = 'array_slice(' + list + ', ' + at + ', 1)[0]';
-        return [code, Go.ORDER_FUNCTION_CALL];
-      } else if (mode == 'GET_REMOVE' || mode == 'REMOVE') {
-        var list = Go.valueToCode(block, 'VALUE',
-          Go.ORDER_NONE) || 'array()';
-        var at = Go.getAdjusted(block, 'AT', 1, false,
-          Go.ORDER_SUBTRACTION);
-        code = 'array_splice(' + list +
-          ', count(' + list + ') - ' + at + ', 1)[0]';
-        if (mode == 'GET_REMOVE') {
-          return [code, Go.ORDER_FUNCTION_CALL];
-        } else if (mode == 'REMOVE') {
-          return code + '\n';
+      if (mode === 'GET') {
+        const list =
+            generator.valueToCode(block, 'VALUE', Order.NONE) || 'array()';
+        const at = generator.getAdjusted(block, 'AT', 1, true);
+        const code = 'array_slice(' + list + ', ' + at + ', 1)[0]';
+        return [code, Order.FUNCTION_CALL];
+      } else if (mode === 'GET_REMOVE' || mode === 'REMOVE') {
+        const list =
+            generator.valueToCode(block, 'VALUE', Order.NONE) || 'array()';
+        const at =
+            generator.getAdjusted(block, 'AT', 1, false, Order.SUBTRACTION);
+        const code = 'array_splice(' + list + ', count(' + list + ') - ' + at +
+            ', 1)[0]';
+        if (mode === 'GET_REMOVE') {
+          return [code, Order.FUNCTION_CALL];
+        } else if (mode === 'REMOVE') {
+          return code + ';\n';
         }
       }
       break;
-    case 'RANDOM':
-      var list = Go.valueToCode(block, 'VALUE',
-        Go.ORDER_NONE) || 'array()';
-      if (mode == 'GET') {
-        var functionName = Go.provideFunction_(
-          'lists_get_random_item',
-          ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
-            '($list) {',
-            '  return $list[rand(0,count($list)-1)];',
-            '}']);
-        code = functionName + '(' + list + ')';
-        return [code, Go.ORDER_FUNCTION_CALL];
-      } else if (mode == 'GET_REMOVE') {
-        var functionName = Go.provideFunction_(
-          'lists_get_remove_random_item',
-          ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
-            '(&$list) {',
-            '  $x = rand(0,count($list)-1);',
-            '  unset($list[$x]);',
-            '  return array_values($list);',
-            '}']);
-        code = functionName + '(' + list + ')';
-        return [code, Go.ORDER_FUNCTION_CALL];
-      } else if (mode == 'REMOVE') {
-        var functionName = Go.provideFunction_(
-          'lists_remove_random_item',
-          ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
-            '(&$list) {',
-            '  unset($list[rand(0,count($list)-1)]);',
-            '}']);
-        return functionName + '(' + list + ')\n';
+    case 'RANDOM': {
+      const list =
+          generator.valueToCode(block, 'VALUE', Order.NONE) || 'array()';
+      if (mode === 'GET') {
+        const functionName =
+            generator.provideFunction_('lists_get_random_item', `
+function ${generator.FUNCTION_NAME_PLACEHOLDER_}($list) {
+  return $list[rand(0,count($list)-1)];
+}
+`);
+        const code = functionName + '(' + list + ')';
+        return [code, Order.FUNCTION_CALL];
+      } else if (mode === 'GET_REMOVE') {
+        const functionName =
+            generator.provideFunction_('lists_get_remove_random_item', `
+function ${generator.FUNCTION_NAME_PLACEHOLDER_}(&$list) {
+  $x = rand(0,count($list)-1);
+  unset($list[$x]);
+  return array_values($list);
+}
+`);
+        const code = functionName + '(' + list + ')';
+        return [code, Order.FUNCTION_CALL];
+      } else if (mode === 'REMOVE') {
+        const functionName =
+            generator.provideFunction_('lists_remove_random_item', `
+function ${generator.FUNCTION_NAME_PLACEHOLDER_}(&$list) {
+  unset($list[rand(0,count($list)-1)]);
+}
+`);
+        return functionName + '(' + list + ');\n';
       }
       break;
+    }
   }
   throw Error('Unhandled combination (lists_getIndex).');
 };
 
-Go['lists_setIndex'] = function (block) {
+export function lists_setIndex(block, generator) {
   // Set element at index.
   // Note: Until February 2013 this block did not have MODE or WHERE inputs.
-  var mode = block.getFieldValue('MODE') || 'GET';
-  var where = block.getFieldValue('WHERE') || 'FROM_START';
-  var value = Go.valueToCode(block, 'TO',
-    Go.ORDER_ASSIGNMENT) || 'null';
+  const mode = block.getFieldValue('MODE') || 'GET';
+  const where = block.getFieldValue('WHERE') || 'FROM_START';
+  const value =
+      generator.valueToCode(block, 'TO', Order.ASSIGNMENT) || 'null';
   // Cache non-trivial values to variables to prevent repeated look-ups.
   // Closure, which accesses and modifies 'list'.
+  let cachedList;
   function cacheList() {
-    if (list.match(/^\$\w+$/)) {
+    if (cachedList.match(/^\$\w+$/)) {
       return '';
     }
-    var listVar = Go.variableDB_.getDistinctName(
-      'tmp_list', Blockly.VARIABLE_CATEGORY_NAME);
-    var code = listVar + ' = &' + list + '\n';
-    list = listVar;
+    const listVar =
+        generator.nameDB_.getDistinctName('tmp_list', NameType.VARIABLE);
+    const code = listVar + ' = &' + cachedList + ';\n';
+    cachedList = listVar;
     return code;
   }
   switch (where) {
     case 'FIRST':
-      if (mode == 'SET') {
-        var list = Go.valueToCode(block, 'LIST',
-          Go.ORDER_MEMBER) || 'array()';
-        return list + '[0] = ' + value + '\n';
-      } else if (mode == 'INSERT') {
-        var list = Go.valueToCode(block, 'LIST',
-          Go.ORDER_COMMA) || 'array()';
-        return 'array_unshift(' + list + ', ' + value + ')\n';
+      if (mode === 'SET') {
+        const list =
+            generator.valueToCode(block, 'LIST', Order.MEMBER) || 'array()';
+        return list + '[0] = ' + value + ';\n';
+      } else if (mode === 'INSERT') {
+        const list =
+            generator.valueToCode(block, 'LIST', Order.NONE) || 'array()';
+        return 'array_unshift(' + list + ', ' + value + ');\n';
       }
       break;
-    case 'LAST':
-      var list = Go.valueToCode(block, 'LIST',
-        Go.ORDER_COMMA) || 'array()';
-      if (mode == 'SET') {
-        var functionName = Go.provideFunction_(
-          'lists_set_last_item',
-          ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
-            '(&$list, $value) {',
-            '  $list[count($list) - 1] = $value;',
-            '}']);
-        return functionName + '(' + list + ', ' + value + ')\n';
-      } else if (mode == 'INSERT') {
-        return 'array_push(' + list + ', ' + value + ')\n';
+    case 'LAST': {
+      const list =
+          generator.valueToCode(block, 'LIST', Order.NONE) || 'array()';
+      if (mode === 'SET') {
+        const functionName =
+            generator.provideFunction_('lists_set_last_item', `
+function ${generator.FUNCTION_NAME_PLACEHOLDER_}(&$list, $value) {
+  $list[count($list) - 1] = $value;
+}
+`);
+        return functionName + '(' + list + ', ' + value + ');\n';
+      } else if (mode === 'INSERT') {
+        return 'array_push(' + list + ', ' + value + ');\n';
       }
       break;
-    case 'FROM_START':
-      var at = Go.getAdjusted(block, 'AT');
-      if (mode == 'SET') {
-        var list = Go.valueToCode(block, 'LIST',
-          Go.ORDER_MEMBER) || 'array()';
-        return list + '[' + at + '] = ' + value + '\n';
-      } else if (mode == 'INSERT') {
-        var list = Go.valueToCode(block, 'LIST',
-          Go.ORDER_COMMA) || 'array()';
-        return 'array_splice(' + list + ', ' + at + ', 0, ' + value + ')\n';
+    }
+    case 'FROM_START': {
+      const at = generator.getAdjusted(block, 'AT');
+      if (mode === 'SET') {
+        const list =
+            generator.valueToCode(block, 'LIST', Order.MEMBER) || 'array()';
+        return list + '[' + at + '] = ' + value + ';\n';
+      } else if (mode === 'INSERT') {
+        const list =
+            generator.valueToCode(block, 'LIST', Order.NONE) || 'array()';
+        return 'array_splice(' + list + ', ' + at + ', 0, ' + value + ');\n';
       }
       break;
-    case 'FROM_END':
-      var list = Go.valueToCode(block, 'LIST',
-        Go.ORDER_COMMA) || 'array()';
-      var at = Go.getAdjusted(block, 'AT', 1);
-      if (mode == 'SET') {
-        var functionName = Go.provideFunction_(
-          'lists_set_from_end',
-          ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
-            '(&$list, $at, $value) {',
-            '  $list[count($list) - $at] = $value;',
-            '}']);
-        return functionName + '(' + list + ', ' + at + ', ' + value + ')\n';
-      } else if (mode == 'INSERT') {
-        var functionName = Go.provideFunction_(
-          'lists_insert_from_end',
-          ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
-            '(&$list, $at, $value) {',
-            '  return array_splice($list, count($list) - $at, 0, $value);',
-            '}']);
-        return functionName + '(' + list + ', ' + at + ', ' + value + ')\n';
+    }
+    case 'FROM_END': {
+      const list =
+          generator.valueToCode(block, 'LIST', Order.NONE) || 'array()';
+      const at = generator.getAdjusted(block, 'AT', 1);
+      if (mode === 'SET') {
+        const functionName =
+            generator.provideFunction_('lists_set_from_end', `
+function ${generator.FUNCTION_NAME_PLACEHOLDER_}(&$list, $at, $value) {
+  $list[count($list) - $at] = $value;
+}
+`);
+        return functionName + '(' + list + ', ' + at + ', ' + value + ');\n';
+      } else if (mode === 'INSERT') {
+        const functionName =
+            generator.provideFunction_('lists_insert_from_end', `
+function ${generator.FUNCTION_NAME_PLACEHOLDER_}(&$list, $at, $value) {
+  return array_splice($list, count($list) - $at, 0, $value);
+}
+`);
+        return functionName + '(' + list + ', ' + at + ', ' + value + ');\n';
       }
       break;
+    }
     case 'RANDOM':
-      var list = Go.valueToCode(block, 'LIST',
-        Go.ORDER_REFERENCE) || 'array()';
-      var code = cacheList();
-      var xVar = Go.variableDB_.getDistinctName(
-        'tmp_x', Blockly.VARIABLE_CATEGORY_NAME);
-      code += xVar + ' = rand(0, count(' + list + ')-1)\n';
-      if (mode == 'SET') {
-        code += list + '[' + xVar + '] = ' + value + '\n';
+      cachedList =
+          generator.valueToCode(block, 'LIST', Order.REFERENCE) || 'array()';
+      let code = cacheList();
+      const list = cachedList;
+      const xVar =
+          generator.nameDB_.getDistinctName('tmp_x', NameType.VARIABLE);
+      code += xVar + ' = rand(0, count(' + list + ')-1);\n';
+      if (mode === 'SET') {
+        code += list + '[' + xVar + '] = ' + value + ';\n';
         return code;
-      } else if (mode == 'INSERT') {
-        code += 'array_splice(' + list + ', ' + xVar + ', 0, ' + value +
-          ')\n';
+      } else if (mode === 'INSERT') {
+        code += 'array_splice(' + list + ', ' + xVar + ', 0, ' + value + ');\n';
         return code;
       }
       break;
@@ -401,39 +400,44 @@ Go['lists_setIndex'] = function (block) {
   throw Error('Unhandled combination (lists_setIndex).');
 };
 
-Go['lists_getSublist'] = function (block) {
+export function lists_getSublist(block, generator) {
   // Get sublist.
-  var list = Go.valueToCode(block, 'LIST',
-    Go.ORDER_COMMA) || 'array()';
-  var where1 = block.getFieldValue('WHERE1');
-  var where2 = block.getFieldValue('WHERE2');
-  if (where1 == 'FIRST' && where2 == 'LAST') {
-    var code = list;
-  } else if (list.match(/^\$\w+$/) ||
-    (where1 != 'FROM_END' && where2 == 'FROM_START')) {
+  const list = generator.valueToCode(block, 'LIST', Order.NONE) || 'array()';
+  const where1 = block.getFieldValue('WHERE1');
+  const where2 = block.getFieldValue('WHERE2');
+  let code;
+  if (where1 === 'FIRST' && where2 === 'LAST') {
+    code = list;
+  } else if (
+      list.match(/^\$\w+$/) ||
+      (where1 !== 'FROM_END' && where2 === 'FROM_START')) {
     // If the list is a simple value or doesn't require a call for length, don't
     // generate a helper function.
+    let at1;
     switch (where1) {
       case 'FROM_START':
-        var at1 = Go.getAdjusted(block, 'AT1');
+        at1 = generator.getAdjusted(block, 'AT1');
         break;
       case 'FROM_END':
-        var at1 = Go.getAdjusted(block, 'AT1', 1, false,
-          Go.ORDER_SUBTRACTION);
+        at1 =
+            generator.getAdjusted(block, 'AT1', 1, false, Order.SUBTRACTION);
         at1 = 'count(' + list + ') - ' + at1;
         break;
       case 'FIRST':
-        var at1 = '0';
+        at1 = '0';
         break;
       default:
         throw Error('Unhandled option (lists_getSublist).');
     }
+    let at2;
+    let length;
     switch (where2) {
       case 'FROM_START':
-        var at2 = Go.getAdjusted(block, 'AT2', 0, false,
-          Go.ORDER_SUBTRACTION);
-        var length = at2 + ' - ';
-        if (Blockly.isNumber(String(at1)) || String(at1).match(/^\(.+\)$/)) {
+        at2 =
+            generator.getAdjusted(block, 'AT2', 0, false, Order.SUBTRACTION);
+        length = at2 + ' - ';
+        if (stringUtils.isNumber(String(at1)) ||
+            String(at1).match(/^\(.+\)$/)) {
           length += at1;
         } else {
           length += '(' + at1 + ')';
@@ -441,18 +445,20 @@ Go['lists_getSublist'] = function (block) {
         length += ' + 1';
         break;
       case 'FROM_END':
-        var at2 = Go.getAdjusted(block, 'AT2', 0, false,
-          Go.ORDER_SUBTRACTION);
-        var length = 'count(' + list + ') - ' + at2 + ' - ';
-        if (Blockly.isNumber(String(at1)) || String(at1).match(/^\(.+\)$/)) {
+        at2 =
+            generator.getAdjusted(block, 'AT2', 0, false, Order.SUBTRACTION);
+        length = 'count(' + list + ') - ' + at2 + ' - ';
+        if (stringUtils.isNumber(String(at1)) ||
+            String(at1).match(/^\(.+\)$/)) {
           length += at1;
         } else {
           length += '(' + at1 + ')';
         }
         break;
       case 'LAST':
-        var length = 'count(' + list + ') - ';
-        if (Blockly.isNumber(String(at1)) || String(at1).match(/^\(.+\)$/)) {
+        length = 'count(' + list + ') - ';
+        if (stringUtils.isNumber(String(at1)) ||
+            String(at1).match(/^\(.+\)$/)) {
           length += at1;
         } else {
           length += '(' + at1 + ')';
@@ -463,93 +469,91 @@ Go['lists_getSublist'] = function (block) {
     }
     code = 'array_slice(' + list + ', ' + at1 + ', ' + length + ')';
   } else {
-    var at1 = Go.getAdjusted(block, 'AT1');
-    var at2 = Go.getAdjusted(block, 'AT2');
-    var functionName = Go.provideFunction_(
-      'lists_get_sublist',
-      ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
-        '($list, $where1, $at1, $where2, $at2) {',
-        '  if ($where1 == \'FROM_END\') {',
-        '    $at1 = count($list) - 1 - $at1;',
-        '  } else if ($where1 == \'FIRST\') {',
-        '    $at1 = 0;',
-        '  } else if ($where1 != \'FROM_START\') {',
-        '    throw new Exception(\'Unhandled option (lists_get_sublist).\');',
-        '  }',
-        '  $length = 0;',
-        '  if ($where2 == \'FROM_START\') {',
-        '    $length = $at2 - $at1 + 1;',
-        '  } else if ($where2 == \'FROM_END\') {',
-        '    $length = count($list) - $at1 - $at2;',
-        '  } else if ($where2 == \'LAST\') {',
-        '    $length = count($list) - $at1;',
-        '  } else {',
-        '    throw new Exception(\'Unhandled option (lists_get_sublist).\');',
-        '  }',
-        '  return array_slice($list, $at1, $length);',
-        '}']);
-    var code = functionName + '(' + list + ', \'' +
-      where1 + '\', ' + at1 + ', \'' + where2 + '\', ' + at2 + ')';
+    const at1 = generator.getAdjusted(block, 'AT1');
+    const at2 = generator.getAdjusted(block, 'AT2');
+    const functionName =
+        generator.provideFunction_('lists_get_sublist', `
+function ${generator.FUNCTION_NAME_PLACEHOLDER_}($list, $where1, $at1, $where2, $at2) {
+  if ($where1 == 'FROM_END') {
+    $at1 = count($list) - 1 - $at1;
+  } else if ($where1 == 'FIRST') {
+    $at1 = 0;
+  } else if ($where1 != 'FROM_START') {
+    throw new Exception('Unhandled option (lists_get_sublist).');
   }
-  return [code, Go.ORDER_FUNCTION_CALL];
+  $length = 0;
+  if ($where2 == 'FROM_START') {
+    $length = $at2 - $at1 + 1;
+  } else if ($where2 == 'FROM_END') {
+    $length = count($list) - $at1 - $at2;
+  } else if ($where2 == 'LAST') {
+    $length = count($list) - $at1;
+  } else {
+    throw new Exception('Unhandled option (lists_get_sublist).');
+  }
+  return array_slice($list, $at1, $length);
+}
+`);
+    code = functionName + '(' + list + ', \'' + where1 + '\', ' + at1 + ', \'' +
+        where2 + '\', ' + at2 + ')';
+  }
+  return [code, Order.FUNCTION_CALL];
 };
 
-Go['lists_sort'] = function (block) {
+export function lists_sort(block, generator) {
   // Block for sorting a list.
-  var listCode = Go.valueToCode(block, 'LIST',
-    Go.ORDER_COMMA) || 'array()';
-  var direction = block.getFieldValue('DIRECTION') === '1' ? 1 : -1;
-  var type = block.getFieldValue('TYPE');
-  var functionName = Go.provideFunction_(
-    'lists_sort',
-    ['func ' + Go.FUNCTION_NAME_PLACEHOLDER_ +
-      '($list, $type, $direction) {',
-      '  $sortCmpFuncs = array(',
-      '    "NUMERIC" => "strnatcasecmp",',
-      '    "TEXT" => "strcmp",',
-      '    "IGNORE_CASE" => "strcasecmp"',
-      '  );',
-      '  $sortCmp = $sortCmpFuncs[$type];',
-      '  $list2 = $list;', // Clone list.
-      '  usort($list2, $sortCmp);',
-      '  if ($direction == -1) {',
-      '    $list2 = array_reverse($list2);',
-      '  }',
-      '  return $list2;',
-      '}']);
-  var sortCode = functionName +
-    '(' + listCode + ', "' + type + '", ' + direction + ')';
-  return [sortCode, Go.ORDER_FUNCTION_CALL];
+  const listCode =
+      generator.valueToCode(block, 'LIST', Order.NONE) || 'array()';
+  const direction = block.getFieldValue('DIRECTION') === '1' ? 1 : -1;
+  const type = block.getFieldValue('TYPE');
+  const functionName = generator.provideFunction_('lists_sort', `
+function ${generator.FUNCTION_NAME_PLACEHOLDER_}($list, $type, $direction) {
+  $sortCmpFuncs = array(
+    'NUMERIC' => 'strnatcasecmp',
+    'TEXT' => 'strcmp',
+    'IGNORE_CASE' => 'strcasecmp'
+  );
+  $sortCmp = $sortCmpFuncs[$type];
+  $list2 = $list;
+  usort($list2, $sortCmp);
+  if ($direction == -1) {
+    $list2 = array_reverse($list2);
+  }
+  return $list2;
+}
+`);
+  const sortCode =
+      functionName + '(' + listCode + ', "' + type + '", ' + direction + ')';
+  return [sortCode, Order.FUNCTION_CALL];
 };
 
-Go['lists_split'] = function (block) {
+export function lists_split(block, generator) {
   // Block for splitting text into a list, or joining a list into text.
-  var value_input = Go.valueToCode(block, 'INPUT',
-    Go.ORDER_COMMA);
-  var value_delim = Go.valueToCode(block, 'DELIM',
-    Go.ORDER_COMMA) || '\'\'';
-  var mode = block.getFieldValue('MODE');
-  if (mode == 'SPLIT') {
+  let value_input = generator.valueToCode(block, 'INPUT', Order.NONE);
+  const value_delim =
+      generator.valueToCode(block, 'DELIM', Order.NONE) || "''";
+  const mode = block.getFieldValue('MODE');
+  let functionName;
+  if (mode === 'SPLIT') {
     if (!value_input) {
-      value_input = '\'\'';
+      value_input = "''";
     }
-    var functionName = 'explode';
-  } else if (mode == 'JOIN') {
+    functionName = 'explode';
+  } else if (mode === 'JOIN') {
     if (!value_input) {
       value_input = 'array()';
     }
-    var functionName = 'implode';
+    functionName = 'implode';
   } else {
     throw Error('Unknown mode: ' + mode);
   }
-  var code = functionName + '(' + value_delim + ', ' + value_input + ')';
-  return [code, Go.ORDER_FUNCTION_CALL];
+  const code = functionName + '(' + value_delim + ', ' + value_input + ')';
+  return [code, Order.FUNCTION_CALL];
 };
 
-Go['lists_reverse'] = function (block) {
+export function lists_reverse(block, generator) {
   // Block for reversing a list.
-  var list = Go.valueToCode(block, 'LIST',
-    Go.ORDER_COMMA) || '[]';
-  var code = 'array_reverse(' + list + ')';
-  return [code, Go.ORDER_FUNCTION_CALL];
+  const list = generator.valueToCode(block, 'LIST', Order.NONE) || '[]';
+  const code = 'array_reverse(' + list + ')';
+  return [code, Order.FUNCTION_CALL];
 };
