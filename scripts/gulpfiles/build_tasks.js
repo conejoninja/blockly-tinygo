@@ -139,14 +139,14 @@ const chunks = [
   {
     name: 'go',
     entry: path.join(TSC_OUTPUT_DIR, 'generators', 'go.js'),
-    exports: 'module$exports$Blockly$go',
+    exports: 'module$build$src$generators$go',
     scriptExport: 'go',
     scriptNamedExports: {'Blockly.Go': 'goGenerator'},
   },
   {
     name: 'dart',
     entry: path.join(TSC_OUTPUT_DIR, 'generators', 'dart.js'),
-    exports: 'module$exports$Blockly$dart',
+    exports: 'module$build$src$generators$dart',
     scriptExport: 'dart',
     scriptNamedExports: {'Blockly.Dart': 'dartGenerator'},
   }
