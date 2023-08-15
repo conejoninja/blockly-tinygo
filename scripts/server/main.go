@@ -198,7 +198,9 @@ func handlerGofumpt(w http.ResponseWriter, r *http.Request) {
 		report(err)
 	}
 
+	fmt.Println("BODY", string(body))
 	body = fromBinary(string(body))
+	fmt.Println("BODY", string(body))
 	res, err := processInput(body, true)
 	if err != nil {
 		report(err)

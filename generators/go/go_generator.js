@@ -214,8 +214,8 @@ export class GoGenerator extends CodeGenerator {
     let dataCode = '';
     let gfs = new GoFmtServer();
     console.log(code, "CODE", gfs.toBinary(code));
-    gfs.postJson('http://127.0.0.1:18003/api/fmt', gfs.toBinary(code), function (data) {
-    //gfs.postJson('https://configurator.gopherbadge.com:18003/api/fmt', gfs.toBinary(code), function (data) {
+    //gfs.postJson('http://127.0.0.1:18003/api/fmt', gfs.toBinary(code), function (data) {
+    gfs.postJson('https://configurator.gopherbadge.com:18003/api/fmt', gfs.toBinary(code), function (data) {
         console.log(data, data.code, "RESPONSE", gfs.fromBinary(data.code));
       dataCode = gfs.fromBinary(data.code);
     });
