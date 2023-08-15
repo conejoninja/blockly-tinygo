@@ -212,11 +212,12 @@ export class GoGenerator extends CodeGenerator {
     delete this.functionNames_;
     code = 'package main\n\n' + importsStr + '\n\n' + code + '\n' + definitions.join('\n');
     let dataCode = '';
-    console.log(code, "CODE", btoa(code));
     let gfs = new GoFmtServer();
-    gfs.postJson('https://configurator.gopherbadge.com:18003/api/fmt', btoa(code), function (data) {
-      console.log(data, data.code, "RESPONSE", atob(data.code));
-      dataCode = atob(data.code);
+    console.log(code, "CODE", gfs.toBinary(code));
+    gfs.postJson('http://127.0.0.1:18003/api/fmt', gfs.toBinary(code), function (data) {
+    //gfs.postJson('https://configurator.gopherbadge.com:18003/api/fmt', gfs.toBinary(code), function (data) {
+        console.log(data, data.code, "RESPONSE", gfs.fromBinary(data.code));
+      dataCode = gfs.fromBinary(data.code);
     });
     return dataCode;
   };

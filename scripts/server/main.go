@@ -8,7 +8,6 @@ import (
 	"compress/gzip"
 	"crypto/sha256"
 	"encoding/base64"
-	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -19,6 +18,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"unicode/utf16"
 )
 
 const (
@@ -71,7 +71,8 @@ func main() {
 	http.Handle("/", addHeaders(http.FileServer(http.Dir(*dir))))
 	fmt.Println("Server Up")
 	log.Print("Serving " + *dir + " on http://localhost:18003")
-	log.Fatal(http.ListenAndServeTLS(":18003", "/etc/letsencrypt/live/configurator.gopherbadge.com/fullchain.pem", "/etc/letsencrypt/live/configurator.gopherbadge.com/privkey.pem", nil))
+	log.Fatal(http.ListenAndServe(":18003", nil))
+	//log.Fatal(http.ListenAndServeTLS(":18003", "/etc/letsencrypt/live/configurator.gopherbadge.com/fullchain.pem", "/etc/letsencrypt/live/configurator.gopherbadge.com/privkey.pem", nil))
 	fmt.Println("Server Down")
 }
 
@@ -107,7 +108,7 @@ func handleCompile(w http.ResponseWriter, r *http.Request) {
 	}
 	// Hash the source code, used for the build cache.
 	sourceHashRaw := sha256.Sum256([]byte(source))
-	sourceHash := hex.EncodeToString(sourceHashRaw[:])
+	sourceHash := toBinary(string(sourceHashRaw[:])) //hex.EncodeToString(sourceHashRaw[:])
 
 	format := r.FormValue("format")
 	switch format {
@@ -197,12 +198,12 @@ func handlerGofumpt(w http.ResponseWriter, r *http.Request) {
 		report(err)
 	}
 
-	body, err = base64.StdEncoding.DecodeString(string(body))
+	body = fromBinary(string(body))
 	res, err := processInput(body, true)
 	if err != nil {
 		report(err)
 	}
-	fmt.Fprintf(w, jsonResponse("ok", 0, base64.StdEncoding.EncodeToString([]byte(res))))
+	fmt.Fprintf(w, jsonResponse("ok", 0, toBinary(res)))
 }
 
 func jsonResponse(msg string, err int, code string) string {
@@ -212,4 +213,28 @@ func jsonResponse(msg string, err int, code string) string {
 	r.Code = code
 	j, _ := json.Marshal(r)
 	return string(j)
+}
+
+func toBinary(input string) string {
+	codeUnits := utf16.Encode([]rune(input))
+	bytes := make([]byte, len(codeUnits)*2)
+	for i, codeUnit := range codeUnits {
+		bytes[i*2] = byte(codeUnit)
+		bytes[i*2+1] = byte(codeUnit >> 8)
+	}
+	return base64.StdEncoding.EncodeToString(bytes)
+}
+
+func fromBinary(encoded string) []byte {
+	bytes, err := base64.StdEncoding.DecodeString(encoded)
+	if err != nil {
+		panic(err)
+	}
+
+	codeUnits := make([]uint16, len(bytes)/2)
+	for i := 0; i < len(codeUnits); i++ {
+		codeUnits[i] = uint16(bytes[i*2]) | (uint16(bytes[i*2+1]) << 8)
+	}
+
+	return []byte(string(utf16.Decode(codeUnits)))
 }
