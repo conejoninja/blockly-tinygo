@@ -71,8 +71,8 @@ func main() {
 	http.Handle("/", addHeaders(http.FileServer(http.Dir(*dir))))
 	fmt.Println("Server Up")
 	log.Print("Serving " + *dir + " on http://localhost:18003")
-	log.Fatal(http.ListenAndServe(":18003", nil))
-	//log.Fatal(http.ListenAndServeTLS(":18003", "/etc/letsencrypt/live/configurator.gopherbadge.com/fullchain.pem", "/etc/letsencrypt/live/configurator.gopherbadge.com/privkey.pem", nil))
+	//log.Fatal(http.ListenAndServe(":18003", nil))
+	log.Fatal(http.ListenAndServeTLS(":18003", "/etc/letsencrypt/live/configurator.gopherbadge.com/fullchain.pem", "/etc/letsencrypt/live/configurator.gopherbadge.com/privkey.pem", nil))
 	fmt.Println("Server Down")
 }
 
