@@ -329,16 +329,12 @@ export function math_random_int(block, generator) {
   // Random integer between [X] and [Y].
   const argument0 = generator.valueToCode(block, 'FROM', Order.NONE) || '0';
   const argument1 = generator.valueToCode(block, 'TO', Order.NONE) || '0';
-  const functionName = generator.provideFunction_('math_random_int', `
-function ${generator.FUNCTION_NAME_PLACEHOLDER_}($a, $b) {
-  if ($a > $b) {
-    return rand($b, $a);
+
+  generator.addImport('math/rand', 'math/rand');
+  if (argument0>0) {
+    return [argument0 + ' + rand.Intn('+(argument1-argument0)+')', Order.FUNCTION_CALL];
   }
-  return rand($a, $b);
-}
-`);
-  const code = functionName + '(' + argument0 + ', ' + argument1 + ')';
-  return [code, Order.FUNCTION_CALL];
+  return ['rand.Intn('+argument1+')', Order.FUNCTION_CALL];
 };
 
 export function math_random_float(block, generator) {

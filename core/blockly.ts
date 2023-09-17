@@ -180,6 +180,7 @@ import {Names} from './names.js';
 import {Options} from './options.js';
 import * as uiPosition from './positionable_helpers.js';
 import * as Procedures from './procedures.js';
+import * as Gofuncs from './gofuncs.js';
 import * as registry from './registry.js';
 import {RenderedConnection} from './rendered_connection.js';
 import * as renderManagement from './render_management.js';
@@ -220,6 +221,7 @@ import {WorkspaceDragger} from './workspace_dragger.js';
 import {WorkspaceSvg} from './workspace_svg.js';
 import * as Xml from './xml.js';
 import {ZoomControls} from './zoom_controls.js';
+import { TinyGo } from '../blocks/blocks.js';
 
 /**
  * Blockly core version.
@@ -403,6 +405,8 @@ export const VARIABLE_DYNAMIC_CATEGORY_NAME: string =
  * procedure blocks.
  */
 export const PROCEDURE_CATEGORY_NAME: string = Procedures.CATEGORY_NAME;
+
+export const GOFUNC_CATEGORY_NAME: string = Gofuncs.CATEGORY_NAME;
 
 // Context for why we need to monkey-patch in these functions (internal):
 //   https://docs.google.com/document/d/1MbO0LEA-pAyx1ErGLJnyUqTLrcYTo-5zga9qplnxeXo/edit?usp=sharing&resourcekey=0-5h_32-i-dHwHjf_9KYEVKg

@@ -46,6 +46,7 @@ import type {Marker} from './keyboard_nav/marker.js';
 import {MarkerManager} from './marker_manager.js';
 import {Options} from './options.js';
 import * as Procedures from './procedures.js';
+import * as Gofuncs from './gofuncs.js';
 import * as registry from './registry.js';
 import * as blockRendering from './renderers/common/block_rendering.js';
 import type {Renderer} from './renderers/common/renderer.js';
@@ -376,6 +377,14 @@ export class WorkspaceSvg extends Workspace implements IASTNodeLocationSvg {
         Procedures.flyoutCategory
       );
       this.addChangeListener(Procedures.mutatorOpenListener);
+    }
+
+    if (Gofuncs && Gofuncs.flyoutCategory) {
+      this.registerToolboxCategoryCallback(
+        Gofuncs.CATEGORY_NAME,
+        Gofuncs.flyoutCategory
+      );
+      this.addChangeListener(Gofuncs.mutatorOpenListener);
     }
 
     /** Object in charge of storing and updating the workspace theme. */

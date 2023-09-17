@@ -110,6 +110,7 @@ export class Workspace implements IASTNodeLocation {
   private readonly typedBlocksDB = new Map<string, Block[]>();
   private variableMap: VariableMap;
   private procedureMap: IProcedureMap = new ObservableProcedureMap();
+  public tinygo_procedures: string[] = [];
 
   /**
    * Blocks in the flyout can refer to variables that don't exist in the main

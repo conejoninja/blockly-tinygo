@@ -51,7 +51,6 @@ export function tinygo_time_sleep(block, generator) {
 };
 
 export function tinygo_readdata(block, generator) {
-    console.log("THIS WAS CALLED");
     const code = 'ReadData()\n';
     return code;
 };

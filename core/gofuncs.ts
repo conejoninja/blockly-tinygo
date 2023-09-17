@@ -5,7 +5,7 @@
  */
 
 import * as goog from '../closure/goog/goog.js';
-goog.declareModuleId('Blockly.Procedures');
+goog.declareModuleId('Blockly.Gofuncs');
 
 // Unused import preserved for side-effects. Remove if unneeded.
 import './events/events_block_change.js';
@@ -47,7 +47,7 @@ import {MutatorIcon} from './icons.js';
  * See also Blockly.Variables.CATEGORY_NAME and
  * Blockly.VariablesDynamic.CATEGORY_NAME.
  */
-export const CATEGORY_NAME = 'PROCEDURE';
+export const CATEGORY_NAME = 'GOFUNC';
 
 /**
  * The default argument for a procedures_mutatorarg block.
@@ -96,7 +96,7 @@ export function allProcedures(
   });
   proceduresNoReturn.sort(procTupleComparator);
   proceduresReturn.sort(procTupleComparator);
-  console.log("ALL PROCEDURES", proceduresNoReturn, proceduresReturn);
+  console.log("ALL PROCEDURES GOFUNCS", proceduresNoReturn, proceduresReturn);
   return [proceduresNoReturn, proceduresReturn];
 }
 
@@ -232,6 +232,7 @@ export function rename(this: Field, name: string): string {
  * @returns Array of XML block elements.
  */
 export function flyoutCategory(workspace: WorkspaceSvg): Element[] {
+  console.log("FLYOUT GOFUNCS", Blocks, Blocks['procedures_defnoreturn']);
   const xmlList = [];
   if (Blocks['procedures_defnoreturn']) {
     // <block type="procedures_defnoreturn" gap="16">

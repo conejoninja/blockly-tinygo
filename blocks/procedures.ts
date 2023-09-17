@@ -650,7 +650,7 @@ const PROCEDURES_MUTATORARGUMENT = {
 
     this.appendDummyInput()
       .appendField(Msg['PROCEDURES_MUTATORARG_TITLE'])
-      .appendField(field, 'NAME');
+      .appendField(field, 'NAME')
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.setStyle('procedure_blocks');
@@ -794,6 +794,7 @@ const PROCEDURE_CALL_COMMON = {
     oldName: string,
     newName: string
   ) {
+    console.log("RENAME PROD .TS")
     if (Names.equals(oldName, this.getProcedureCall())) {
       this.setFieldValue(newName, 'NAME');
       const baseMsg = this.outputConnection
@@ -974,6 +975,7 @@ const PROCEDURE_CALL_COMMON = {
    * @param xmlElement XML storage element.
    */
   domToMutation: function (this: CallBlock, xmlElement: Element) {
+    console.log("PROC DOM TO MUTATION");
     const name = xmlElement.getAttribute('name')!;
     this.renameProcedure(this.getProcedureCall(), name);
     const args: string[] = [];
@@ -1006,6 +1008,7 @@ const PROCEDURE_CALL_COMMON = {
    *     procedure name.
    */
   loadExtraState: function (this: CallBlock, state: CallExtraState) {
+    console.log("PROC LOAD EXTRA STATE");
     this.renameProcedure(this.getProcedureCall(), state['name']);
     const params = state['params'];
     if (params) {
@@ -1091,6 +1094,7 @@ const PROCEDURE_CALL_COMMON = {
         const callName = this.getProcedureCall();
         const newName = Procedures.findLegalName(callName, this);
         if (callName !== newName) {
+          console.log("PROC OIN CHANGE");
           this.renameProcedure(callName, newName);
         }
         field.appendChild(xmlUtils.createTextNode(callName));

@@ -203,7 +203,9 @@ export function text_trim(block, generator) {
 export function text_print(block, generator) {
   // Print statement.
   const msg = generator.valueToCode(block, 'TEXT', Order.NONE) || "\"\"";
-  return 'print(' + msg + ');\n';
+  generator.addImport('fmt', 'fmt');
+
+  return 'fmt.Println(' + msg + ');\n';
 };
 
 export function text_prompt_ext(block, generator) {
