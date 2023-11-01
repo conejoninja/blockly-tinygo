@@ -14,6 +14,7 @@ import * as blocks from './serialization/blocks.js';
 import * as exceptions from './serialization/exceptions.js';
 import * as priorities from './serialization/priorities.js';
 import * as procedures from './serialization/procedures.js';
+import * as gofuncs from './serialization/gofuncs.js';
 import * as registry from './serialization/registry.js';
 import * as variables from './serialization/variables.js';
 import * as workspaces from './serialization/workspaces.js';
@@ -24,6 +25,7 @@ export {
   exceptions,
   priorities,
   procedures,
+  gofuncs,
   registry,
   variables,
   workspaces,

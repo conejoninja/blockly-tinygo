@@ -124,6 +124,7 @@ const PROCEDURE_DEF_COMMON = {
     if (opt_paramIds) {
       container.setAttribute('name', this.getFieldValue('NAME'));
     }
+    console.log("PROC MUTATION TO DOM", this.argumentVarModels_);
     for (let i = 0; i < this.argumentVarModels_.length; i++) {
       const parameter = xmlUtils.createElement('arg');
       const argModel = this.argumentVarModels_[i];
@@ -165,6 +166,7 @@ const PROCEDURE_DEF_COMMON = {
           ''
         );
         if (variable !== null) {
+          console.log("STEP 2", variable, this.argumentVarModels_);
           this.argumentVarModels_.push(variable);
         } else {
           console.log(
@@ -189,6 +191,7 @@ const PROCEDURE_DEF_COMMON = {
       return null;
     }
     const state = Object.create(null);
+    console.log("PROC SAVE EEXTRA STATE", this.argumentVarModels_);
     if (this.argumentVarModels_.length) {
       state['params'] = [];
       for (let i = 0; i < this.argumentVarModels_.length; i++) {
@@ -214,6 +217,7 @@ const PROCEDURE_DEF_COMMON = {
   loadExtraState: function (this: ProcedureBlock, state: ProcedureExtraState) {
     this.arguments_ = [];
     this.argumentVarModels_ = [];
+    console.log("STEP 3sd", state);
     if (state['params']) {
       for (let i = 0; i < state['params'].length; i++) {
         const param = state['params'][i];
@@ -224,6 +228,7 @@ const PROCEDURE_DEF_COMMON = {
           ''
         );
         this.arguments_.push(variable.name);
+        console.log("STEP 444", variable, this.argumentVarModels_);
         this.argumentVarModels_.push(variable);
       }
     }
@@ -300,11 +305,14 @@ const PROCEDURE_DEF_COMMON = {
     this.arguments_ = [];
     this.paramIds_ = [];
     this.argumentVarModels_ = [];
+    console.log("STEP 5");
+
     let paramBlock = containerBlock.getInputTargetBlock('STACK');
     while (paramBlock && !paramBlock.isInsertionMarker()) {
       const varName = paramBlock.getFieldValue('NAME');
       this.arguments_.push(varName);
       const variable = this.workspace.getVariable(varName, '')!;
+      console.log("STEP 6", variable, this.argumentVarModels_);
       this.argumentVarModels_.push(variable);
 
       this.paramIds_.push(paramBlock.id);
@@ -532,6 +540,7 @@ blocks['procedures_defnoreturn'] = {
    *     - that it DOES NOT have a return value.
    */
   getProcedureDef: function (this: ProcedureBlock): [string, string[], false] {
+    console.log("GET FFF1 DEF", this);
     return [this.getFieldValue('NAME'), this.arguments_, false];
   },
   callType_: 'procedures_callnoreturn',
@@ -583,6 +592,7 @@ blocks['procedures_defreturn'] = {
    *     - that it DOES have a return value.
    */
   getProcedureDef: function (this: ProcedureBlock): [string, string[], true] {
+    console.log("GET FFF2 DEF", this);
     return [this.getFieldValue('NAME'), this.arguments_, true];
   },
   callType_: 'procedures_callreturn',
@@ -794,7 +804,6 @@ const PROCEDURE_CALL_COMMON = {
     oldName: string,
     newName: string
   ) {
-    console.log("RENAME PROD .TS")
     if (Names.equals(oldName, this.getProcedureCall())) {
       this.setFieldValue(newName, 'NAME');
       const baseMsg = this.outputConnection
@@ -802,6 +811,7 @@ const PROCEDURE_CALL_COMMON = {
         : Msg['PROCEDURES_CALLNORETURN_TOOLTIP'];
       this.setTooltip(baseMsg.replace('%1', newName));
     }
+    console.log("RENAME FFF", this);
   },
   /**
    * Notification that the procedure's parameters have changed.
@@ -830,6 +840,10 @@ const PROCEDURE_CALL_COMMON = {
       this.getProcedureCall(),
       this.workspace
     );
+
+    console.log("SET FFFFFFFF PARAMETERS", paramNames, paramIds);
+
+
     const mutatorIcon = defBlock && defBlock.getIcon(Mutator.TYPE);
     const mutatorOpen = mutatorIcon && mutatorIcon.bubbleIsVisible();
     if (!mutatorOpen) {
@@ -876,6 +890,7 @@ const PROCEDURE_CALL_COMMON = {
     this.arguments_ = ([] as string[]).concat(paramNames);
     // And rebuild the argument model list.
     this.argumentVarModels_ = [];
+    console.log("STEP 7", this.arguments_);
     for (let i = 0; i < this.arguments_.length; i++) {
       const variable = Variables.getOrCreateVariablePackage(
         this.workspace,
@@ -883,6 +898,7 @@ const PROCEDURE_CALL_COMMON = {
         this.arguments_[i],
         ''
       );
+      console.log("STEP 8", variable, this.argumentVarModels_);
       this.argumentVarModels_.push(variable);
     }
 
@@ -975,7 +991,6 @@ const PROCEDURE_CALL_COMMON = {
    * @param xmlElement XML storage element.
    */
   domToMutation: function (this: CallBlock, xmlElement: Element) {
-    console.log("PROC DOM TO MUTATION");
     const name = xmlElement.getAttribute('name')!;
     this.renameProcedure(this.getProcedureCall(), name);
     const args: string[] = [];
@@ -1008,7 +1023,6 @@ const PROCEDURE_CALL_COMMON = {
    *     procedure name.
    */
   loadExtraState: function (this: CallBlock, state: CallExtraState) {
-    console.log("PROC LOAD EXTRA STATE");
     this.renameProcedure(this.getProcedureCall(), state['name']);
     const params = state['params'];
     if (params) {
@@ -1087,6 +1101,7 @@ const PROCEDURE_CALL_COMMON = {
         const y = xy.y + config.snapRadius * 2;
         block.setAttribute('x', `${x}`);
         block.setAttribute('y', `${y}`);
+        console.log("STEP 1");
         const mutation = this.mutationToDom();
         block.appendChild(mutation);
         const field = xmlUtils.createElement('field');
@@ -1094,7 +1109,6 @@ const PROCEDURE_CALL_COMMON = {
         const callName = this.getProcedureCall();
         const newName = Procedures.findLegalName(callName, this);
         if (callName !== newName) {
-          console.log("PROC OIN CHANGE");
           this.renameProcedure(callName, newName);
         }
         field.appendChild(xmlUtils.createTextNode(callName));

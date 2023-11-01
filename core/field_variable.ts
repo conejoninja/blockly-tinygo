@@ -395,7 +395,10 @@ export class FieldVariable extends FieldDropdown {
    */
   private typeIsAllowed(type: string): boolean {
     const typeList = this.getVariableTypes();
-    if (!typeList) {
+    console.log("TYPE IS ALLOWED", typeList, type);
+    // TODO: fix this
+    return true;
+    /*if (!typeList) {
       return true; // If it's null, all types are valid.
     }
     for (let i = 0; i < typeList.length; i++) {
@@ -403,7 +406,7 @@ export class FieldVariable extends FieldDropdown {
         return true;
       }
     }
-    return false;
+    return false;*/
   }
 
   /**

@@ -33,7 +33,9 @@ import {VariableMap} from './variable_map.js';
 import type {VariableModel} from './variable_model.js';
 import type {WorkspaceComment} from './workspace_comment.js';
 import {IProcedureMap} from './interfaces/i_procedure_map.js';
+import {IGofuncMap} from './interfaces/i_gofunc_map.js';
 import {ObservableProcedureMap} from './observable_procedure_map.js';
+import {ObservableGofuncMap} from './observable_gofunc_map.js';
 
 /**
  * Class for a workspace.  This is a data structure that contains blocks.
@@ -110,7 +112,7 @@ export class Workspace implements IASTNodeLocation {
   private readonly typedBlocksDB = new Map<string, Block[]>();
   private variableMap: VariableMap;
   private procedureMap: IProcedureMap = new ObservableProcedureMap();
-  public tinygo_procedures: string[] = [];
+  private gofuncMap: IGofuncMap = new ObservableGofuncMap();
 
   /**
    * Blocks in the flyout can refer to variables that don't exist in the main
@@ -803,6 +805,11 @@ export class Workspace implements IASTNodeLocation {
   /** Returns the map of all procedures on the workpace. */
   getProcedureMap(): IProcedureMap {
     return this.procedureMap;
+  }
+
+  /** Returns the map of all procedures on the workpace. */
+  getGofuncMap(): IGofuncMap {
+    return this.gofuncMap;
   }
 
   /**

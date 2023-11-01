@@ -24,6 +24,7 @@ import * as GopherBot from './gopherbot.js';
 import * as Gopherino from './gopherino.js';
 import * as NetHTTP from './nethttp.js';
 import * as Sensors from './sensors.js';
+import * as gofuncs from './gofuncs.js';
 
 export {
   colour,
@@ -39,7 +40,8 @@ export {
   GopherBot,
   Gopherino,
   NetHTTP,
-  Sensors
+  Sensors,
+  gofuncs
 };
 
 /**

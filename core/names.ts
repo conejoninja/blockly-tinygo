@@ -126,6 +126,13 @@ export class Names {
     );
   }
 
+  populateGofuncs(workspace: Workspace) {
+    throw new Error(
+      'The implementation of populateProcedures should be ' +
+        'monkey-patched in by blockly.ts'
+    );
+  }
+
   /**
    * Convert a Blockly entity name to a legal exportable entity name.
    *

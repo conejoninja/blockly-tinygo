@@ -9,6 +9,7 @@ import {IProcedureModel} from '../interfaces/i_procedure_model.js';
 import type {ISerializer} from '../interfaces/i_serializer.js';
 import * as priorities from './priorities.js';
 import type {Workspace} from '../workspace.js';
+import { controls_flow_statements } from '../../generators/dart/loops.js';
 
 /**
  * Representation of a procedure data model.
@@ -62,6 +63,7 @@ type ParameterModelConstructor<ParameterModel extends IParameterModel> = new (
  * @internal
  */
 export function saveProcedure(proc: IProcedureModel): State {
+  console.log("SAVE PROC (serial)", proc, new Error().stack);
   const state: State = {
     id: proc.getId(),
     name: proc.getName(),
@@ -157,6 +159,7 @@ export class ProcedureSerializer<
 
   /** Serializes the procedure models of the given workspace. */
   save(workspace: Workspace): State[] | null {
+    console.log("SAVE (serial)", new Error().stack);
     const save = workspace
       .getProcedureMap()
       .getProcedures()
@@ -169,6 +172,7 @@ export class ProcedureSerializer<
    * workspace.
    */
   load(state: State[], workspace: Workspace) {
+    console.log("LOAD SERIAL", workspace, new Error().stack);
     const map = workspace.getProcedureMap();
     for (const procState of state) {
       map.add(

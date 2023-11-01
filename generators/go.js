@@ -30,6 +30,7 @@ import * as GopherBot from './go/gopherbot.js';
 import * as Gopherino from './go/gopherino.js';
 import * as NetHTTP from './go/nethttp.js';
 import * as Sensors from './go/sensors.js';
+import * as Gofuncs from './go/gofuncs.js';
 
 export * from './go/go_generator.js';
 
@@ -44,5 +45,5 @@ Object.assign(
   goGenerator.forBlock,
   colour, lists, logic, loops, math, procedures,
   text, variables, variablesDynamic,
-  TinyGo, GopherBadge, GopherBot, Gopherino, NetHTTP, Sensors
+  TinyGo, GopherBadge, GopherBot, Gopherino, NetHTTP, Sensors, Gofuncs
 );

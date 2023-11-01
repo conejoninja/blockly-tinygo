@@ -310,8 +310,10 @@ export function flyoutCategory(workspace: WorkspaceSvg): Element[] {
   }
 
   const tuple = allProcedures(workspace);
+  console.log("TUPLE", tuple);
   populateProcedures(tuple[0], 'procedures_callnoreturn');
   populateProcedures(tuple[1], 'procedures_callreturn');
+  console.log("XML LIST", xmlList);
   return xmlList;
 }
 

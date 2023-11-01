@@ -464,6 +464,19 @@ Names.prototype.populateProcedures = function (
     this.getName(flattenedProcedures[i][0], Names.NameType.PROCEDURE);
   }
 };
+
+
+Names.prototype.populateGofuncs = function (
+  this: Names,
+  workspace: Workspace
+) {
+  const procedures = Gofuncs.allGofuncs(workspace);
+  // Flatten the return vs no-return procedure lists.
+  /*const flattenedProcedures = procedures[0].concat(procedures[1]);
+  for (let i = 0; i < flattenedProcedures.length; i++) {
+    this.getName(flattenedProcedures[i][0], Names.NameType.PROCEDURE);
+  }*/
+};
 // clang-format on
 
 // Re-export submodules that no longer declareLegacyNamespace.

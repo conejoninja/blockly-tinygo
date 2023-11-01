@@ -21,83 +21,71 @@ import {Field, UnattachedFieldError} from './field.js';
 import {Msg} from './msg.js';
 import {Names} from './names.js';
 import {IParameterModel} from './interfaces/i_parameter_model.js';
-import {IProcedureMap} from './interfaces/i_procedure_map.js';
-import {IProcedureModel} from './interfaces/i_procedure_model.js';
+import {IGofuncMap} from './interfaces/i_gofunc_map.js';
+import {IGofuncModel} from './interfaces/i_gofunc_model.js';
 import {
-  IProcedureBlock,
-  isProcedureBlock,
-} from './interfaces/i_procedure_block.js';
+  IGofuncBlock,
+  isGofuncBlock,
+} from './interfaces/i_gofunc_block.js';
 import {
-  isLegacyProcedureCallBlock,
-  isLegacyProcedureDefBlock,
-  ProcedureBlock,
-  ProcedureTuple,
-} from './interfaces/i_legacy_procedure_blocks.js';
-import {ObservableProcedureMap} from './observable_procedure_map.js';
+  isLegacyGofuncCallBlock,
+  isLegacyGofuncDefBlock,
+  GofuncBlock,
+  GofuncTuple,
+} from './interfaces/i_legacy_gofunc_blocks.js';
+import {ObservableGofuncMap} from './observable_gofunc_map.js';
 import * as utilsXml from './utils/xml.js';
 import * as Variables from './variables.js';
 import type {Workspace} from './workspace.js';
 import type {WorkspaceSvg} from './workspace_svg.js';
 import {MutatorIcon} from './icons.js';
+import type {VariableModel} from '../core/variable_model.js';
+
 
 /**
  * String for use in the "custom" attribute of a category in toolbox XML.
  * This string indicates that the category should be dynamically populated with
- * procedure blocks.
+ * gofunc blocks.
  * See also Blockly.Variables.CATEGORY_NAME and
  * Blockly.VariablesDynamic.CATEGORY_NAME.
  */
 export const CATEGORY_NAME = 'GOFUNC';
 
 /**
- * The default argument for a procedures_mutatorarg block.
+ * The default argument for a gofuncs_mutatorarg block.
  */
 export const DEFAULT_ARG = 'x';
 
 /**
- * Find all user-created procedure definitions in a workspace.
+ * Find all user-created gofunc definitions in a workspace.
  *
  * @param root Root workspace.
- * @returns Pair of arrays, the first contains procedures without return
- *     variables, the second with. Each procedure is defined by a three-element
+ * @returns Pair of arrays, the first contains gofuncs without return
+ *     variables, the second with. Each gofunc is defined by a three-element
  *     list of name, parameter list, and return value boolean.
  */
-export function allProcedures(
+export function allGofuncs(
   root: Workspace
-): [ProcedureTuple[], ProcedureTuple[]] {
-  const proceduresNoReturn: ProcedureTuple[] = root
-    .getProcedureMap()
-    .getProcedures()
-    .filter((p) => !p.getReturnTypes())
-    .map((p) => [
-      p.getName(),
-      p.getParameters().map((pa) => pa.getName()),
-      false,
-    ]);
-  root.getBlocksByType('procedures_defnoreturn', false).forEach((b) => {
-    if (!isProcedureBlock(b) && isLegacyProcedureDefBlock(b)) {
-      proceduresNoReturn.push(b.getProcedureDef());
-    }
-  });
-
-  const proceduresReturn: ProcedureTuple[] = root
-    .getProcedureMap()
-    .getProcedures()
+): GofuncTuple[] {
+  const gofuncsReturn: GofuncTuple[] = root
+    .getGofuncMap()
+    .getGofuncs()
     .filter((p) => !!p.getReturnTypes())
     .map((p) => [
       p.getName(),
-      p.getParameters().map((pa) => pa.getName()),
+      //p.getParameters().map((pa) => pa.getName()),
+      [],
+      [],
       true,
     ]);
-  root.getBlocksByType('procedures_defreturn', false).forEach((b) => {
-    if (!isProcedureBlock(b) && isLegacyProcedureDefBlock(b)) {
-      proceduresReturn.push(b.getProcedureDef());
+  root.getBlocksByType('gofuncs_defreturn', false).forEach((b) => {
+    if (!isGofuncBlock(b) && isLegacyGofuncDefBlock(b)) {
+      gofuncsReturn.push(b.getGofuncDef());
     }
   });
-  proceduresNoReturn.sort(procTupleComparator);
-  proceduresReturn.sort(procTupleComparator);
-  console.log("ALL PROCEDURES GOFUNCS", proceduresNoReturn, proceduresReturn);
-  return [proceduresNoReturn, proceduresReturn];
+  gofuncsReturn.sort(procTupleComparator);
+  console.log("ALL GOFUNCS", gofuncsReturn);
+  return gofuncsReturn;
 }
 
 /**
@@ -108,27 +96,27 @@ export function allProcedures(
  * @param tb Second tuple.
  * @returns -1, 0, or 1 to signify greater than, equality, or less than.
  */
-function procTupleComparator(ta: ProcedureTuple, tb: ProcedureTuple): number {
+function procTupleComparator(ta: GofuncTuple, tb: GofuncTuple): number {
   return ta[0].localeCompare(tb[0], undefined, {sensitivity: 'base'});
 }
 
 /**
- * Ensure two identically-named procedures don't exist.
- * Take the proposed procedure name, and return a legal name i.e. one that
- * is not empty and doesn't collide with other procedures.
+ * Ensure two identically-named gofuncs don't exist.
+ * Take the proposed gofunc name, and return a legal name i.e. one that
+ * is not empty and doesn't collide with other gofuncs.
  *
- * @param name Proposed procedure name.
+ * @param name Proposed gofunc name.
  * @param block Block to disambiguate.
  * @returns Non-colliding name.
  */
 export function findLegalName(name: string, block: Block): string {
   if (block.isInFlyout) {
-    // Flyouts can have multiple procedures called 'do something'.
+    // Flyouts can have multiple gofuncs called 'do something'.
     return name;
   }
   name = name || Msg['UNNAMED_KEY'] || 'unnamed';
   while (!isLegalName(name, block.workspace, block)) {
-    // Collision with another procedure.
+    // Collision with another gofunc.
     const r = name.match(/^(.*?)(\d+)$/);
     if (!r) {
       name += '2';
@@ -139,8 +127,8 @@ export function findLegalName(name: string, block: Block): string {
   return name;
 }
 /**
- * Does this procedure have a legal name?  Illegal names include names of
- * procedures already defined.
+ * Does this gofunc have a legal name?  Illegal names include names of
+ * gofuncs already defined.
  *
  * @param name The questionable name.
  * @param workspace The workspace to scan for collisions.
@@ -157,7 +145,7 @@ function isLegalName(
 }
 
 /**
- * Return if the given name is already a procedure name.
+ * Return if the given name is already a gofunc name.
  *
  * @param name The questionable name.
  * @param workspace The workspace to scan for collisions.
@@ -174,18 +162,18 @@ export function isNameUsed(
     if (block === opt_exclude) continue;
 
     if (
-      isLegacyProcedureDefBlock(block) &&
-      Names.equals(block.getProcedureDef()[0], name)
+      isLegacyGofuncDefBlock(block) &&
+      Names.equals(block.getGofuncDef()[0], name)
     ) {
       return true;
     }
   }
 
   const excludeModel =
-    opt_exclude && isProcedureBlock(opt_exclude)
-      ? opt_exclude?.getProcedureModel()
+    opt_exclude && isGofuncBlock(opt_exclude)
+      ? opt_exclude?.getGofuncModel()
       : undefined;
-  for (const model of workspace.getProcedureMap().getProcedures()) {
+  for (const model of workspace.getGofuncMap().getGofuncs()) {
     if (model === excludeModel) continue;
     if (Names.equals(model.getName(), name)) return true;
   }
@@ -193,7 +181,7 @@ export function isNameUsed(
 }
 
 /**
- * Rename a procedure.  Called by the editable field.
+ * Rename a gofunc.  Called by the editable field.
  *
  * @param name The proposed new name.
  * @returns The accepted name.
@@ -207,18 +195,18 @@ export function rename(this: Field, name: string): string {
   // Strip leading and trailing whitespace.  Beyond this, all names are legal.
   name = name.trim();
   const legalName = findLegalName(name, block);
-  if (isProcedureBlock(block) && !block.isInsertionMarker()) {
-    block.getProcedureModel().setName(legalName);
+  if (isGofuncBlock(block) && !block.isInsertionMarker()) {
+    block.getGofuncModel().setName(legalName);
   }
   const oldName = this.getValue();
   if (oldName !== name && oldName !== legalName) {
     // Rename any callers.
     const blocks = block.workspace.getAllBlocks(false);
     for (let i = 0; i < blocks.length; i++) {
-      // Assume it is a procedure so we can check.
-      const procedureBlock = blocks[i] as unknown as ProcedureBlock;
-      if (procedureBlock.renameProcedure) {
-        procedureBlock.renameProcedure(oldName as string, legalName);
+      // Assume it is a gofunc so we can check.
+      const gofuncBlock = blocks[i] as unknown as GofuncBlock;
+      if (gofuncBlock.renameGofunc) {
+        gofuncBlock.renameGofunc(oldName as string, legalName);
       }
     }
   }
@@ -226,35 +214,19 @@ export function rename(this: Field, name: string): string {
 }
 
 /**
- * Construct the blocks required by the flyout for the procedure category.
+ * Construct the blocks required by the flyout for the gofunc category.
  *
- * @param workspace The workspace containing procedures.
+ * @param workspace The workspace containing gofuncs.
  * @returns Array of XML block elements.
  */
 export function flyoutCategory(workspace: WorkspaceSvg): Element[] {
-  console.log("FLYOUT GOFUNCS", Blocks, Blocks['procedures_defnoreturn']);
-  const xmlList = [];
-  if (Blocks['procedures_defnoreturn']) {
-    // <block type="procedures_defnoreturn" gap="16">
+  const xmlList = [];  
+  if (Blocks['gofuncs_defreturn']) {
+    // <block type="gofuncs_defreturn" gap="16">
     //     <field name="NAME">do something</field>
     // </block>
     const block = utilsXml.createElement('block');
-    block.setAttribute('type', 'procedures_defnoreturn');
-    block.setAttribute('gap', '16');
-    const nameField = utilsXml.createElement('field');
-    nameField.setAttribute('name', 'NAME');
-    nameField.appendChild(
-      utilsXml.createTextNode(Msg['PROCEDURES_DEFNORETURN_PROCEDURE'])
-    );
-    block.appendChild(nameField);
-    xmlList.push(block);
-  }
-  if (Blocks['procedures_defreturn']) {
-    // <block type="procedures_defreturn" gap="16">
-    //     <field name="NAME">do something</field>
-    // </block>
-    const block = utilsXml.createElement('block');
-    block.setAttribute('type', 'procedures_defreturn');
+    block.setAttribute('type', 'gofuncs_defreturn');
     block.setAttribute('gap', '16');
     const nameField = utilsXml.createElement('field');
     nameField.setAttribute('name', 'NAME');
@@ -264,75 +236,78 @@ export function flyoutCategory(workspace: WorkspaceSvg): Element[] {
     block.appendChild(nameField);
     xmlList.push(block);
   }
-  if (Blocks['procedures_ifreturn']) {
-    // <block type="procedures_ifreturn" gap="16"></block>
-    const block = utilsXml.createElement('block');
-    block.setAttribute('type', 'procedures_ifreturn');
-    block.setAttribute('gap', '16');
-    xmlList.push(block);
-  }
+
   if (xmlList.length) {
     // Add slightly larger gap between system blocks and user calls.
     xmlList[xmlList.length - 1].setAttribute('gap', '24');
   }
 
   /**
-   * Add items to xmlList for each listed procedure.
+   * Add items to xmlList for each listed gofunc.
    *
-   * @param procedureList A list of procedures, each of which is defined by a
+   * @param gofuncList A list of gofuncs, each of which is defined by a
    *     three-element list of name, parameter list, and return value boolean.
    * @param templateName The type of the block to generate.
    */
-  function populateProcedures(
-    procedureList: ProcedureTuple[],
-    templateName: string
+  function populateGofuncs(
+    gofuncList: [string, VariableModel[], VariableModel[], boolean][]
   ) {
-    for (let i = 0; i < procedureList.length; i++) {
-      const name = procedureList[i][0];
-      const args = procedureList[i][1];
-      // <block type="procedures_callnoreturn" gap="16">
+    for (let i = 0; i < gofuncList.length; i++) {
+      console.log("POPULATE GO FUNCS", gofuncList[i], gofuncList[i][1]);
+      const name = gofuncList[i][0];
+      const inputs = gofuncList[i][1];
+      const outputs = gofuncList[i][2];
+      // <block type="gofuncs_callnoreturn" gap="16">
       //   <mutation name="do something">
       //     <arg name="x"></arg>
       //   </mutation>
       // </block>
       const block = utilsXml.createElement('block');
-      block.setAttribute('type', templateName);
+      if(outputs!=undefined && outputs.length>0) {
+        block.setAttribute('type', 'gofuncs_callreturn');
+      } else {
+        block.setAttribute('type', 'gofuncs_callnoreturn');
+      }
       block.setAttribute('gap', '16');
       const mutation = utilsXml.createElement('mutation');
       mutation.setAttribute('name', name);
       block.appendChild(mutation);
-      for (let j = 0; j < args.length; j++) {
+      if(inputs!=undefined) {
+      for (let j = 0; j < inputs.length; j++) {
         const arg = utilsXml.createElement('arg');
-        arg.setAttribute('name', args[j]);
+        arg.setAttribute('name', inputs[j].name);
         mutation.appendChild(arg);
       }
+    }
       xmlList.push(block);
     }
   }
 
-  const tuple = allProcedures(workspace);
-  populateProcedures(tuple[0], 'procedures_callnoreturn');
-  populateProcedures(tuple[1], 'procedures_callreturn');
+  const gfs = allGofuncs(workspace);
+  console.log("TUPLE", gfs);
+  //populateGofuncs(tuple[0], 'gofuncs_callnoreturn');
+  populateGofuncs(gfs);
+  console.log("XML LIST", xmlList);
   return xmlList;
 }
 
 /**
- * Updates the procedure mutator's flyout so that the arg block is not a
+ * Updates the gofunc mutator's flyout so that the arg block is not a
  * duplicate of another arg.
  *
- * @param workspace The procedure mutator's workspace. This workspace's flyout
+ * @param workspace The gofunc mutator's workspace. This workspace's flyout
  *     is what is being updated.
  */
 function updateMutatorFlyout(workspace: WorkspaceSvg) {
   const usedNames = [];
-  const blocks = workspace.getBlocksByType('procedures_mutatorarg', false);
+  const blocks = workspace.getBlocksByType('gofuncs_mutatorarg', false);
   for (let i = 0, block; (block = blocks[i]); i++) {
     usedNames.push(block.getFieldValue('NAME'));
   }
 
   const xmlElement = utilsXml.createElement('xml');
   const argBlock = utilsXml.createElement('block');
-  argBlock.setAttribute('type', 'procedures_mutatorarg');
+  argBlock.setAttribute('type', 'gofuncs_mutatorarg');
   const nameField = utilsXml.createElement('field');
   nameField.setAttribute('name', 'NAME');
   const argValue = Variables.generateUniqueNameFromOptions(
@@ -349,7 +324,7 @@ function updateMutatorFlyout(workspace: WorkspaceSvg) {
 }
 
 /**
- * Listens for when a procedure mutator is opened. Then it triggers a flyout
+ * Listens for when a gofunc mutator is opened. Then it triggers a flyout
  * update and adds a mutator change listener to the mutator workspace.
  *
  * @param e The event that triggered this listener.
@@ -371,7 +346,7 @@ export function mutatorOpenListener(e: Abstract) {
     .getWorkspaceById(workspaceId)!
     .getBlockById(bubbleEvent.blockId) as BlockSvg;
   const type = block.type;
-  if (type !== 'procedures_defnoreturn' && type !== 'procedures_defreturn') {
+  if (type !== 'gofuncs_defnoreturn' && type !== 'gofuncs_defreturn') {
     return;
   }
   const workspace = (
@@ -381,7 +356,7 @@ export function mutatorOpenListener(e: Abstract) {
   workspace.addChangeListener(mutatorChangeListener);
 }
 /**
- * Listens for changes in a procedure mutator and triggers flyout updates when
+ * Listens for changes in a gofunc mutator and triggers flyout updates when
  * necessary.
  *
  * @param e The event that triggered this listener.
@@ -401,9 +376,9 @@ function mutatorChangeListener(e: Abstract) {
 }
 
 /**
- * Find all the callers of a named procedure.
+ * Find all the callers of a named gofunc.
  *
- * @param name Name of procedure.
+ * @param name Name of gofunc.
  * @param workspace The workspace to find callers in.
  * @returns Array of caller blocks.
  */
@@ -411,35 +386,35 @@ export function getCallers(name: string, workspace: Workspace): Block[] {
   return workspace.getAllBlocks(false).filter((block) => {
     return (
       blockIsModernCallerFor(block, name) ||
-      (isLegacyProcedureCallBlock(block) &&
-        Names.equals(block.getProcedureCall(), name))
+      (isLegacyGofuncCallBlock(block) &&
+        Names.equals(block.getGofuncCall(), name))
     );
   });
 }
 
 /**
  * @returns True if the given block is a modern-style caller block of the given
- *     procedure name.
+ *     gofunc name.
  */
 function blockIsModernCallerFor(block: Block, procName: string): boolean {
   return (
-    isProcedureBlock(block) &&
-    !block.isProcedureDef() &&
-    block.getProcedureModel() &&
-    Names.equals(block.getProcedureModel().getName(), procName)
+    isGofuncBlock(block) &&
+    !block.isGofuncDef() &&
+    block.getGofuncModel() &&
+    Names.equals(block.getGofuncModel().getName(), procName)
   );
 }
 
 /**
- * When a procedure definition changes its parameters, find and edit all its
+ * When a gofunc definition changes its parameters, find and edit all its
  * callers.
  *
- * @param defBlock Procedure definition block.
+ * @param defBlock Gofunc definition block.
  */
 export function mutateCallers(defBlock: Block) {
   const oldRecordUndo = eventUtils.getRecordUndo();
-  const procedureBlock = defBlock as unknown as ProcedureBlock;
-  const name = procedureBlock.getProcedureDef()[0];
+  const gofuncBlock = defBlock as unknown as GofuncBlock;
+  const name = gofuncBlock.getGofuncDef()[0];
   const xmlElement = defBlock.mutationToDom!(true);
   const callers = getCallers(name, defBlock.workspace);
   for (let i = 0, caller; (caller = callers[i]); i++) {
@@ -452,7 +427,7 @@ export function mutateCallers(defBlock: Block) {
     const newMutation = newMutationDom && utilsXml.domToText(newMutationDom);
     if (oldMutation !== newMutation) {
       // Fire a mutation on every caller block.  But don't record this as an
-      // undo action since it is deterministically tied to the procedure's
+      // undo action since it is deterministically tied to the gofunc's
       // definition mutation.
       eventUtils.setRecordUndo(false);
       eventUtils.fire(
@@ -470,30 +445,30 @@ export function mutateCallers(defBlock: Block) {
 }
 
 /**
- * Find the definition block for the named procedure.
+ * Find the definition block for the named gofunc.
  *
- * @param name Name of procedure.
+ * @param name Name of gofunc.
  * @param workspace The workspace to search.
- * @returns The procedure definition block, or null not found.
+ * @returns The gofunc definition block, or null not found.
  */
 export function getDefinition(
   name: string,
   workspace: Workspace
 ): Block | null {
-  // Do not assume procedure is a top block. Some languages allow nested
-  // procedures. Also do not assume it is one of the built-in blocks. Only
-  // rely on isProcedureDef and getProcedureDef.
+  // Do not assume gofunc is a top block. Some languages allow nested
+  // gofuncs. Also do not assume it is one of the built-in blocks. Only
+  // rely on isGofuncDef and getGofuncDef.
   for (const block of workspace.getAllBlocks(false)) {
     if (
-      isProcedureBlock(block) &&
-      block.isProcedureDef() &&
-      Names.equals(block.getProcedureModel().getName(), name)
+      isGofuncBlock(block) &&
+      block.isGofuncDef() &&
+      Names.equals(block.getGofuncModel().getName(), name)
     ) {
       return block;
     }
     if (
-      isLegacyProcedureDefBlock(block) &&
-      Names.equals(block.getProcedureDef()[0], name)
+      isLegacyGofuncDefBlock(block) &&
+      Names.equals(block.getGofuncDef()[0], name)
     ) {
       return block;
     }
@@ -502,11 +477,11 @@ export function getDefinition(
 }
 
 export {
-  ObservableProcedureMap,
+  ObservableGofuncMap,
   IParameterModel,
-  IProcedureBlock,
-  isProcedureBlock,
-  IProcedureMap,
-  IProcedureModel,
-  ProcedureTuple,
+  IGofuncBlock,
+  isGofuncBlock,
+  IGofuncMap,
+  IGofuncModel,
+  GofuncTuple,
 };

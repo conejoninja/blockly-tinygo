@@ -205,7 +205,7 @@ export function text_print(block, generator) {
   const msg = generator.valueToCode(block, 'TEXT', Order.NONE) || "\"\"";
   generator.addImport('fmt', 'fmt');
 
-  return 'fmt.Println(' + msg + ');\n';
+  return 'fmt.Println(' + msg + ')\n';
 };
 
 export function text_prompt_ext(block, generator) {

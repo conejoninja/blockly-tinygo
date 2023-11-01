@@ -143,6 +143,7 @@ export class GoGenerator extends CodeGenerator {
     this.nameDB_.setVariableMap(workspace.getVariableMap());
     this.nameDB_.populateVariables(workspace);
     this.nameDB_.populateProcedures(workspace);
+    this.nameDB_.populateGofuncs(workspace);
 
     const defvars = [];
     /*

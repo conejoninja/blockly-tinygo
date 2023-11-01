@@ -927,7 +927,41 @@ function demohelloworld() {
         }
 
         function tour4() {
-            let xml = '';
+            let xml = '<xml xmlns="https://developers.google.com/blockly/xml">\n' +
+                '  <variables>\n' +
+                '    <variable type="int32" id="I9bfZ~do~U]HhF?Up~5L">x</variable>\n' +
+                '    <variable type="int32" id="^9i29:!U.02Muu/s-dh!">y</variable>\n' +
+                '  </variables>\n' +
+                '  <block type="gofuncs_defreturn" id="(0^6!dn6zrkYmg;;$[Uk" x="288" y="338">\n' +
+                '    <field name="NAME">do something</field>\n' +
+                '    <statement name="STACK">\n' +
+                '      <block type="tinygo_led" id="XadsN64Y`uA6mZe@K2GD">\n' +
+                '        <field name="PIN">0</field>\n' +
+                '        <value name="STATE">\n' +
+                '          <block type="tinygo_led_state" id="tY;i%+}UEOoRHgKslF{h">\n' +
+                '            <field name="BOOL">TRUE</field>\n' +
+                '          </block>\n' +
+                '        </value>\n' +
+                '      </block>\n' +
+                '    </statement>\n' +
+                '  </block>\n' +
+                '  <block type="gofuncs_callreturn" id="hE?ip^o]8]b$iA5%!-UY" x="113" y="488">\n' +
+                '    <mutation name="do something">\n' +
+                '      <arg name="x"></arg>\n' +
+                '      <arg name="y"></arg>\n' +
+                '    </mutation>\n' +
+                '    <value name="ARG0">\n' +
+                '      <block type="math_number" id="-caL8=[(J(YfO-:B,?H~">\n' +
+                '        <field name="NUM">123</field>\n' +
+                '      </block>\n' +
+                '    </value>\n' +
+                '    <value name="ARG1">\n' +
+                '      <block type="math_number" id="wQB1+@6Bn?e`94h^)P?F">\n' +
+                '        <field name="NUM">456</field>\n' +
+                '      </block>\n' +
+                '    </value>\n' +
+                '  </block>\n' +
+                '</xml>';
             var dom = Blockly.utils.xml.textToDom(xml);
             Blockly.Xml.domToWorkspace(dom, workspace);
         }
@@ -1466,7 +1500,6 @@ start();
       <block type="tinygo_tuple4" categorystyle="text_category"></block>
       <block type="tinygo_strconv_atoi" categorystyle="text_category"></block>
       <block type="tinygo_strconv_itoa" categorystyle="text_category"></block>
-      <block type="tinygo_procedure" categorystyle="procedure_category"></block>
     </category>
     <category name="GopherBadge">
       <block type="gopherbadge_button_get" categorystyle="text_category"></block>
