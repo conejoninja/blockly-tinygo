@@ -15,18 +15,18 @@ import * as Xml from '../core/xml.js';
 import * as fieldRegistry from '../core/field_registry.js';
 import * as xmlUtils from '../core/utils/xml.js';
 import type { Abstract as AbstractEvent } from '../core/events/events_abstract.js';
-import { Align } from '../core/inputs/input.js';
 import type { Block } from '../core/block.js';
 import type { BlockSvg } from '../core/block_svg.js';
 import type { BlockCreate } from '../core/events/events_block_create.js';
 import type { BlockChange } from '../core/events/events_block_change.js';
 import type { BlockDefinition } from '../core/blocks.js';
 import type { Connection } from '../core/connection.js';
-import {Field, UnattachedFieldError} from '../core/field.js';
+import { Field, UnattachedFieldError } from '../core/field.js';
 import type {
   ContextMenuOption,
   LegacyContextMenuOption,
-} from '../core/contextmenu_registry.js'; import { Msg } from '../core/msg.js';
+} from '../core/contextmenu_registry.js';
+import { Msg } from '../core/msg.js';
 import type { Workspace } from '../core/workspace.js';
 import type { WorkspaceSvg } from '../core/workspace_svg.js';
 import {
@@ -46,6 +46,21 @@ import '../core/field_variable.js';
 
 export const blocks = createBlockDefinitionsFromJsonArray([
   // Block for boolean data type: true and false.
+  {
+    "type": "tinygo_print",
+    'message0': 'print %1',
+    'args0': [
+      {
+        'type': 'input_value',
+        'name': 'TEXT',
+      },
+    ],
+    'previousStatement': null,
+    'nextStatement': null,
+    'style': 'text_blocks',
+    'tooltip': "",
+    'helpUrl': "",
+  },
   {
     "type": "tinygo_led",
     "message0": "%1 set LED %2 %3",
@@ -246,6 +261,21 @@ export const blocks = createBlockDefinitionsFromJsonArray([
   {
     "type": "tinygo_goroutine",
     "message0": "go routine %1",
+    "args0": [
+      {
+        "type": "input_statement",
+        "name": "GR0",
+      },
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "style": "logic_blocks",
+    "helpUrl": "%{BKY_CONTROLS_IF_HELPURL}",
+    "extensions": ["controls_if_tooltip"],
+  },
+  {
+    "type": "tinygo_defer",
+    "message0": "defer %1",
     "args0": [
       {
         "type": "input_statement",

@@ -5,8 +5,8 @@
 import * as goog from '../../closure/goog/goog.js';
 goog.declareModuleId('Blockly.Go.TinyGo');
 
-import {NameType} from '../../core/names.js';
-import {Order} from './go_generator.js';
+import { NameType } from '../../core/names.js';
+import { Order } from './go_generator.js';
 
 export function tinygo_led_complete(block, generator) {
     const state = block.getFieldValue('STATE');
@@ -86,4 +86,25 @@ export function tinygo_strconv_itoa(block, generator) {
     generator.imports_['strconv'] = 'strconv';
     var msg = generator.valueToCode(block, 'TEXT', Order.NONE) || '\'\'';
     return ['strconv.Itoa(int(' + msg + '))', 0];
+};
+
+export function tinygo_print(block, generator) {
+    // Print statement.
+    const msg = generator.valueToCode(block, 'TEXT', Order.NONE) || "\"\"";
+    generator.addImport('fmt', 'fmt');
+
+    return 'println(' + msg + ')\n';
+};
+
+export function tinygo_defer(block, generator) {
+    let code = '';
+    const branchCode = generator.statementToCode(block, 'GR0');
+    const lines = branchCode.split('\n');
+    if (lines.length > 2) {
+        code = 'defer func() {\n' + branchCode + '}()\n';
+    }
+    else {
+        code = 'defer ' + branchCode;
+    }
+    return code;
 };

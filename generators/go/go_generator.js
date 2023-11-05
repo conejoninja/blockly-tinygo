@@ -14,6 +14,7 @@ goog.declareModuleId('Blockly.Go');
 
 import * as stringUtils from '../../core/utils/string.js';
 // import type {Block} from '../../core/block.js';
+import * as Variables from '../../core/variables.js';
 import { CodeGenerator } from '../../core/generator.js';
 import { Names } from '../../core/names.js';
 // import type {Workspace} from '../../core/workspace.js';
@@ -151,18 +152,20 @@ export class GoGenerator extends CodeGenerator {
     const devVarList = Variables.allDeveloperVariables(workspace);
     for (let i = 0; i < devVarList.length; i++) {
       defvars.push(devVarList[i]);
-    }
+    }*/
 
     // Add user variables, but only ones that are being used.
     const variables = Variables.allUsedVarModels(workspace);
     for (let i = 0; i < variables.length; i++) {
       defvars.push(variables[i]);
-    }*/
+    }
 
     // Set variable declarations with their Go type in the defines dictionary
     for (let i = 0; i < defvars.length; i++) {
-      this.addVariable(defvars[i].name,
-        'var ' + defvars[i].name + ' ' + this.getGoType(defvars[i].type));
+      if(this.getGoType(defvars[i].type)!='') {
+        this.addVariable(defvars[i].name,
+          'var ' + defvars[i].name + ' ' + this.getGoType(defvars[i].type));
+      }
     }
     this.isInitialized = true;
   };

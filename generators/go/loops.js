@@ -37,7 +37,7 @@ export function controls_repeat_ext(block, generator) {
         'repeat_end', Blockly.VARIABLE_CATEGORY_NAME);
     code += endVar + ' = ' + repeats + '\n';
   }
-  code += 'for ' + loopVar + ' := 0; ' +
+  code += 'for ' + loopVar + ' := int32(0); ' +
       loopVar + ' < ' + endVar + '; ' +
       loopVar + '++ {\n' +
       branch + '}\n';
@@ -78,7 +78,7 @@ export function controls_for(block, generator) {
   stringUtils.isNumber(increment)) {
     // All arguments are simple numbers.
     var up = Number(argument0) <= Number(argument1);
-    code = 'for ' + variable0 + ' := ' + argument0 + '; ' +
+    code = 'for ' + variable0 + ' := int32(' + argument0 + '); ' +
         variable0 + (up ? ' <= ' : ' >= ') + argument1 + '; ' +
         variable0;
     var step = Math.abs(Number(increment));
@@ -116,7 +116,7 @@ export function controls_for(block, generator) {
     code += 'if ' + startVar + ' > ' + endVar + ' {\n';
     code += generator.INDENT + incVar + ' = -' + incVar + '\n';
     code += '}\n';
-    code += 'for ' + variable0 + ' := ' + startVar + '; ' +
+    code += 'for ' + variable0 + ' := int32(' + startVar + '); ' +
         incVar + ' >= 0 ? ' +
         variable0 + ' <= ' + endVar + ' : ' +
         variable0 + ' >= ' + endVar + '; ' +
