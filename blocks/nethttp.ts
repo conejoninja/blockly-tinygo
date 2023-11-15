@@ -140,6 +140,95 @@ export const blocks = createBlockDefinitionsFromJsonArray([
         "helpUrl": "%{BKY_CONTROLS_IF_HELPURL}",
         "extensions": ["controls_if_tooltip"],
     },
+    {
+        "type": "nethttp_fermyon_init",
+        "message0": "%2 On init do %1",
+        "args0": [
+            {
+                "type": "input_statement",
+                "name": "GR0",
+            },
+            {
+                "type": "field_image",
+                "src": "./img/fermyon_spin.png",
+                "width": 32,
+                "height": 32,
+            },
+        ],
+        "inputsInline": true,
+        "previousStatement": null,
+        "nextStatement": null,
+        "style": "loop_blocks",
+        "helpUrl": "%{BKY_CONTROLS_IF_HELPURL}",
+        "extensions": ["controls_if_tooltip"],
+    },
+    {
+        "type": "nethttp_fermyon_newkv",
+        "message0": "%2 Create KV data-store with name %1",
+        'args0': [
+            {
+                'type': 'input_value',
+                'name': 'TEXT',
+            },
+            {
+                "type": "field_image",
+                "src": "./img/fermyon_spin.png",
+                "width": 32,
+                "height": 32,
+            },
+        ],
+        "previousStatement": null,
+        "nextStatement": null,
+        "style": "loop_blocks",
+        "helpUrl": "%{BKY_CONTROLS_IF_HELPURL}",
+        "extensions": ["controls_if_tooltip"],
+    },
+    {
+        "type": "nethttp_fermyon_kvget",
+        "message0": "%2 Get key %1 from KV data-store",
+        'args0': [
+            {
+                'type': 'input_value',
+                'name': 'TEXT',
+            },
+            {
+                "type": "field_image",
+                "src": "./img/fermyon_spin.png",
+                "width": 32,
+                "height": 32,
+            },
+        ],
+        "output": "Tuple2",
+        "style": "loop_blocks",
+        "helpUrl": "%{BKY_CONTROLS_IF_HELPURL}",
+        "extensions": ["controls_if_tooltip"],
+    },
+    {
+        "type": "nethttp_fermyon_kvput",
+        "message0": "%3 Put key %1 with value %2",
+        'args0': [
+            {
+                'type': 'input_value',
+                'name': 'TEXT',
+            },
+            {
+                'type': 'input_value',
+                'name': 'TEXT2',
+            },
+            {
+                "type": "field_image",
+                "src": "./img/fermyon_spin.png",
+                "width": 32,
+                "height": 32,
+            },
+        ],
+        "inputsInline": true,
+        "previousStatement": null,
+        "nextStatement": null,
+        "style": "loop_blocks",
+        "helpUrl": "%{BKY_CONTROLS_IF_HELPURL}",
+        "extensions": ["controls_if_tooltip"],
+    },
 ]);
 
 defineBlocks(blocks);

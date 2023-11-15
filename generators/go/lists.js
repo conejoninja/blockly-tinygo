@@ -66,7 +66,7 @@ export function lists_create_with_color(block, generator) {
   var code = new Array(block.itemCount_);
   let emptylist = true;
   for (var i = 0; i < block.itemCount_; i++) {
-    code[i] = generatorHexToRgbA(generatorvalueToCode(block, 'ADD' + i,
+    code[i] = generatorHexToRgbA(generator.valueToCode(block, 'ADD' + i,
       Order.COMMA) || 'nil');
       if (code[i] != 'nil') {
         emptylist = false;
@@ -85,7 +85,7 @@ export function lists_create_with_number(block, generator) {
   var code = new Array(block.itemCount_);
   let emptylist = true;
   for (var i = 0; i < block.itemCount_; i++) {
-    code[i] = generatorvalueToCode(block, 'ADD' + i,
+    code[i] = generator.valueToCode(block, 'ADD' + i,
       Order.COMMA) || 'nil';
       if (code[i] != 'nil') {
         emptylist = false;

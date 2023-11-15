@@ -57,23 +57,20 @@ export function tinygo_readdata(block, generator) {
 
 
 export function tinygo_tuple2(block, generator) {
-    const vars = block.getVariableNames();
     const fnCode = generator.statementToCode(block, 'TUPLE2');
-    return vars[0] + ', ' + vars[1] + ' = ' + fnCode + '\n';
+    return block.getFieldValue('VAR1') + ', ' + block.getFieldValue('VAR2') + ' = ' + fnCode + '\n';
 };
 
 
 export function tinygo_tuple3(block, generator) {
-    const vars = block.getVariableNames();
     const fnCode = generator.statementToCode(block, 'TUPLE3');
-    return vars[0] + ', ' + vars[1] + ', ' + vars[2] + ' = ' + fnCode + '\n';
+    return block.getFieldValue('VAR1') + ', ' + block.getFieldValue('VAR2') + ', ' + block.getFieldValue('VAR3') + ' = ' + fnCode + '\n';
 };
 
 
 export function tinygo_tuple4(block, generator) {
-    const vars = block.getVariableNames();
     const fnCode = generator.statementToCode(block, 'TUPLE4');
-    return vars[0] + ', ' + vars[1] + ', ' + vars[2] + ', ' + vars[3] + ' = ' + fnCode + '\n';
+    return block.getFieldValue('VAR1') + ', ' + block.getFieldValue('VAR2') + ', ' + block.getFieldValue('VAR3') + ', ' + block.getFieldValue('VAR4') + ' = ' + fnCode + '\n';
 };
 
 
