@@ -602,134 +602,133 @@ function demohelloworld() {
                 '    </next>\n' +
                 '  </block>\n' +
                 '</xml>';*/
-                let xml = '<xml xmlns="https://developers.google.com/blockly/xml">\n' +
-                '  <variables>\n' +
-                '    <variable type="String" id="PtL90|bxlM!W`[EPy(mB">countStr</variable>\n' +
-                '    <variable type="Number" id="rQveb_QgV~vVe)EE[npY">count</variable>\n' +
-                '    <variable type="String" id="l|dEWFj!?bM_?i=I5Ik8">countKey</variable>\n' +
-                '  </variables>\n' +
-                '  <block type="nethttp_fermyon_init" id="==kp}~5$A6QTFDyl}ooF" x="113" y="188">\n' +
-                '    <statement name="GR0">\n' +
-                '      <block type="variables_set_dynamic" id="_OP|`50W%*zF6/8HY`Xh">\n' +
-                '        <field name="VAR" id="PtL90|bxlM!W`[EPy(mB" variabletype="String">countStr</field>\n' +
-                '        <value name="VALUE">\n' +
-                '          <block type="text" id="!oy`6@S(KWt^kUl~:YJ-">\n' +
-                '            <field name="TEXT">0</field>\n' +
-                '          </block>\n' +
-                '        </value>\n' +
-                '        <next>\n' +
-                '          <block type="variables_set_dynamic" id="yt~a0=1ct!%!L[-kt5Uk">\n' +
-                '            <field name="VAR" id="rQveb_QgV~vVe)EE[npY" variabletype="Number">count</field>\n' +
-                '            <value name="VALUE">\n' +
-                '              <block type="math_number" id="v*%k5]{8F_!8H7093P{C">\n' +
-                '                <field name="NUM">0</field>\n' +
-                '              </block>\n' +
-                '            </value>\n' +
-                '            <next>\n' +
-                '              <block type="variables_set_dynamic" id="0@57sW:x~X8TWznNwp-W">\n' +
-                '                <field name="VAR" id="l|dEWFj!?bM_?i=I5Ik8" variabletype="String">countKey</field>\n' +
-                '                <value name="VALUE">\n' +
-                '                  <block type="text" id="A*+l:JgT=74!7m|9m1Y;">\n' +
-                '                    <field name="TEXT">count</field>\n' +
-                '                  </block>\n' +
-                '                </value>\n' +
-                '                <next>\n' +
-                '                  <block type="nethttp_fermyon_newkv" id="%h~^L$$rWIhAXjCsxvx+">\n' +
-                '                    <value name="TEXT">\n' +
-                '                      <block type="text" id="1tqqiq)KT]K7nD-%H%B=">\n' +
-                '                        <field name="TEXT">default</field>\n' +
-                '                      </block>\n' +
-                '                    </value>\n' +
-                '                    <next>\n' +
-                '                      <block type="tinygo_tuple2" id="iUs`LW!8M%Rlx*H-j|-8">\n' +
-                '                        <field name="VAR1">countStr</field>\n' +
-                '                        <field name="VAR2">_</field>\n' +
-                '                        <value name="TUPLE2">\n' +
-                '                          <block type="nethttp_fermyon_kvget" id="$(ijb=B.v]?1ziqzdsZN">\n' +
-                '                            <value name="TEXT">\n' +
-                '                              <block type="variables_get_dynamic" id="6{dQw/P)z[+/v+?8G$^l">\n' +
-                '                                <field name="VAR" id="l|dEWFj!?bM_?i=I5Ik8" variabletype="String">countKey</field>\n' +
-                '                              </block>\n' +
-                '                            </value>\n' +
-                '                          </block>\n' +
-                '                        </value>\n' +
-                '                        <next>\n' +
-                '                          <block type="tinygo_tuple2" id="2lk_$,R$7Wa9Hx?dU,D.">\n' +
-                '                            <field name="VAR1">count</field>\n' +
-                '                            <field name="VAR2">_</field>\n' +
-                '                            <value name="TUPLE2">\n' +
-                '                              <block type="tinygo_strconv_atoi" id="#.(GO%`,k)Cp!^VL)1Lv">\n' +
-                '                                <value name="TEXT">\n' +
-                '                                  <block type="variables_get_dynamic" id="_KQ|n~6Bl:1c$9{53u^#">\n' +
-                '                                    <field name="VAR" id="PtL90|bxlM!W`[EPy(mB" variabletype="String">countStr</field>\n' +
-                '                                  </block>\n' +
-                '                                </value>\n' +
-                '                              </block>\n' +
-                '                            </value>\n' +
-                '                            <next>\n' +
-                '                              <block type="variables_set_dynamic" id="%EE[vS%$3}09W(K{BF+P">\n' +
-                '                                <field name="VAR" id="PtL90|bxlM!W`[EPy(mB" variabletype="String">countStr</field>\n' +
-                '                                <value name="VALUE">\n' +
-                '                                  <block type="tinygo_strconv_itoa" id="l,VpJkf^]pwuH{,vEwM%">\n' +
-                '                                    <value name="TEXT">\n' +
-                '                                      <block type="math_arithmetic" id="A^CD%liYllq~9G_Dr}X]">\n' +
-                '                                        <field name="OP">ADD</field>\n' +
-                '                                        <value name="A">\n' +
-                '                                          <shadow type="math_number" id="MkJ:y@hIN+x[?S?Q$ZSH">\n' +
-                '                                            <field name="NUM">1</field>\n' +
-                '                                          </shadow>\n' +
-                '                                          <block type="variables_get_dynamic" id="05[UA@|X,CKwN,80%AQG">\n' +
-                '                                            <field name="VAR" id="rQveb_QgV~vVe)EE[npY" variabletype="Number">count</field>\n' +
-                '                                          </block>\n' +
-                '                                        </value>\n' +
-                '                                        <value name="B">\n' +
-                '                                          <shadow type="math_number" id="+NtPf=]wt*zTN28*2JzN">\n' +
-                '                                            <field name="NUM">1</field>\n' +
-                '                                          </shadow>\n' +
-                '                                        </value>\n' +
-                '                                      </block>\n' +
-                '                                    </value>\n' +
-                '                                  </block>\n' +
-                '                                </value>\n' +
-                '                                <next>\n' +
-                '                                  <block type="nethttp_fermyon_kvput" id="!D:(j9_{%S`zmN{|44,k">\n' +
-                '                                    <value name="TEXT">\n' +
-                '                                      <block type="variables_get_dynamic" id="M{PmLF|]SEp(UG-E..?@">\n' +
-                '                                        <field name="VAR" id="l|dEWFj!?bM_?i=I5Ik8" variabletype="String">countKey</field>\n' +
-                '                                      </block>\n' +
-                '                                    </value>\n' +
-                '                                    <value name="TEXT2">\n' +
-                '                                      <block type="variables_get_dynamic" id="9SZXfnGB[1#8v2JffANN">\n' +
-                '                                        <field name="VAR" id="PtL90|bxlM!W`[EPy(mB" variabletype="String">countStr</field>\n' +
-                '                                      </block>\n' +
-                '                                    </value>\n' +
-                '                                    <next>\n' +
-                '                                      <block type="nethttp_write_response" id="Oy*2$)k/|fHLA7W[x`$k">\n' +
-                '                                        <value name="TEXT">\n' +
-                '                                          <block type="variables_get_dynamic" id="|MpB^^n%sq-)EKD9_D)7">\n' +
-                '                                            <field name="VAR" id="PtL90|bxlM!W`[EPy(mB" variabletype="String">countStr</field>\n' +
-                '                                          </block>\n' +
-                '                                        </value>\n' +
-                '                                      </block>\n' +
-                '                                    </next>\n' +
-                '                                  </block>\n' +
-                '                                </next>\n' +
-                '                              </block>\n' +
-                '                            </next>\n' +
-                '                          </block>\n' +
-                '                        </next>\n' +
-                '                      </block>\n' +
-                '                    </next>\n' +
-                '                 </block>\n' +
-                '                </next>\n' +
-                '              </block>\n' +
-                '            </next>\n' +
-                '          </block>\n' +
-                '        </next>\n' +
-                '      </block>\n' +
-                '    </statement>\n' +
-                '  </block>\n' +
-                '</xml>';
+                let xml = '<xml xmlns="https://developers.google.com/blockly/xml">\n'+
+'  <variables>\n'+
+'    <variable type="String" id="PtL90|bxlM!W`[EPy(mB">countStr</variable>\n'+
+'    <variable type="Number" id="rQveb_QgV~vVe)EE[npY">count</variable>\n'+
+'    <variable type="String" id="l|dEWFj!?bM_?i=I5Ik8">countKey</variable>\n'+
+'  </variables>\n'+
+'  <block type="nethttp_fermyon_init" id="i*Rzi.4Qcf]2HU8x8(n^" x="88" y="288">\n'+
+'    <statement name="GR0">\n'+
+'      <block type="variables_set_dynamic" id="_qKn[LkM7ab.L`Y01oXx">\n'+
+'        <field name="VAR" id="PtL90|bxlM!W`[EPy(mB" variabletype="String">countStr</field>\n'+
+'        <value name="VALUE">\n'+
+'          <block type="text" id="@NJ8YKAvM|Uz84Gy#K6]">\n'+
+'            <field name="TEXT">0</field>\n'+
+'          </block>\n'+
+'        </value>\n'+
+'        <next>\n'+
+'          <block type="variables_set_dynamic" id="mk;|*B9cN,r%xV%WFuy!">\n'+
+'            <field name="VAR" id="rQveb_QgV~vVe)EE[npY" variabletype="Number">count</field>\n'+
+'            <value name="VALUE">\n'+
+'              <block type="math_number" id="=p%81ckKg@r:pwg|buI5">\n'+
+'                <field name="NUM">0</field>\n'+
+'              </block>\n'+
+'            </value>\n'+
+'            <next>\n'+
+'              <block type="variables_set_dynamic" id="R2xP@+%Wy$ywesJpf.3T">\n'+
+'                <field name="VAR" id="l|dEWFj!?bM_?i=I5Ik8" variabletype="String">countKey</field>\n'+
+'                <value name="VALUE">\n'+
+'                  <block type="text" id="JYg36L1_@$GH24dh:V;e">\n'+
+'                    <field name="TEXT">count</field>\n'+
+'                  </block>\n'+
+'                </value>\n'+
+'                <next>\n'+
+'                  <block type="nethttp_fermyon_newkv" id="{?Ed0(fSid,2eFu4.C,K">\n'+
+'                    <value name="TEXT">\n'+
+'                      <block type="text" id="xW,pRs-E]5E8K2$hCQ(8">\n'+
+'                        <field name="TEXT">default</field>\n'+
+'                      </block>\n'+
+'                    </value>\n'+
+'                    <next>\n'+
+'                      <block type="variables_set_dynamic" id="d759pHd!1?ql+^S|5if-">\n'+
+'                        <field name="VAR" id="PtL90|bxlM!W`[EPy(mB" variabletype="String">countStr</field>\n'+
+'                        <value name="VALUE">\n'+
+'                          <block type="nethttp_fermyon_kvget" id="@!qtFf=%v*]gL}KE[3C/">\n'+
+'                            <value name="TEXT">\n'+
+'                              <block type="variables_get_dynamic" id="LaMVz*$6rjdMr~OS)Ms$">\n'+
+'                                <field name="VAR" id="l|dEWFj!?bM_?i=I5Ik8" variabletype="String">countKey</field>\n'+
+'                              </block>\n'+
+'                            </value>\n'+
+'                          </block>\n'+
+'                        </value>\n'+
+'                        <next>\n'+
+'                          <block type="tinygo_tuple2" id="-QtZ[@/-bm/4c[gK`RP|">\n'+
+'                            <field name="VAR1">count</field>\n'+
+'                            <field name="VAR2">_</field>\n'+
+'                            <value name="TUPLE2">\n'+
+'                              <block type="tinygo_strconv_atoi" id="@tI9.YU{3}5kM]7cBrFd">\n'+
+'                                <value name="TEXT">\n'+
+'                                  <block type="variables_get_dynamic" id="7Y$6rQKKPL.~r%M:4H0j">\n'+
+'                                    <field name="VAR" id="PtL90|bxlM!W`[EPy(mB" variabletype="String">countStr</field>\n'+
+'                                  </block>\n'+
+'                                </value>\n'+
+'                              </block>\n'+
+'                            </value>\n'+
+'                            <next>\n'+
+'                              <block type="variables_set_dynamic" id="JatnsZ!+g-3/p%tq!{@H">\n'+
+'                                <field name="VAR" id="PtL90|bxlM!W`[EPy(mB" variabletype="String">countStr</field>\n'+
+'                                <value name="VALUE">\n'+
+'                                  <block type="tinygo_strconv_itoa" id="9|[/)w+LxV{?2r-3m!w0">\n'+
+'                                    <value name="TEXT">\n'+
+'                                      <block type="math_arithmetic" id="Jx!0~57P0=|Wxkn)7Tcm">\n'+
+'                                        <field name="OP">ADD</field>\n'+
+'                                        <value name="A">\n'+
+'                                          <shadow type="math_number" id="MkJ:y@hIN+x[?S?Q$ZSH">\n'+
+'                                            <field name="NUM">1</field>\n'+
+'                                          </shadow>\n'+
+'                                          <block type="variables_get_dynamic" id="db0db0rrZM%eaTS^$-d.">\n'+
+'                                            <field name="VAR" id="rQveb_QgV~vVe)EE[npY" variabletype="Number">count</field>\n'+
+'                                          </block>\n'+
+'                                        </value>\n'+
+'                                        <value name="B">\n'+
+'                                          <shadow type="math_number" id="/oi7vz]O@qrJGs%X*V5S">\n'+
+'                                            <field name="NUM">1</field>\n'+
+'                                          </shadow>\n'+
+'                                        </value>\n'+
+'                                      </block>\n'+
+'                                    </value>\n'+
+'                                  </block>\n'+
+'                                </value>\n'+
+'                                <next>\n'+
+'                                  <block type="nethttp_fermyon_kvput" id="uaOk+6U:3T/V?Uts(oE#">\n'+
+'                                    <value name="TEXT">\n'+
+'                                      <block type="variables_get_dynamic" id="zSKXP}xUE3S4iR,-YTOd">\n'+
+'                                        <field name="VAR" id="l|dEWFj!?bM_?i=I5Ik8" variabletype="String">countKey</field>\n'+
+'                                      </block>\n'+
+'                                    </value>\n'+
+'                                    <value name="TEXT2">\n'+
+'                                      <block type="variables_get_dynamic" id=";x0TvA_R,`E:zxOO_|H.">\n'+
+'                                        <field name="VAR" id="PtL90|bxlM!W`[EPy(mB" variabletype="String">countStr</field>\n'+
+'                                      </block>\n'+
+'                                    </value>\n'+
+'                                    <next>\n'+
+'                                      <block type="nethttp_write_response" id="lbec/1/k(w]HIro%imt,">\n'+
+'                                        <value name="TEXT">\n'+
+'                                          <block type="variables_get_dynamic" id="3$!npjE+MM.zTmjM!XVG">\n'+
+'                                            <field name="VAR" id="PtL90|bxlM!W`[EPy(mB" variabletype="String">countStr</field>\n'+
+'                                          </block>\n'+
+'                                        </value>\n'+
+'                                      </block>\n'+
+'                                    </next>\n'+
+'                                  </block>\n'+
+'                                </next>\n'+
+'                              </block>\n'+
+'                            </next>\n'+
+'                          </block>\n'+
+'                        </next>\n'+
+'                      </block>\n'+
+'                    </next>\n'+
+'                  </block>\n'+
+'                </next>\n'+
+'              </block>\n'+
+'            </next>\n'+
+'          </block>\n'+
+'        </next>\n'+
+'      </block>\n'+
+'    </statement>\n'+
+'  </block>\n'+
+'</xml>';
             var dom = Blockly.utils.xml.textToDom(xml);
             Blockly.Xml.domToWorkspace(dom, workspace);
         }

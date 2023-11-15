@@ -99,7 +99,7 @@ export function nethttp_fermyon_kvget(block, generator) {
     var msg = generator.valueToCode(block, 'TEXT',
         Order.NONE) || '\'\'';
 
-    return 'func() (string) {\n v, err := store.Get(' + msg + ')\nif err != nil {\nreturn "0"\n}\nreturn string(v)\n}\n';
+    return ['func() (string) {\n v, err := store.Get(' + msg + ')\nif err != nil {\nreturn "0"\n}\nreturn string(v)\n}()\n', 0];
 };
 
 export function nethttp_fermyon_kvput(block, generator) {

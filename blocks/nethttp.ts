@@ -198,7 +198,7 @@ export const blocks = createBlockDefinitionsFromJsonArray([
                 "height": 32,
             },
         ],
-        "output": "Tuple2",
+        "output": "String",
         "style": "loop_blocks",
         "helpUrl": "%{BKY_CONTROLS_IF_HELPURL}",
         "extensions": ["controls_if_tooltip"],
