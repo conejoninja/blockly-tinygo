@@ -10,23 +10,23 @@ import {Order} from './go_generator.js';
 
 export function sensors_ds18b20_readtemperature(block, generator) {
     generator.addImport('machine', 'machine');
-    generator.addImport('tinygo.org/x/drivers/1-wire', 'wire "tinygo.org/x/drivers/1-wire"');
+    generator.addImport('tinygo.org/x/drivers/onewire', '"tinygo.org/x/drivers/onewire"');
     generator.addImport('tinygo.org/x/drivers/ds18b20', 'tinygo.org/x/drivers/ds18b20');
     generator.addVariable('sensors_ds18b20', 'var sensors_ds18b20 ds18b20.Device');
-    return 'sensors_ds18b20.ReadTemperature()\n';
+    return 'func () (tmp int32, err error) { \nfor _, romid := range romIDs {\ntmp, err = sensors_ds18b20.ReadTemperature(romid)\nbreak\}\nreturn\n}()\n';
 };
 export function sensors_ds18b20_requesttemperature(block, generator) {
     generator.addImport('machine', 'machine');
-    generator.addImport('tinygo.org/x/drivers/1-wire', 'wire "tinygo.org/x/drivers/1-wire"');
+    generator.addImport('tinygo.org/x/drivers/onewire', '"tinygo.org/x/drivers/onewire"');
     generator.addImport('tinygo.org/x/drivers/ds18b20', 'tinygo.org/x/drivers/ds18b20');
     generator.addVariable('sensors_ds18b20', 'var sensors_ds18b20 ds18b20.Device');
-    return '_ = sensors_ds18b20.RequestTemperature()\n';
+    return 'for _, romid := range romIDs {\nsensors_ds18b20.RequestTemperature(romid)\n}\n';
 };
 export function sensors_ds18b20_configure(block, generator) {
     generator.addImport('machine', 'machine');
-    generator.addImport('tinygo.org/x/drivers/1-wire', 'wire "tinygo.org/x/drivers/1-wire"');
+    generator.addImport('tinygo.org/x/drivers/onewire', '"tinygo.org/x/drivers/onewire"');
     generator.addImport('tinygo.org/x/drivers/ds18b20', 'tinygo.org/x/drivers/ds18b20');
     generator.addVariable('sensors_ds18b20', 'var sensors_ds18b20 ds18b20.Device');
     const pin = block.getFieldValue('PIN');
-    return 'sensors_ds18b20 = ds18b20.New(wire.New(machine.' + pin + '))\n';
+    return 'ow := onewire.New(machine.' + pin + ')\nromIDs, err := ow.Search(onewire.SEARCH_ROM)\nif err != nil {\nprintln(err)\n}\nsensors_ds18b20 := ds18b20.New(ow)\n';
 };
