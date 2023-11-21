@@ -21,8 +21,8 @@ import '../core/field_variable.js';
 
 export const blocks = createBlockDefinitionsFromJsonArray([
     {
-        "type": "sensors_sth4x_readtemperature",
-        "message0": "%1 STH4x read temperature",
+        "type": "sensors_sht4x_readtemperature",
+        "message0": "%1 SHT4x read temperature",
         "args0": [
             {
                 "type": "field_image",
