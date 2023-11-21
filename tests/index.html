@@ -1094,7 +1094,69 @@ function demohelloworld() {
         }
 
         function tour5() {
-            let xml = '';
+            let xml = '<xml xmlns="https://developers.google.com/blockly/xml">\n' +
+'  <variables>\n' +
+'    <variable type="Number" id="/^]7(3;m{^{O6-}%p=Rr">temperature</variable>\n' +
+'  </variables>\n' +
+'  <block type="variables_set_dynamic" id="d(WF5ZWG,7*zM@x^Tc.Z" x="138" y="162">\n' +
+'    <field name="VAR" id="/^]7(3;m{^{O6-}%p=Rr" variabletype="Number">temperature</field>\n' +
+'    <value name="VALUE">\n' +
+'      <block type="math_number" id="Y68yOTaCpp{gGf4]^BEB">\n' +
+'        <field name="NUM">25000</field>\n' +
+'      </block>\n' +
+'    </value>\n' +
+'    <next>\n' +
+'      <block type="controls_whileUntil" id="sW_?ZfSu8!]|sBI#-+qK">\n' +
+'        <field name="MODE">WHILE</field>\n' +
+'        <value name="BOOL">\n' +
+'          <block type="logic_boolean" id="qOGS]*Ej^CG}L@HEi)h.">\n' +
+'            <field name="BOOL">TRUE</field>\n' +
+'          </block>\n' +
+'        </value>\n' +
+'        <statement name="DO">\n' +
+'          <block type="tinygo_tuple3" id="NT.TmPfe*)tev7O89o]S">\n' +
+'            <field name="VAR1">temperature</field>\n' +
+'            <field name="VAR2">_</field>\n' +
+'            <field name="VAR3">_</field>\n' +
+'            <value name="TUPLE3">\n' +
+'              <block type="sensors_sth4x_readtemperature" id="?}iFz*^W=KF`/gbGp0ML"></block>\n' +
+'            </value>\n' +
+'            <next>\n' +
+'              <block type="controls_if" id="K#p*swE%i2RBM}*O-C77">\n' +
+'                <mutation else="1"></mutation>\n' +
+'                <value name="IF0">\n' +
+'                  <block type="logic_compare" id="c88dfd~pdHB8r`K)Nzsl">\n' +
+'                    <field name="OP">LTE</field>\n' +
+'                    <value name="A">\n' +
+'                      <block type="variables_get_dynamic" id="Eg]-gJ(hmkn2h3`8dB^l">\n' +
+'                        <field name="VAR" id="/^]7(3;m{^{O6-}%p=Rr" variabletype="Number">temperature</field>\n' +
+'                      </block>\n' +
+'                    </value>\n' +
+'                    <value name="B">\n' +
+'                      <block type="math_number" id="-1}7f{%^;TQHb]sv1bxl">\n' +
+'                        <field name="NUM">27000</field>\n' +
+'                      </block>\n' +
+'                    </value>\n' +
+'                  </block>\n' +
+'                </value>\n' +
+'                <statement name="DO0">\n' +
+'                  <block type="gopherbadge_fillscreen" id=",e}24_9b]9-ggYk}N(,S">\n' +
+'                    <field name="COLOR">#33ff33</field>\n' +
+'                  </block>\n' +
+'                </statement>\n' +
+'                <statement name="ELSE">\n' +
+'                  <block type="gopherbadge_fillscreen" id="0oYd`fYQ!8y6ELHMHcFp">\n' +
+'                    <field name="COLOR">#ff0000</field>\n' +
+'                  </block>\n' +
+'                </statement>\n' +
+'              </block>\n' +
+'            </next>\n' +
+'          </block>\n' +
+'        </statement>\n' +
+'      </block>\n' +
+'    </next>\n' +
+'  </block>\n' +
+'</xml>';
             var dom = Blockly.utils.xml.textToDom(xml);
             Blockly.Xml.domToWorkspace(dom, workspace);
         }
@@ -1226,7 +1288,7 @@ start();
     <button type="button" id="btn-tour2" class="btn btn-secondary">Tour of Go 2</button>
     <button type="button" id="btn-tour3" class="btn btn-secondary">Tour of Go 3</button>
     <button type="button" id="btn-tour4" class="btn btn-secondary">Tour of Go 4</button>
-    <button type="button" id="btn-tour5" class="btn btn-secondary">Tour of Go 5</button>
+    <button type="button" id="btn-tour5" class="btn btn-secondary">Badge temperature</button>
   </p>
 
 
@@ -1632,6 +1694,7 @@ start();
     </category>
     <category name="GopherBadge">
       <block type="gopherbadge_button_get" categorystyle="text_category"></block>
+      <block type="gopherbadge_fillscreen" categorystyle="text_category"></block>
     </category>
     <category name="Gopherino">
       <block type="gopherino_move" categorystyle="text_category"></block>
@@ -1641,6 +1704,7 @@ start();
       <block type="sensors_ds18b20_configure" categorystyle="text_category"></block>
       <block type="sensors_ds18b20_requesttemperature" categorystyle="text_category"></block>
       <block type="sensors_ds18b20_readtemperature" categorystyle="text_category"></block>
+      <block type="sensors_sth4x_readtemperature" categorystyle="text_category"></block>
     </category>
     <category name="Net/HTTP">
       <block type="nethttp_handlefunc" categorystyle="text_category"></block>

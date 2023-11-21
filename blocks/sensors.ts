@@ -21,6 +21,22 @@ import '../core/field_variable.js';
 
 export const blocks = createBlockDefinitionsFromJsonArray([
     {
+        "type": "sensors_sth4x_readtemperature",
+        "message0": "%1 STH4x read temperature",
+        "args0": [
+            {
+                "type": "field_image",
+                "src": "./img/ds18b20.png",
+                "width": 32,
+                "height": 32,
+            },
+        ],
+        "output": "Tuple3",
+        "style": "logic_blocks",
+        "helpUrl": "%{BKY_CONTROLS_IF_HELPURL}",
+        "extensions": ["controls_if_tooltip"],
+    },
+    {
         "type": "sensors_ds18b20_readtemperature",
         "message0": "%1 DS18B20 read temperature",
         "args0": [

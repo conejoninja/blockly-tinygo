@@ -68,6 +68,21 @@ export const blocks = createBlockDefinitionsFromJsonArray([
         "colour": 180,
         "tooltip": "",
         "helpUrl": "",
+    }, 
+    {
+        "type": "gopherbadge_fillscreen",
+        "message0": "Fill screen with color %1",
+        "args0": [
+            {
+                "type": "field_colour",
+                "name": "COLOR",
+            },
+        ],
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": 180,
+        "tooltip": "",
+        "helpUrl": "",
     },
 ]);
 

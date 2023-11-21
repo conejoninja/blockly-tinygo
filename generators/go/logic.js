@@ -33,7 +33,7 @@ export function controls_if(block, generator) {
           branchCode;
     }
     code += (n > 0 ? ' else ' : '') + 'if ' + conditionCode + ' {\n' +
-        branchCode + '}';
+        branchCode + '\n}';
     n++;
   } while (block.getInput('IF' + n));
 

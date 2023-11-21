@@ -16,6 +16,28 @@ export function gopherbadge_button_get(block, generator) {
     return button + '.Get()';
 };
 
+
+export function gopherbadge_fillscreen(block, generator) {
+    generator.addImport('machine', 'machine');
+    generator.addImport('tinygo.org/x/drivers/st7789', 'tinygo.org/x/drivers/st7789');
+    generator.addVariable('gopherbadge_display', 'var display st7789.Device');
+    generator.addDeclaration('gopherbadge_display', 'machine.SPI0.Configure(machine.SPIConfig{\nFrequency: 8000000,\nMode:      0,\n})\ndisplay = st7789.New(machine.SPI0,\nmachine.TFT_RST,\nmachine.TFT_WRX,\nmachine.TFT_CS,\nmachine.TFT_BACKLIGHT)\n\ndisplay.Configure(st7789.Config{\nRotation: st7789.ROTATION_270,\nHeight:   320,\n})\n');
+    const color = block.getFieldValue('COLOR');
+    console.log("COLOR", color);
+
+    let c;
+    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(color)) {
+        c = color.substring(1).split('');
+        if (c.length == 3) {
+            c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c = '0x' + c.join('');
+        return 'display.FillScreen(color.RGBA{' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',255})';
+    }
+
+    return color;
+};
+
 /*Go.HexToRgbA = function (hex) {
     let c;
     if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
