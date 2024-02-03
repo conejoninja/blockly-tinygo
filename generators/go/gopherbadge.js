@@ -16,6 +16,13 @@ export function gopherbadge_button_get(block, generator) {
     return button + '.Get()';
 };
 
+export function gopherbadge_midi_noteon(block, generator) {
+    generator.addImport('usb', 'machine/usb');
+    generator.addImport('midi', 'machine/usb/adc/midi');
+     const note = block.getFieldValue('NOTE');
+    return 'midi.Midi.NoteOn(0, MIDICHANNEL, midi.'+note+', 64)';
+};
+
 
 export function gopherbadge_fillscreen(block, generator) {
     generator.addImport('machine', 'machine');

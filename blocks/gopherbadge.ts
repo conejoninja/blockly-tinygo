@@ -84,6 +84,47 @@ export const blocks = createBlockDefinitionsFromJsonArray([
         "tooltip": "",
         "helpUrl": "",
     },
+    {
+        "type": "gopherbadge_midi_noteon",
+        "message0": "Play note %1",
+        "args0": [
+            {
+                "type": "field_dropdown",
+                "name": "NOTE",
+                "options": [
+                    [
+                        "A2",
+                        "A2",
+                    ],
+                    [
+                        "B2",
+                        "B2",
+                    ],
+                    [
+                        "C3",
+                        "C3",
+                    ],
+                    [
+                        "D3",
+                        "D3",
+                    ],
+                    [
+                        "E3",
+                        "E3",
+                    ],
+                    [
+                        "F3",
+                        "F3",
+                    ],
+                ],
+            },
+        ],
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": 180,
+        "tooltip": "",
+        "helpUrl": "",
+    },
 ]);
 
 defineBlocks(blocks);
