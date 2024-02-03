@@ -1161,6 +1161,46 @@ function demohelloworld() {
             Blockly.Xml.domToWorkspace(dom, workspace);
         }
 
+
+        function demomidi() {
+            let xml = '<xml xmlns="https://developers.google.com/blockly/xml">\n' +
+'  <block type="controls_whileUntil" id="8#LXirA)Pz;~F3EK{NrL" x="88" y="188">\n' +
+'    <field name="MODE">WHILE</field>\n' +
+'    <value name="BOOL">\n' +
+'      <block type="logic_boolean" id="SW0}}+l.rr`TC~6Yr@5H">\n' +
+'        <field name="BOOL">TRUE</field>\n' +
+'      </block>\n' +
+'    </value>\n' +
+'    <statement name="DO">\n' +
+'      <block type="controls_if" id="0A~VXRPlMFzR~^n1n:.4">\n' +
+'        <value name="IF0">\n' +
+'          <block type="logic_negate" id=":D]$3x4z7cL8%vaj=X=K">\n' +
+'            <value name="BOOL">\n' +
+'              <block type="gopherbadge_button_get" id="WU*lsmGXQ8l@{=u%x6wK">\n' +
+'                <field name="BUTTON">btnUp</field>\n' +
+'              </block>\n' +
+'            </value>\n' +
+'          </block>\n' +
+'        </value>\n' +
+'        <statement name="DO0">\n' +
+'          <block type="gopherbadge_midi_noteon" id="DMgSOjhALY^QdZ~pKZ!:">\n' +
+'            <field name="NOTE">D3</field>\n' +
+'          </block>\n' +
+'        </statement>\n' +
+'        <next>\n' +
+'          <block type="tinygo_time_sleep" id="M__TS2tGUSEW#D$j14jt">\n' +
+'            <field name="AMOUNT">50</field>\n' +
+'            <field name="UNIT">time.Millisecond</field>\n' +
+'          </block>\n' +
+'        </next>\n' +
+'      </block>\n' +
+'    </statement>\n' +
+'  </block>\n' +
+'</xml>';
+            var dom = Blockly.utils.xml.textToDom(xml);
+            Blockly.Xml.domToWorkspace(dom, workspace);
+        }
+
 function addEventHandlers() {
     document.getElementById('btn-save-xml').addEventListener('click', saveXml);
     document.getElementById('btn-import').addEventListener('click', load);
@@ -1178,7 +1218,7 @@ function addEventHandlers() {
     document.getElementById('btn-demogopherino')
     .addEventListener('click', () => demogopherino());
     document.getElementById('btn-demods18b20')
-    .addEventListener('click', () => demods18b20());
+    .addEventListener('click', () => demomidi());
 
     document.getElementById('btn-tour1')
     .addEventListener('click', () => tour1()); // hello world
@@ -1280,7 +1320,7 @@ start();
     <button type="button" id="btn-demofizzbuzz" class="btn btn-secondary">FizzBuzz</button>
     <button type="button" id="btn-demowasiworker" class="btn btn-secondary">SPIN worker</button>
     <button type="button" id="btn-demogopherino" class="btn btn-secondary">Gopherino</button>
-    <button type="button" id="btn-demods18b20" class="btn btn-secondary">DS18B20</button>
+    <button type="button" id="btn-demods18b20" class="btn btn-secondary">MIDI</button>
   </p>
 
   <p>
@@ -1695,6 +1735,7 @@ start();
     <category name="GopherBadge">
       <block type="gopherbadge_button_get" categorystyle="text_category"></block>
       <block type="gopherbadge_fillscreen" categorystyle="text_category"></block>
+      <block type="gopherbadge_midi_noteon" categorystyle="text_category"></block>
     </category>
     <category name="Gopherino">
       <block type="gopherino_move" categorystyle="text_category"></block>

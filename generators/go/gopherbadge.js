@@ -13,14 +13,14 @@ export function gopherbadge_button_get(block, generator) {
     generator.addVariable('gopherbadge_buttons', 'var btnA, btnB, btnUp, btnLeft, btnDown, btnRight machine.Pin');
     generator.addDeclaration('gopherbadge_buttons', 'btnA = machine.BUTTON_A\nbtnB = machine.BUTTON_B\nbtnUp = machine.BUTTON_UP\nbtnLeft = machine.BUTTON_LEFT\nbtnDown = machine.BUTTON_DOWN\nbtnRight = machine.BUTTON_RIGHT\nbtnA.Configure(machine.PinConfig{Mode: machine.PinInput})\nbtnB.Configure(machine.PinConfig{Mode: machine.PinInput})\nbtnUp.Configure(machine.PinConfig{Mode: machine.PinInput})\nbtnLeft.Configure(machine.PinConfig{Mode: machine.PinInput})\nbtnDown.Configure(machine.PinConfig{Mode: machine.PinInput})\nbtnRight.Configure(machine.PinConfig{Mode: machine.PinInput})');
     const button = block.getFieldValue('BUTTON');
-    return button + '.Get()';
+    return [button + '.Get()', 0];
 };
 
 export function gopherbadge_midi_noteon(block, generator) {
     generator.addImport('usb', 'machine/usb');
     generator.addImport('midi', 'machine/usb/adc/midi');
      const note = block.getFieldValue('NOTE');
-    return 'midi.Midi.NoteOn(0, MIDICHANNEL, midi.'+note+', 64)';
+    return 'midi.Midi.NoteOn(0, 1, midi.'+note+', 64)';
 };
 
 

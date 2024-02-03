@@ -23,7 +23,7 @@ export const blocks = createBlockDefinitionsFromJsonArray([
     // Block for boolean data type: true and false.
     {
         "type": "gopherbadge_button_get",
-        "message0": "%2 Get button %1 status",
+        "message0": "Get button %1 status",
         "args0": [
             {
                 "type": "field_dropdown",
@@ -55,16 +55,8 @@ export const blocks = createBlockDefinitionsFromJsonArray([
                     ],
                 ],
             },
-            {
-                "type": "field_image",
-                "src": "./img/gopherbadge_button.png",
-                "width": 32,
-                "height": 32,
-            },
         ],
         "output": "Boolean",
-        "previousStatement": null,
-        "nextStatement": null,
         "colour": 180,
         "tooltip": "",
         "helpUrl": "",
