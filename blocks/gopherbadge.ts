@@ -78,7 +78,7 @@ export const blocks = createBlockDefinitionsFromJsonArray([
     },
     {
         "type": "gopherbadge_midi_noteon",
-        "message0": "Play note %1",
+        "message0": "MIDI: Play note %1",
         "args0": [
             {
                 "type": "field_dropdown",
